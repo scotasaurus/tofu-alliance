@@ -222,15 +222,12 @@ class Game {
         this.setupEventListeners();
         this.setupResponsiveCanvas();
         
-        // Initialize audio context early
+        // Initialize audio context early but don't try to unlock without user interaction
         try {
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
             console.log('Audio context created, state:', this.audioContext.state);
-            // Try immediate unlock on desktop browsers
-            if (this.audioContext.state !== 'suspended') {
-                this.audioUnlocked = true;
-                console.log('Audio unlocked immediately on page load');
-            }
+            // Modern browsers require user interaction - don't auto-unlock
+            this.audioUnlocked = false;
         } catch (e) {
             console.log('Audio context creation failed:', e);
         }
@@ -251,6 +248,12 @@ class Game {
                 if (e.key === ' ' || e.key === 'Enter') {
                     this.unlockAudio();
                     this.startGame();
+                    e.preventDefault();
+                } else if (e.key === 't' || e.key === 'T') {
+                    // Test sound (for debugging)
+                    this.unlockAudio().then(() => {
+                        setTimeout(() => this.playTestSound(), 100);
+                    });
                     e.preventDefault();
                 }
                 return;
@@ -311,25 +314,29 @@ class Game {
         const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
         if (isMobile && isLandscape) {
-            // Landscape mode - fill screen width
-            this.canvas.style.width = '100vw';
-            this.canvas.style.height = 'auto';
+            // In landscape, scale the canvas content, not the canvas itself
+            const availableWidth = window.innerWidth;
+            const availableHeight = window.innerHeight;
             
-            // Adjust virtual button positions for landscape
-            const aspectRatio = this.originalCanvasWidth / this.originalCanvasHeight;
-            const newWidth = window.innerHeight * aspectRatio;
+            // Calculate scale to fit in available Safari viewport
+            const scaleX = availableWidth / this.originalCanvasWidth;
+            const scaleY = availableHeight / this.originalCanvasHeight;
+            const scale = Math.min(scaleX, scaleY);
+            
+            // Position controls based on actual canvas size and scale
+            const canvasWidth = this.originalCanvasWidth * scale;
+            const canvasHeight = this.originalCanvasHeight * scale;
             
             this.virtualButtons = {
-                left: { x: 60, y: 320, radius: 35, pressed: false },
-                right: { x: 130, y: 320, radius: 35, pressed: false },
-                jump: { x: newWidth - 130, y: 280, radius: 30, pressed: false },
-                shoot: { x: newWidth - 60, y: 340, radius: 30, pressed: false }
+                left: { x: 50 * scale, y: 320 * scale, radius: 35 * scale, pressed: false },
+                right: { x: 130 * scale, y: 320 * scale, radius: 35 * scale, pressed: false },
+                jump: { x: (this.originalCanvasWidth - 130) * scale, y: 280 * scale, radius: 30 * scale, pressed: false },
+                shoot: { x: (this.originalCanvasWidth - 60) * scale, y: 340 * scale, radius: 30 * scale, pressed: false }
             };
+            
+            console.log('Landscape mode - scale:', scale, 'canvas size:', canvasWidth, 'x', canvasHeight);
         } else {
             // Portrait or desktop - use original layout
-            this.canvas.style.width = '';
-            this.canvas.style.height = '';
-            
             this.virtualButtons = {
                 left: { x: 50, y: 320, radius: 40, pressed: false },
                 right: { x: 130, y: 320, radius: 40, pressed: false },
@@ -358,36 +365,32 @@ class Game {
     
     handleTouchStart(e) {
         e.preventDefault();
-        this.unlockAudio();
         
-        // Check for double-tap fullscreen
-        const currentTime = Date.now();
-        const timeDiff = currentTime - this.lastTapTime;
+        // For mobile, wait for audio unlock before proceeding
+        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
-        if (timeDiff < 300) { // Double tap within 300ms
-            this.tapCount++;
-            if (this.tapCount >= 2) {
-                this.requestFullscreen();
-                this.tapCount = 0;
-                return; // Don't process game logic on double-tap
-            }
+        if (isMobile && !this.audioUnlocked) {
+            this.unlockAudio().then(() => {
+                console.log('Audio unlocked, proceeding with touch handling');
+                this.handleTouchAction(e);
+            }).catch(err => {
+                console.log('Audio unlock failed, proceeding anyway:', err);
+                this.handleTouchAction(e);
+            });
         } else {
-            this.tapCount = 1;
+            this.unlockAudio(); // Still try to unlock
+            this.handleTouchAction(e);
         }
-        this.lastTapTime = currentTime;
-        
-        // Delay game logic to allow for potential double-tap
-        setTimeout(() => {
-            if (this.tapCount < 2) { // No double-tap occurred
-                if (this.gameState === 'title') {
-                    this.startGame();
-                } else if (this.gameState === 'gameOver' && !this.enteringInitials) {
-                    this.returnToTitle();
-                } else if (this.gameState === 'playing') {
-                    this.processTouches(e.touches);
-                }
-            }
-        }, 250);
+    }
+    
+    handleTouchAction(e) {
+        if (this.gameState === 'title') {
+            this.startGame();
+        } else if (this.gameState === 'gameOver' && !this.enteringInitials) {
+            this.returnToTitle();
+        } else if (this.gameState === 'playing') {
+            this.processTouches(e.touches);
+        }
     }
     
     handleTouchMove(e) {
@@ -444,10 +447,13 @@ class Game {
     }
     
     handleClick(e) {
-        this.unlockAudio();
-        
+        // Handle desktop mouse clicks same as keyboard
         if (this.gameState === 'title') {
-            this.startGame();
+            this.unlockAudio().then(() => {
+                this.startGame();
+            }).catch(() => {
+                this.startGame(); // Start anyway if audio fails
+            });
         } else if (this.gameState === 'gameOver' && !this.enteringInitials) {
             this.returnToTitle();
         }
@@ -811,9 +817,38 @@ class Game {
     }
     
     // Sound effect methods
+    playTestSound() {
+        if (!this.audioContext) {
+            console.log('No audio context for test sound');
+            return;
+        }
+        if (!this.audioUnlocked) {
+            console.log('Audio not unlocked for test sound');
+            return;
+        }
+        
+        console.log('Playing test sound, audio context state:', this.audioContext.state);
+        
+        try {
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(440, this.audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
+            
+            oscillator.start();
+            oscillator.stop(this.audioContext.currentTime + 0.5);
+            console.log('Test sound should be playing');
+        } catch (e) {
+            console.log('Test sound failed:', e);
+        }
+    }
+    
     playPlayerShoot() {
-        if (!this.audioContext) return;
-        if (!this.audioUnlocked) this.unlockAudio();
+        if (!this.audioContext || !this.audioUnlocked) return;
         
         const oscillator = this.audioContext.createOscillator();
         const gainNode = this.audioContext.createGain();
@@ -944,44 +979,71 @@ class Game {
     }
     
     unlockAudio() {
-        if (this.audioUnlocked) return;
+        if (this.audioUnlocked) return Promise.resolve();
         
         if (!this.audioContext) {
-            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            try {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.log('AudioContext creation failed:', e);
+                return Promise.reject(e);
+            }
         }
         
-        console.log('Attempting to unlock audio, state:', this.audioContext.state);
+        // Quietly unlock audio without spamming console
         
-        // Create a silent sound to unlock audio on mobile
-        try {
-            const oscillator = this.audioContext.createOscillator();
-            const gainNode = this.audioContext.createGain();
-            oscillator.connect(gainNode);
-            gainNode.connect(this.audioContext.destination);
-            gainNode.gain.value = 0.001; // Very quiet
-            oscillator.frequency.value = 440;
-            oscillator.start();
-            oscillator.stop(this.audioContext.currentTime + 0.01);
-        } catch (e) {
-            console.log('Silent sound creation failed:', e);
-        }
-        
-        // Resume audio context if it's suspended (required for mobile)
-        if (this.audioContext.state === 'suspended') {
-            this.audioContext.resume().then(() => {
-                this.audioUnlocked = true;
-                console.log('Audio context resumed and unlocked');
-            }).catch(err => {
-                console.log('Audio resume failed:', err);
-            });
-        } else {
-            this.audioUnlocked = true;
-            console.log('Audio context unlocked immediately');
-        }
+        return new Promise((resolve, reject) => {
+            const unlockAudioContext = () => {
+                // Create multiple silent sounds to ensure unlock
+                try {
+                    for (let i = 0; i < 3; i++) {
+                        const oscillator = this.audioContext.createOscillator();
+                        const gainNode = this.audioContext.createGain();
+                        oscillator.connect(gainNode);
+                        gainNode.connect(this.audioContext.destination);
+                        gainNode.gain.setValueAtTime(0.001, this.audioContext.currentTime);
+                        oscillator.frequency.setValueAtTime(440, this.audioContext.currentTime);
+                        oscillator.start(this.audioContext.currentTime);
+                        oscillator.stop(this.audioContext.currentTime + 0.01);
+                    }
+                } catch (e) {
+                    // Silently handle audio creation failures
+                }
+                
+                if (this.audioContext.state === 'suspended') {
+                    this.audioContext.resume().then(() => {
+                        this.audioUnlocked = true;
+                        // Audio successfully unlocked
+                        resolve();
+                    }).catch(err => {
+                        console.log('Audio resume failed:', err);
+                        reject(err);
+                    });
+                } else {
+                    this.audioUnlocked = true;
+                    console.log('Audio context unlocked immediately, state:', this.audioContext.state);
+                    resolve();
+                }
+            };
+            
+            // Try immediate unlock
+            unlockAudioContext();
+            
+            // Also try after a short delay (sometimes needed on iOS)
+            setTimeout(() => {
+                if (!this.audioUnlocked) {
+                    console.log('Retrying audio unlock after delay');
+                    unlockAudioContext();
+                }
+            }, 100);
+        });
     }
     
     startTitleMusic() {
-        if (!this.audioContext || this.titleMusicPlaying || !this.audioUnlocked) return;
+        if (!this.audioContext || this.titleMusicPlaying || !this.audioUnlocked) {
+            // Silently fail if audio not unlocked yet - user doesn't need to know
+            return;
+        }
         
         this.titleMusicPlaying = true;
         this.playTitleMelody();
@@ -1298,13 +1360,8 @@ class Game {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
         if (this.gameState === 'title') {
-            if (!this.titleMusicPlaying) {
-                if (!this.audioUnlocked) {
-                    // Try to unlock audio automatically on desktop
-                    this.unlockAudio();
-                } else {
-                    this.startTitleMusic();
-                }
+            if (!this.titleMusicPlaying && this.audioUnlocked) {
+                this.startTitleMusic();
             }
             this.renderTitleScreen();
             return;
@@ -1581,31 +1638,25 @@ class Game {
         this.ctx.lineWidth = 2;
         this.ctx.font = 'bold 32px Arial';
         const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        let startText;
-        if (isMobile) {
-            startText = this.audioUnlocked ? 'TAP TO START' : 'TAP TO ENABLE AUDIO & START';
-        } else {
-            startText = 'PRESS SPACE TO START';
-        }
+        const startText = isMobile ? 'TAP TO START' : 'PRESS SPACE TO START';
         this.ctx.strokeText(startText, this.canvas.width / 2, 200);
         this.ctx.fillText(startText, this.canvas.width / 2, 200);
         
-        // Show mobile controls info
         if (isMobile) {
-            this.ctx.font = 'bold 16px Arial';
-            this.ctx.fillStyle = this.audioUnlocked ? '#00FF00' : '#FF0000';
-            const audioStatus = this.audioUnlocked ? 'AUDIO: ON' : 'AUDIO: OFF';
-            this.ctx.fillText(audioStatus, this.canvas.width / 2, 230);
-            
-            // Fullscreen hint
+            // Mobile experience tips
             this.ctx.font = 'bold 14px Arial';
             this.ctx.fillStyle = '#FFFF00';
-            this.ctx.fillText('For best experience: Rotate to landscape + Add to Home Screen', this.canvas.width / 2, 250);
+            this.ctx.fillText('Best experience: Landscape mode', this.canvas.width / 2, 250);
             
-            // Double tap for fullscreen hint
+            // Safari tip
             this.ctx.font = 'bold 12px Arial';
             this.ctx.fillStyle = '#FFFFFF';
-            this.ctx.fillText('Double-tap screen for fullscreen', this.canvas.width / 2, 270);
+            this.ctx.fillText('Tip: Hide Safari address bar by scrolling down', this.canvas.width / 2, 270);
+        } else {
+            // Desktop controls
+            this.ctx.font = 'bold 14px Arial';
+            this.ctx.fillStyle = '#FFFFFF';
+            this.ctx.fillText('Arrow keys to move | Space/X to shoot', this.canvas.width / 2, 250);
         }
         this.ctx.restore();
         
