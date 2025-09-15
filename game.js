@@ -214,6 +214,20 @@ class Game {
         this.newHighScoreIndex = -1;
         
         this.setupEventListeners();
+        
+        // Initialize audio context early
+        try {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            console.log('Audio context created, state:', this.audioContext.state);
+            // Try immediate unlock on desktop browsers
+            if (this.audioContext.state !== 'suspended') {
+                this.audioUnlocked = true;
+                console.log('Audio unlocked immediately on page load');
+            }
+        } catch (e) {
+            console.log('Audio context creation failed:', e);
+        }
+        
         this.gameLoop();
     }
     
@@ -711,6 +725,7 @@ class Game {
     // Sound effect methods
     playPlayerShoot() {
         if (!this.audioContext) return;
+        if (!this.audioUnlocked) this.unlockAudio();
         
         const oscillator = this.audioContext.createOscillator();
         const gainNode = this.audioContext.createGain();
@@ -847,16 +862,33 @@ class Game {
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
         
+        console.log('Attempting to unlock audio, state:', this.audioContext.state);
+        
+        // Create a silent sound to unlock audio on mobile
+        try {
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+            gainNode.gain.value = 0.001; // Very quiet
+            oscillator.frequency.value = 440;
+            oscillator.start();
+            oscillator.stop(this.audioContext.currentTime + 0.01);
+        } catch (e) {
+            console.log('Silent sound creation failed:', e);
+        }
+        
         // Resume audio context if it's suspended (required for mobile)
         if (this.audioContext.state === 'suspended') {
             this.audioContext.resume().then(() => {
                 this.audioUnlocked = true;
-                if (this.gameState === 'title') {
-                    this.startTitleMusic();
-                }
+                console.log('Audio context resumed and unlocked');
+            }).catch(err => {
+                console.log('Audio resume failed:', err);
             });
         } else {
             this.audioUnlocked = true;
+            console.log('Audio context unlocked immediately');
         }
     }
     
@@ -1178,12 +1210,13 @@ class Game {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
         if (this.gameState === 'title') {
-            if (!this.titleMusicPlaying && !this.audioUnlocked) {
-                // Try to unlock audio automatically on desktop
-                this.unlockAudio();
-            }
-            if (!this.titleMusicPlaying && this.audioUnlocked) {
-                this.startTitleMusic();
+            if (!this.titleMusicPlaying) {
+                if (!this.audioUnlocked) {
+                    // Try to unlock audio automatically on desktop
+                    this.unlockAudio();
+                } else {
+                    this.startTitleMusic();
+                }
             }
             this.renderTitleScreen();
             return;
@@ -1460,9 +1493,22 @@ class Game {
         this.ctx.lineWidth = 2;
         this.ctx.font = 'bold 32px Arial';
         const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const startText = isMobile ? 'TAP TO START' : 'PRESS SPACE TO START';
+        let startText;
+        if (isMobile) {
+            startText = this.audioUnlocked ? 'TAP TO START' : 'TAP TO ENABLE AUDIO & START';
+        } else {
+            startText = 'PRESS SPACE TO START';
+        }
         this.ctx.strokeText(startText, this.canvas.width / 2, 200);
         this.ctx.fillText(startText, this.canvas.width / 2, 200);
+        
+        // Show audio status on mobile
+        if (isMobile) {
+            this.ctx.font = 'bold 16px Arial';
+            this.ctx.fillStyle = this.audioUnlocked ? '#00FF00' : '#FF0000';
+            const audioStatus = this.audioUnlocked ? 'AUDIO: ON' : 'AUDIO: OFF';
+            this.ctx.fillText(audioStatus, this.canvas.width / 2, 230);
+        }
         this.ctx.restore();
         
         // High scores box with retro styling
