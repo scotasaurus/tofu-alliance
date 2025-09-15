@@ -210,6 +210,9 @@ class Game {
         this.lastTapTime = 0;
         this.tapCount = 0;
         
+        // Audio enable button for mobile
+        this.showAudioButton = false;
+        
         // Score system
         this.score = 0;
         this.highScores = this.loadHighScores();
@@ -314,34 +317,25 @@ class Game {
         const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
         if (isMobile && isLandscape) {
-            // In landscape, scale the canvas content, not the canvas itself
-            const availableWidth = window.innerWidth;
-            const availableHeight = window.innerHeight;
-            
-            // Calculate scale to fit in available Safari viewport
-            const scaleX = availableWidth / this.originalCanvasWidth;
-            const scaleY = availableHeight / this.originalCanvasHeight;
-            const scale = Math.min(scaleX, scaleY);
-            
-            // Position controls based on actual canvas size and scale
-            const canvasWidth = this.originalCanvasWidth * scale;
-            const canvasHeight = this.originalCanvasHeight * scale;
+            // In landscape, position controls at screen edges, not scaled positions
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
             
             this.virtualButtons = {
-                left: { x: 50 * scale, y: 320 * scale, radius: 35 * scale, pressed: false },
-                right: { x: 130 * scale, y: 320 * scale, radius: 35 * scale, pressed: false },
-                jump: { x: (this.originalCanvasWidth - 130) * scale, y: 280 * scale, radius: 30 * scale, pressed: false },
-                shoot: { x: (this.originalCanvasWidth - 60) * scale, y: 340 * scale, radius: 30 * scale, pressed: false }
+                left: { x: 60, y: screenHeight - 80, radius: 35, pressed: false },
+                right: { x: 140, y: screenHeight - 80, radius: 35, pressed: false },
+                jump: { x: screenWidth - 120, y: screenHeight - 140, radius: 30, pressed: false },
+                shoot: { x: screenWidth - 60, y: screenHeight - 60, radius: 30, pressed: false }
             };
             
-            console.log('Landscape mode - scale:', scale, 'canvas size:', canvasWidth, 'x', canvasHeight);
+            console.log('Landscape mode - screen:', screenWidth, 'x', screenHeight);
         } else {
             // Portrait or desktop - use original layout
             this.virtualButtons = {
                 left: { x: 50, y: 320, radius: 40, pressed: false },
                 right: { x: 130, y: 320, radius: 40, pressed: false },
-                jump: { x: 670, y: 280, radius: 35, pressed: false },
-                shoot: { x: 730, y: 340, radius: 35, pressed: false }
+                jump: { x: 670, y: 260, radius: 35, pressed: false },    // Higher up
+                shoot: { x: 730, y: 350, radius: 35, pressed: false }    // Lower down
             };
         }
     }
@@ -407,11 +401,65 @@ class Game {
     
     handleTouchAction(e) {
         if (this.gameState === 'title') {
-            this.startGame();
+            // Check if tap is on audio button for mobile
+            const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile && !this.audioUnlocked) {
+                const rect = this.canvas.getBoundingClientRect();
+                const touch = e.touches[0] || e.changedTouches[0] || e;
+                const touchX = ((touch.clientX - rect.left) / rect.width) * this.canvas.width;
+                const touchY = ((touch.clientY - rect.top) / rect.height) * this.canvas.height;
+                
+                // Check if tap is on audio button (canvas coords: x: 300-500, y: 240-280)
+                if (touchX >= 300 && touchX <= 500 && touchY >= 240 && touchY <= 280) {
+                    this.enableAudioExplicitly();
+                    return; // Don't start game, just enable audio
+                }
+            }
+            
+            // Only start game if audio is unlocked or not mobile
+            if (!isMobile || this.audioUnlocked) {
+                this.startGame();
+            }
         } else if (this.gameState === 'gameOver' && !this.enteringInitials) {
             this.returnToTitle();
         } else if (this.gameState === 'playing') {
             this.processTouches(e.touches);
+        }
+    }
+    
+    enableAudioExplicitly() {
+        if (!this.audioContext) {
+            try {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                return;
+            }
+        }
+        
+        // Play a test sound with user permission
+        try {
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+            
+            // Quick beep to confirm audio is working
+            gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.2);
+            oscillator.frequency.setValueAtTime(880, this.audioContext.currentTime);
+            oscillator.start();
+            oscillator.stop(this.audioContext.currentTime + 0.2);
+            
+            // Resume if suspended
+            if (this.audioContext.state === 'suspended') {
+                this.audioContext.resume().then(() => {
+                    this.audioUnlocked = true;
+                });
+            } else {
+                this.audioUnlocked = true;
+            }
+        } catch (e) {
+            // Audio failed
         }
     }
     
@@ -464,7 +512,7 @@ class Game {
         // Update game keys based on button states
         this.keys['ArrowLeft'] = this.virtualButtons.left.pressed;
         this.keys['ArrowRight'] = this.virtualButtons.right.pressed;
-        this.keys[' '] = this.virtualButtons.jump.pressed;  // Space for jump
+        this.keys['ArrowUp'] = this.virtualButtons.jump.pressed;  // ArrowUp for jump
         this.keys['x'] = this.virtualButtons.shoot.pressed; // X for shoot
     }
     
@@ -1672,15 +1720,35 @@ class Game {
         this.ctx.fillText(startText, this.canvas.width / 2, 200);
         
         if (isMobile) {
-            // Mobile experience tips
-            this.ctx.font = 'bold 14px Arial';
-            this.ctx.fillStyle = '#FFFF00';
-            this.ctx.fillText('Best experience: Landscape mode', this.canvas.width / 2, 250);
-            
-            // Safari tip
-            this.ctx.font = 'bold 12px Arial';
-            this.ctx.fillStyle = '#FFFFFF';
-            this.ctx.fillText('Tip: Hide Safari address bar by scrolling down', this.canvas.width / 2, 270);
+            if (!this.audioUnlocked) {
+                // Show audio enable button
+                this.ctx.save();
+                this.ctx.fillStyle = 'rgba(255, 100, 100, 0.8)';
+                this.ctx.fillRect(this.canvas.width / 2 - 100, 240, 200, 40);
+                this.ctx.strokeStyle = '#FFFFFF';
+                this.ctx.lineWidth = 2;
+                this.ctx.strokeRect(this.canvas.width / 2 - 100, 240, 200, 40);
+                
+                this.ctx.fillStyle = '#FFFFFF';
+                this.ctx.font = 'bold 16px Arial';
+                this.ctx.fillText('TAP HERE TO ENABLE AUDIO', this.canvas.width / 2, 265);
+                this.ctx.restore();
+                
+                // Instructions below
+                this.ctx.font = 'bold 12px Arial';
+                this.ctx.fillStyle = '#FFFF00';
+                this.ctx.fillText('Audio required for music and sound effects', this.canvas.width / 2, 290);
+            } else {
+                // Mobile experience tips (audio is on)
+                this.ctx.font = 'bold 14px Arial';
+                this.ctx.fillStyle = '#FFFF00';
+                this.ctx.fillText('Best experience: Landscape mode', this.canvas.width / 2, 250);
+                
+                // Safari tip
+                this.ctx.font = 'bold 12px Arial';
+                this.ctx.fillStyle = '#FFFFFF';
+                this.ctx.fillText('Tip: Hide Safari address bar by scrolling down', this.canvas.width / 2, 270);
+            }
         } else {
             // Desktop controls
             this.ctx.font = 'bold 14px Arial';
