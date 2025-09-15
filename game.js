@@ -5,6 +5,8 @@ class Game {
         
         this.canvas.width = 800;
         this.canvas.height = 400;
+        this.originalCanvasWidth = 800;
+        this.originalCanvasHeight = 400;
         
         this.assets = {};
         this.loadAssets();
@@ -204,6 +206,10 @@ class Game {
         };
         this.activeTouches = new Map();
         
+        // Double-tap fullscreen detection
+        this.lastTapTime = 0;
+        this.tapCount = 0;
+        
         // Score system
         this.score = 0;
         this.highScores = this.loadHighScores();
@@ -214,6 +220,7 @@ class Game {
         this.newHighScoreIndex = -1;
         
         this.setupEventListeners();
+        this.setupResponsiveCanvas();
         
         // Initialize audio context early
         try {
@@ -285,21 +292,102 @@ class Game {
         this.canvas.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
         this.canvas.addEventListener('touchend', (e) => this.handleTouchEnd(e), { passive: false });
         this.canvas.addEventListener('click', (e) => this.handleClick(e));
+        
+        // Fullscreen handling
+        document.addEventListener('fullscreenchange', () => this.handleFullscreenChange());
+        document.addEventListener('webkitfullscreenchange', () => this.handleFullscreenChange());
+    }
+    
+    setupResponsiveCanvas() {
+        window.addEventListener('resize', () => this.resizeCanvas());
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => this.resizeCanvas(), 100); // Delay for orientation change
+        });
+        this.resizeCanvas();
+    }
+    
+    resizeCanvas() {
+        const isLandscape = window.innerWidth > window.innerHeight;
+        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (isMobile && isLandscape) {
+            // Landscape mode - fill screen width
+            this.canvas.style.width = '100vw';
+            this.canvas.style.height = 'auto';
+            
+            // Adjust virtual button positions for landscape
+            const aspectRatio = this.originalCanvasWidth / this.originalCanvasHeight;
+            const newWidth = window.innerHeight * aspectRatio;
+            
+            this.virtualButtons = {
+                left: { x: 60, y: 320, radius: 35, pressed: false },
+                right: { x: 130, y: 320, radius: 35, pressed: false },
+                jump: { x: newWidth - 130, y: 280, radius: 30, pressed: false },
+                shoot: { x: newWidth - 60, y: 340, radius: 30, pressed: false }
+            };
+        } else {
+            // Portrait or desktop - use original layout
+            this.canvas.style.width = '';
+            this.canvas.style.height = '';
+            
+            this.virtualButtons = {
+                left: { x: 50, y: 320, radius: 40, pressed: false },
+                right: { x: 130, y: 320, radius: 40, pressed: false },
+                jump: { x: 670, y: 280, radius: 35, pressed: false },
+                shoot: { x: 730, y: 340, radius: 35, pressed: false }
+            };
+        }
+    }
+    
+    handleFullscreenChange() {
+        const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
+        document.body.classList.toggle('fullscreen', isFullscreen);
+        setTimeout(() => this.resizeCanvas(), 100);
+    }
+    
+    requestFullscreen() {
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+            elem.msRequestFullscreen();
+        }
     }
     
     handleTouchStart(e) {
         e.preventDefault();
         this.unlockAudio();
         
-        if (this.gameState === 'title') {
-            this.startGame();
-            return;
-        } else if (this.gameState === 'gameOver' && !this.enteringInitials) {
-            this.returnToTitle();
-            return;
-        } else if (this.gameState === 'playing') {
-            this.processTouches(e.touches);
+        // Check for double-tap fullscreen
+        const currentTime = Date.now();
+        const timeDiff = currentTime - this.lastTapTime;
+        
+        if (timeDiff < 300) { // Double tap within 300ms
+            this.tapCount++;
+            if (this.tapCount >= 2) {
+                this.requestFullscreen();
+                this.tapCount = 0;
+                return; // Don't process game logic on double-tap
+            }
+        } else {
+            this.tapCount = 1;
         }
+        this.lastTapTime = currentTime;
+        
+        // Delay game logic to allow for potential double-tap
+        setTimeout(() => {
+            if (this.tapCount < 2) { // No double-tap occurred
+                if (this.gameState === 'title') {
+                    this.startGame();
+                } else if (this.gameState === 'gameOver' && !this.enteringInitials) {
+                    this.returnToTitle();
+                } else if (this.gameState === 'playing') {
+                    this.processTouches(e.touches);
+                }
+            }
+        }, 250);
     }
     
     handleTouchMove(e) {
@@ -1502,12 +1590,22 @@ class Game {
         this.ctx.strokeText(startText, this.canvas.width / 2, 200);
         this.ctx.fillText(startText, this.canvas.width / 2, 200);
         
-        // Show audio status on mobile
+        // Show mobile controls info
         if (isMobile) {
             this.ctx.font = 'bold 16px Arial';
             this.ctx.fillStyle = this.audioUnlocked ? '#00FF00' : '#FF0000';
             const audioStatus = this.audioUnlocked ? 'AUDIO: ON' : 'AUDIO: OFF';
             this.ctx.fillText(audioStatus, this.canvas.width / 2, 230);
+            
+            // Fullscreen hint
+            this.ctx.font = 'bold 14px Arial';
+            this.ctx.fillStyle = '#FFFF00';
+            this.ctx.fillText('For best experience: Rotate to landscape + Add to Home Screen', this.canvas.width / 2, 250);
+            
+            // Double tap for fullscreen hint
+            this.ctx.font = 'bold 12px Arial';
+            this.ctx.fillStyle = '#FFFFFF';
+            this.ctx.fillText('Double-tap screen for fullscreen', this.canvas.width / 2, 270);
         }
         this.ctx.restore();
         

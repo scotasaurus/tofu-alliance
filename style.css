@@ -11,10 +11,51 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile */
+    width: 100vw;
+    width: 100dvw; /* Dynamic viewport width for mobile */
+    position: fixed;
+    top: 0;
+    left: 0;
+    /* Prevent iOS Safari bounce/zoom */
+    touch-action: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 #gameCanvas {
     background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 70%, #228B22 70%, #228B22 100%);
     border: 2px solid #333;
     display: block;
+    max-width: 100vw;
+    max-height: 100vh;
+    max-width: 100dvw;
+    max-height: 100dvh;
+    /* Maintain aspect ratio */
+    object-fit: contain;
+}
+
+/* Fullscreen styles */
+body.fullscreen {
+    height: 100vh;
+    height: 100dvh;
+    width: 100vw; 
+    width: 100dvw;
+}
+
+/* Landscape orientation adjustments */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+    #gameCanvas {
+        width: 100vw;
+        width: 100dvw;
+        height: auto;
+        max-width: none;
+        border: none;
+    }
+    
+    body {
+        padding: 0;
+        margin: 0;
+    }
 }
