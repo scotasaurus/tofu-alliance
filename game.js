@@ -317,18 +317,19 @@ class Game {
         const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
         if (isMobile && isLandscape) {
-            // In landscape, position controls at screen edges, not scaled positions
-            const screenWidth = window.innerWidth;
-            const screenHeight = window.innerHeight;
+            // In landscape, position controls relative to canvas, not screen
+            // Canvas gets stretched to fill screen, so use canvas coordinates
+            const canvasWidth = this.canvas.width;  // 800
+            const canvasHeight = this.canvas.height; // 400
             
             this.virtualButtons = {
-                left: { x: 60, y: screenHeight - 80, radius: 35, pressed: false },
-                right: { x: 140, y: screenHeight - 80, radius: 35, pressed: false },
-                jump: { x: screenWidth - 120, y: screenHeight - 140, radius: 30, pressed: false },
-                shoot: { x: screenWidth - 60, y: screenHeight - 60, radius: 30, pressed: false }
+                left: { x: 60, y: canvasHeight - 80, radius: 35, pressed: false },
+                right: { x: 140, y: canvasHeight - 80, radius: 35, pressed: false },
+                jump: { x: canvasWidth - 120, y: canvasHeight - 100, radius: 30, pressed: false },
+                shoot: { x: canvasWidth - 60, y: canvasHeight - 40, radius: 30, pressed: false }
             };
             
-            console.log('Landscape mode - screen:', screenWidth, 'x', screenHeight);
+            console.log('Landscape mode - canvas controls at edges');
         } else {
             // Portrait or desktop - use original layout
             this.virtualButtons = {
@@ -409,8 +410,8 @@ class Game {
                 const touchX = ((touch.clientX - rect.left) / rect.width) * this.canvas.width;
                 const touchY = ((touch.clientY - rect.top) / rect.height) * this.canvas.height;
                 
-                // Check if tap is on audio button (canvas coords: x: 300-500, y: 240-280)
-                if (touchX >= 300 && touchX <= 500 && touchY >= 240 && touchY <= 280) {
+                // Check if tap is on audio button (canvas coords: x: 300-500, y: 120-160)
+                if (touchX >= 300 && touchX <= 500 && touchY >= 120 && touchY <= 160) {
                     this.enableAudioExplicitly();
                     return; // Don't start game, just enable audio
                 }
@@ -1721,39 +1722,39 @@ class Game {
         
         if (isMobile) {
             if (!this.audioUnlocked) {
-                // Show audio enable button
+                // Show audio enable button ABOVE high scores
                 this.ctx.save();
                 this.ctx.fillStyle = 'rgba(255, 100, 100, 0.8)';
-                this.ctx.fillRect(this.canvas.width / 2 - 100, 240, 200, 40);
+                this.ctx.fillRect(this.canvas.width / 2 - 100, 120, 200, 40);
                 this.ctx.strokeStyle = '#FFFFFF';
                 this.ctx.lineWidth = 2;
-                this.ctx.strokeRect(this.canvas.width / 2 - 100, 240, 200, 40);
+                this.ctx.strokeRect(this.canvas.width / 2 - 100, 120, 200, 40);
                 
                 this.ctx.fillStyle = '#FFFFFF';
                 this.ctx.font = 'bold 16px Arial';
-                this.ctx.fillText('TAP HERE TO ENABLE AUDIO', this.canvas.width / 2, 265);
+                this.ctx.fillText('TAP HERE TO ENABLE AUDIO', this.canvas.width / 2, 145);
                 this.ctx.restore();
                 
-                // Instructions below
+                // Instructions below button
                 this.ctx.font = 'bold 12px Arial';
                 this.ctx.fillStyle = '#FFFF00';
-                this.ctx.fillText('Audio required for music and sound effects', this.canvas.width / 2, 290);
+                this.ctx.fillText('Audio required for music and sound effects', this.canvas.width / 2, 170);
             } else {
-                // Mobile experience tips (audio is on)
+                // Mobile experience tips (audio is on) - above high scores
                 this.ctx.font = 'bold 14px Arial';
                 this.ctx.fillStyle = '#FFFF00';
-                this.ctx.fillText('Best experience: Landscape mode', this.canvas.width / 2, 250);
+                this.ctx.fillText('Best experience: Landscape mode', this.canvas.width / 2, 130);
                 
                 // Safari tip
                 this.ctx.font = 'bold 12px Arial';
                 this.ctx.fillStyle = '#FFFFFF';
-                this.ctx.fillText('Tip: Hide Safari address bar by scrolling down', this.canvas.width / 2, 270);
+                this.ctx.fillText('Tip: Hide Safari address bar by scrolling down', this.canvas.width / 2, 150);
             }
         } else {
-            // Desktop controls
+            // Desktop controls - between subtitle and start text
             this.ctx.font = 'bold 14px Arial';
             this.ctx.fillStyle = '#FFFFFF';
-            this.ctx.fillText('Arrow keys to move | Space/X to shoot', this.canvas.width / 2, 250);
+            this.ctx.fillText('Arrow keys to move | X to shoot | Space to jump', this.canvas.width / 2, 170);
         }
         this.ctx.restore();
         
