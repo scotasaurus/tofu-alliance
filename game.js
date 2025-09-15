@@ -366,20 +366,42 @@ class Game {
     handleTouchStart(e) {
         e.preventDefault();
         
-        // For mobile, wait for audio unlock before proceeding
-        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        // Immediately try to unlock audio on any touch (required for mobile)
+        if (!this.audioUnlocked) {
+            this.mobileAudioUnlock();
+        }
         
-        if (isMobile && !this.audioUnlocked) {
-            this.unlockAudio().then(() => {
-                console.log('Audio unlocked, proceeding with touch handling');
-                this.handleTouchAction(e);
-            }).catch(err => {
-                console.log('Audio unlock failed, proceeding anyway:', err);
-                this.handleTouchAction(e);
-            });
-        } else {
-            this.unlockAudio(); // Still try to unlock
-            this.handleTouchAction(e);
+        this.handleTouchAction(e);
+    }
+    
+    mobileAudioUnlock() {
+        if (!this.audioContext) {
+            try {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                return;
+            }
+        }
+        
+        // Create and play a silent sound immediately during user gesture
+        try {
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+            gainNode.gain.value = 0; // Completely silent
+            oscillator.frequency.value = 440;
+            oscillator.start();
+            oscillator.stop(this.audioContext.currentTime + 0.01);
+            
+            // Resume if suspended
+            if (this.audioContext.state === 'suspended') {
+                this.audioContext.resume();
+            }
+            
+            this.audioUnlocked = true;
+        } catch (e) {
+            // Audio unlock failed, continue without audio
         }
     }
     
@@ -442,8 +464,8 @@ class Game {
         // Update game keys based on button states
         this.keys['ArrowLeft'] = this.virtualButtons.left.pressed;
         this.keys['ArrowRight'] = this.virtualButtons.right.pressed;
-        this.keys['ArrowUp'] = this.virtualButtons.jump.pressed;
-        this.keys[' '] = this.virtualButtons.shoot.pressed;
+        this.keys[' '] = this.virtualButtons.jump.pressed;  // Space for jump
+        this.keys['x'] = this.virtualButtons.shoot.pressed; // X for shoot
     }
     
     handleClick(e) {
@@ -463,6 +485,13 @@ class Game {
         if (this.gameState !== 'playing') return;
         
         this.player.update(this.keys);
+        
+        // Handle mobile shooting (simulate X key press)
+        if (this.keys['x']) {
+            if (this.player.shoot(this.bullets)) {
+                this.playPlayerShoot();
+            }
+        }
         
         // Check for game over
         if (this.player.health <= 0) {
