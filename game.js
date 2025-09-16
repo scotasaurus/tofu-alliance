@@ -372,15 +372,7 @@ class Game {
     }
     
     mobileAudioUnlock() {
-        // Try HTML5 Audio first - more reliable on mobile
-        try {
-            this.testAudio.currentTime = 0;
-            this.testAudio.play();
-        } catch (e) {
-            // HTML5 audio failed
-        }
-        
-        // Also unlock Web Audio API
+        // Force audio unlock with user interaction
         if (!this.audioContext) {
             try {
                 this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -390,7 +382,21 @@ class Game {
             }
         }
         
-        if (this.audioContext && this.audioContext.state === 'suspended') {
+        // Create and play a sound immediately in response to user tap
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+        
+        oscillator.frequency.value = 880;
+        gainNode.gain.value = 0.1;
+        
+        oscillator.start();
+        oscillator.stop(this.audioContext.currentTime + 0.1);
+        
+        // Resume audio context
+        if (this.audioContext.state === 'suspended') {
             this.audioContext.resume();
         }
         
@@ -1735,39 +1741,29 @@ class Game {
         
         if (isMobile) {
             if (!this.audioUnlocked) {
-                // Show audio enable button ABOVE high scores
+                // Show audio enable button below TAP TO START
                 this.ctx.save();
                 this.ctx.fillStyle = 'rgba(255, 100, 100, 0.8)';
-                this.ctx.fillRect(this.canvas.width / 2 - 100, 120, 200, 40);
+                this.ctx.fillRect(this.canvas.width / 2 - 100, 220, 200, 40);
                 this.ctx.strokeStyle = '#FFFFFF';
                 this.ctx.lineWidth = 2;
-                this.ctx.strokeRect(this.canvas.width / 2 - 100, 120, 200, 40);
+                this.ctx.strokeRect(this.canvas.width / 2 - 100, 220, 200, 40);
                 
                 this.ctx.fillStyle = '#FFFFFF';
                 this.ctx.font = 'bold 16px Arial';
-                this.ctx.fillText('TAP HERE TO ENABLE AUDIO', this.canvas.width / 2, 145);
+                this.ctx.fillText('TAP HERE TO ENABLE AUDIO', this.canvas.width / 2, 245);
                 this.ctx.restore();
-                
-                // Instructions below button
-                this.ctx.font = 'bold 12px Arial';
-                this.ctx.fillStyle = '#FFFF00';
-                this.ctx.fillText('Audio required for music and sound effects', this.canvas.width / 2, 170);
             } else {
-                // Mobile experience tips (audio is on) - above high scores
-                this.ctx.font = 'bold 14px Arial';
-                this.ctx.fillStyle = '#FFFF00';
-                this.ctx.fillText('Best experience: Landscape mode', this.canvas.width / 2, 130);
-                
-                // Safari tip
+                // Mobile tips below TAP TO START
                 this.ctx.font = 'bold 12px Arial';
-                this.ctx.fillStyle = '#FFFFFF';
-                this.ctx.fillText('Tip: Hide Safari address bar by scrolling down', this.canvas.width / 2, 150);
+                this.ctx.fillStyle = '#FFFF00';
+                this.ctx.fillText('Best in landscape | Hide Safari address bar', this.canvas.width / 2, 220);
             }
         } else {
-            // Desktop controls - between subtitle and start text
-            this.ctx.font = 'bold 14px Arial';
+            // Desktop controls below TAP TO START
+            this.ctx.font = 'bold 12px Arial';
             this.ctx.fillStyle = '#FFFFFF';
-            this.ctx.fillText('Arrow keys to move | X to shoot | Space to jump', this.canvas.width / 2, 170);
+            this.ctx.fillText('Arrow keys to move | X to shoot | Space to jump', this.canvas.width / 2, 220);
         }
         this.ctx.restore();
         
