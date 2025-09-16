@@ -372,7 +372,7 @@ class Game {
     }
     
     mobileAudioUnlock() {
-        // Force audio unlock with user interaction
+        // Create AudioContext in direct response to user interaction
         if (!this.audioContext) {
             try {
                 this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -382,25 +382,36 @@ class Game {
             }
         }
         
-        // Create and play a sound immediately in response to user tap
-        const oscillator = this.audioContext.createOscillator();
-        const gainNode = this.audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(this.audioContext.destination);
-        
-        oscillator.frequency.value = 880;
-        gainNode.gain.value = 0.1;
-        
-        oscillator.start();
-        oscillator.stop(this.audioContext.currentTime + 0.1);
-        
-        // Resume audio context
+        // Resume AudioContext - this is critical for iOS Safari
         if (this.audioContext.state === 'suspended') {
-            this.audioContext.resume();
+            this.audioContext.resume().then(() => {
+                this.playTestSound();
+                this.audioUnlocked = true;
+            });
+        } else {
+            this.playTestSound();
+            this.audioUnlocked = true;
         }
+    }
+    
+    playTestSound() {
+        if (!this.audioContext || this.audioContext.state !== 'running') return;
         
-        this.audioUnlocked = true;
+        try {
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+            
+            oscillator.frequency.value = 880;
+            gainNode.gain.value = 0.1;
+            
+            oscillator.start();
+            oscillator.stop(this.audioContext.currentTime + 0.2);
+        } catch (e) {
+            // Failed to play test sound
+        }
     }
     
     handleTouchAction(e) {
@@ -413,17 +424,15 @@ class Game {
                 const touchX = ((touch.clientX - rect.left) / rect.width) * this.canvas.width;
                 const touchY = ((touch.clientY - rect.top) / rect.height) * this.canvas.height;
                 
-                // Check if tap is on audio button (canvas coords: x: 300-500, y: 120-160)
-                if (touchX >= 300 && touchX <= 500 && touchY >= 120 && touchY <= 160) {
+                // Check if tap is on audio button (canvas coords: x: 300-500, y: 220-260)
+                if (touchX >= 300 && touchX <= 500 && touchY >= 220 && touchY <= 260) {
                     this.mobileAudioUnlock();
                     return; // Don't start game, just enable audio
                 }
             }
             
-            // Only start game if audio is unlocked or not mobile
-            if (!isMobile || this.audioUnlocked) {
-                this.startGame();
-            }
+            // Start game - audio will be unlocked on first interaction anyway  
+            this.startGame();
         } else if (this.gameState === 'gameOver' && !this.enteringInitials) {
             this.returnToTitle();
         } else if (this.gameState === 'playing') {
@@ -531,8 +540,8 @@ class Game {
             // Check if mobile and audio not unlocked, and click is on audio button
             const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             if (isMobile && !this.audioUnlocked) {
-                // Audio button bounds: x: 300-500, y: 120-160
-                if (canvasX >= 300 && canvasX <= 500 && canvasY >= 120 && canvasY <= 160) {
+                // Audio button bounds: x: 300-500, y: 220-260
+                if (canvasX >= 300 && canvasX <= 500 && canvasY >= 220 && canvasY <= 260) {
                     this.mobileAudioUnlock();
                     return; // Don't start game
                 }
