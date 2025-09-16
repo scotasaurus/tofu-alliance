@@ -378,23 +378,30 @@ class Game {
             }
         }
         
-        // Create and play a silent sound immediately during user gesture
+        // Create and play a test beep to confirm audio is working
         try {
             const oscillator = this.audioContext.createOscillator();
             const gainNode = this.audioContext.createGain();
             oscillator.connect(gainNode);
             gainNode.connect(this.audioContext.destination);
-            gainNode.gain.value = 0; // Completely silent
-            oscillator.frequency.value = 440;
+            
+            // Play a confirmation beep instead of silent sound
+            gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.2);
+            oscillator.frequency.setValueAtTime(880, this.audioContext.currentTime);
             oscillator.start();
-            oscillator.stop(this.audioContext.currentTime + 0.01);
+            oscillator.stop(this.audioContext.currentTime + 0.2);
             
             // Resume if suspended
             if (this.audioContext.state === 'suspended') {
-                this.audioContext.resume();
+                this.audioContext.resume().then(() => {
+                    this.audioUnlocked = true;
+                }).catch(() => {
+                    this.audioUnlocked = true; // Mark as unlocked anyway
+                });
+            } else {
+                this.audioUnlocked = true;
             }
-            
-            this.audioUnlocked = true;
         } catch (e) {
             // Audio unlock failed, continue without audio
         }
@@ -518,8 +525,24 @@ class Game {
     }
     
     handleClick(e) {
-        // Handle desktop mouse clicks same as keyboard
         if (this.gameState === 'title') {
+            const rect = this.canvas.getBoundingClientRect();
+            const scaleX = this.canvas.width / rect.width;
+            const scaleY = this.canvas.height / rect.height;
+            const canvasX = (e.clientX - rect.left) * scaleX;
+            const canvasY = (e.clientY - rect.top) * scaleY;
+            
+            // Check if mobile and audio not unlocked, and click is on audio button
+            const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile && !this.audioUnlocked) {
+                // Audio button bounds: x: 300-500, y: 120-160
+                if (canvasX >= 300 && canvasX <= 500 && canvasY >= 120 && canvasY <= 160) {
+                    this.mobileAudioUnlock();
+                    return; // Don't start game
+                }
+            }
+            
+            // Regular click - start game
             this.unlockAudio().then(() => {
                 this.startGame();
             }).catch(() => {
