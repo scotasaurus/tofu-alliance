@@ -424,8 +424,8 @@ class Game {
                 const touchX = ((touch.clientX - rect.left) / rect.width) * this.canvas.width;
                 const touchY = ((touch.clientY - rect.top) / rect.height) * this.canvas.height;
                 
-                // Check if tap is on audio button (canvas coords: x: 300-500, y: 220-260)
-                if (touchX >= 300 && touchX <= 500 && touchY >= 220 && touchY <= 260) {
+                // Check if tap is on audio button (canvas coords: x: 580-780, y: 180-220)
+                if (touchX >= 580 && touchX <= 780 && touchY >= 180 && touchY <= 220) {
                     this.mobileAudioUnlock();
                     return; // Don't start game, just enable audio
                 }
@@ -540,8 +540,8 @@ class Game {
             // Check if mobile and audio not unlocked, and click is on audio button
             const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             if (isMobile && !this.audioUnlocked) {
-                // Audio button bounds: x: 300-500, y: 220-260
-                if (canvasX >= 300 && canvasX <= 500 && canvasY >= 220 && canvasY <= 260) {
+                // Audio button bounds: x: 580-780, y: 180-220
+                if (canvasX >= 580 && canvasX <= 780 && canvasY >= 180 && canvasY <= 220) {
                     this.mobileAudioUnlock();
                     return; // Don't start game
                 }
@@ -1750,23 +1750,23 @@ class Game {
         
         if (isMobile) {
             if (!this.audioUnlocked) {
-                // Show audio enable button below TAP TO START
+                // Show audio enable button on the right side
                 this.ctx.save();
                 this.ctx.fillStyle = 'rgba(255, 100, 100, 0.8)';
-                this.ctx.fillRect(this.canvas.width / 2 - 100, 220, 200, 40);
+                this.ctx.fillRect(this.canvas.width - 220, 180, 200, 40);
                 this.ctx.strokeStyle = '#FFFFFF';
                 this.ctx.lineWidth = 2;
-                this.ctx.strokeRect(this.canvas.width / 2 - 100, 220, 200, 40);
+                this.ctx.strokeRect(this.canvas.width - 220, 180, 200, 40);
                 
                 this.ctx.fillStyle = '#FFFFFF';
                 this.ctx.font = 'bold 16px Arial';
-                this.ctx.fillText('TAP HERE TO ENABLE AUDIO', this.canvas.width / 2, 245);
+                this.ctx.fillText('TAP TO ENABLE AUDIO', this.canvas.width - 120, 205);
                 this.ctx.restore();
             } else {
-                // Mobile tips below TAP TO START
+                // Mobile tip on the right side
                 this.ctx.font = 'bold 12px Arial';
                 this.ctx.fillStyle = '#FFFF00';
-                this.ctx.fillText('Best in landscape | Hide Safari address bar', this.canvas.width / 2, 220);
+                this.ctx.fillText('Best experience in landscape mode', this.canvas.width - 120, 195);
             }
         } else {
             // Desktop controls below TAP TO START
