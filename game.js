@@ -370,53 +370,42 @@ class Game {
     }
     
     mobileAudioUnlock() {
-        console.log('Mobile audio unlock attempt');
-        
+        // Create audio context if needed
         if (!this.audioContext) {
             try {
                 this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                console.log('Created audio context, state:', this.audioContext.state);
             } catch (e) {
-                console.log('Failed to create audio context:', e);
+                // Failed to create audio context
+                this.audioUnlocked = true; // Mark as unlocked so button disappears
                 return;
             }
         }
         
-        // Must resume audio context first on mobile
-        if (this.audioContext.state === 'suspended') {
-            this.audioContext.resume().then(() => {
-                console.log('Audio context resumed');
-                this.playUnlockSound();
-            }).catch(e => {
-                console.log('Failed to resume audio context:', e);
-            });
-        } else {
-            this.playUnlockSound();
+        // Create a buffer and play it immediately - this is the most reliable way for mobile
+        try {
+            const buffer = this.audioContext.createBuffer(1, this.audioContext.sampleRate * 0.2, this.audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            // Generate a simple beep directly into the buffer
+            for (let i = 0; i < data.length; i++) {
+                data[i] = Math.sin(2 * Math.PI * 880 * i / this.audioContext.sampleRate) * 0.1 * Math.exp(-i / (this.audioContext.sampleRate * 0.1));
+            }
+            
+            const source = this.audioContext.createBufferSource();
+            source.buffer = buffer;
+            source.connect(this.audioContext.destination);
+            source.start(0);
+            
+            // Resume context if needed
+            if (this.audioContext.state === 'suspended') {
+                this.audioContext.resume();
+            }
+            
+        } catch (e) {
+            // Audio failed, but still mark as unlocked
         }
         
-        // Always mark as unlocked after user interaction
         this.audioUnlocked = true;
-    }
-    
-    playUnlockSound() {
-        try {
-            const oscillator = this.audioContext.createOscillator();
-            const gainNode = this.audioContext.createGain();
-            oscillator.connect(gainNode);
-            gainNode.connect(this.audioContext.destination);
-            
-            // Play a confirmation beep
-            gainNode.gain.setValueAtTime(0.15, this.audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
-            oscillator.frequency.setValueAtTime(880, this.audioContext.currentTime);
-            oscillator.type = 'sine';
-            oscillator.start();
-            oscillator.stop(this.audioContext.currentTime + 0.3);
-            
-            console.log('Played unlock confirmation sound');
-        } catch (e) {
-            console.log('Failed to play unlock sound:', e);
-        }
     }
     
     handleTouchAction(e) {
