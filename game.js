@@ -177,6 +177,9 @@ class Game {
         this.mines = [];
         this.explosions = [];
         this.tankRemnants = [];
+        this.sandbags = [];
+        this.platforms = [];
+        this.barbedWire = [];
         this.lastEnemySpawn = 0;
         this.enemySpawnDelay = 3000;
         this.lastPowerupSpawn = 0;
@@ -184,7 +187,27 @@ class Game {
         this.gameOver = false;
         
         // Game state management
-        this.gameState = 'title'; // 'title', 'playing', 'gameOver'
+        this.gameState = 'title'; // 'title', 'story', 'playing', 'gameOver', 'levelBuilder', 'victory', 'levelComplete'
+        
+        // Story screen data
+        this.currentStorySlide = 0;
+        this.storySlides = [
+            {
+                title: "The Invasion Begins",
+                text: "The enemy forces have launched a massive assault\non the peaceful grassy plains. Only one brave\ndefender stands between them and total victory.",
+                background: "#2C5234"
+            },
+            {
+                title: "Last Stand",
+                text: "As Tofu, the unlikely hero, you must use your\nwits and reflexes to hold the line against\nwaves of soldiers and tanks.",
+                background: "#1A3A22"
+            },
+            {
+                title: "Defend the Plains",
+                text: "Jump over obstacles, dodge enemy fire,\nand fight back to protect your homeland.\nThe fate of the grassy plains is in your hands!",
+                background: "#0F2718"
+            }
+        ];
         
         // Title screen music
         this.titleMusic = null;
@@ -221,6 +244,15 @@ class Game {
         this.enteringInitials = false;
         this.currentInitials = '';
         this.newHighScoreIndex = -1;
+        this.wonGame = false;
+        
+        // Level system
+        this.currentLevel = 1;
+        this.levelData = this.createDefaultLevels();
+        this.currentLevelData = null;
+        this.levelSpawnIndex = 0;
+        this.levelComplete = false;
+        this.levelStartTime = 0;
         
         this.setupEventListeners();
         this.setupResponsiveCanvas();
@@ -242,6 +274,336 @@ class Game {
         this.gameLoop();
     }
     
+    createDefaultLevels() {
+        return {
+            1: {
+                name: "First Contact",
+                startX: 0,
+                endX: 6000,
+                enemies: [
+                    // Early encounters
+                    { type: 0, x: 800, y: 280 },
+                    { type: 1, x: 1000, y: 280 },
+                    { type: 0, x: 1200, y: 280 },
+                    { type: 0, x: 1400, y: 280 },
+                    { type: 1, x: 1600, y: 280 },
+                    // First group
+                    { type: 0, x: 2000, y: 280 },
+                    { type: 1, x: 2200, y: 280 },
+                    { type: 0, x: 2400, y: 280 },
+                    { type: 1, x: 2600, y: 280 },
+                    { type: 0, x: 2800, y: 280 },
+                    // Mid-level
+                    { type: 1, x: 3200, y: 280 },
+                    { type: 0, x: 3400, y: 280 },
+                    { type: 0, x: 3600, y: 280 },
+                    { type: 1, x: 3800, y: 280 },
+                    { type: 0, x: 4000, y: 280 },
+                    { type: 1, x: 4200, y: 280 },
+                    // Late encounters
+                    { type: 0, x: 4600, y: 280 },
+                    { type: 1, x: 4800, y: 280 },
+                    { type: 0, x: 5000, y: 280 },
+                    { type: 1, x: 5200, y: 280 },
+                    { type: 0, x: 5400, y: 280 },
+                    { type: 1, x: 5600, y: 280 },
+                    { type: 0, x: 5800, y: 280 }
+                ],
+                sandbags: [
+                    { x: 1800, y: 280 },
+                    { x: 2900, y: 280 },
+                    { x: 4500, y: 280 },
+                    { x: 5300, y: 280 }
+                ],
+                platforms: [
+                    { x: 1870, y: 300, width: 80, height: 20 },  // Behind first sandbag, wider platform
+                    { x: 2970, y: 300, width: 80, height: 20 },  // Behind second sandbag, wider platform
+                    { x: 4570, y: 300, width: 80, height: 20 },  // Behind third sandbag, wider platform
+                    { x: 5370, y: 300, width: 80, height: 20 }   // Behind fourth sandbag, wider platform
+                ],
+                barbedWire: [
+                    { x: 1800, y: 260, width: 60 },  // Over left side of first sandbag
+                    { x: 2900, y: 260, width: 60 },  // Over left side of second sandbag
+                    { x: 4500, y: 260, width: 60 },  // Over left side of third sandbag
+                    { x: 5300, y: 260, width: 60 }   // Over left side of fourth sandbag
+                ]
+            },
+            2: {
+                name: "Reinforcements", 
+                startX: 0,
+                endX: 8000,
+                enemies: [
+                    // Opening wave
+                    { type: 0, x: 600, y: 280 },
+                    { type: 1, x: 800, y: 280 },
+                    { type: 0, x: 1000, y: 280 },
+                    { type: 1, x: 1200, y: 280 },
+                    { type: 0, x: 1400, y: 280 },
+                    { type: 0, x: 1600, y: 280 },
+                    // First tank section
+                    { type: 1, x: 2000, y: 300 },  // Elevated behind sandbag
+                    { type: 2, x: 2200, y: 280 },  // Tank
+                    { type: 0, x: 2400, y: 280 },
+                    { type: 1, x: 2600, y: 300 },  // Elevated behind sandbag
+                    { type: 0, x: 2800, y: 280 },
+                    // Heavy infantry
+                    { type: 1, x: 3200, y: 280 },
+                    { type: 0, x: 3400, y: 300 },  // Elevated behind sandbag
+                    { type: 1, x: 3600, y: 280 },
+                    { type: 0, x: 3800, y: 280 },
+                    { type: 1, x: 4000, y: 280 },
+                    // Mid-level tank assault
+                    { type: 0, x: 4400, y: 280 },
+                    { type: 2, x: 4600, y: 280 },  // Tank
+                    { type: 1, x: 4800, y: 280 },
+                    { type: 0, x: 5000, y: 280 },
+                    { type: 2, x: 5200, y: 280 },  // Tank
+                    { type: 1, x: 5400, y: 280 },
+                    { type: 0, x: 5600, y: 280 },
+                    // Final push
+                    { type: 1, x: 6000, y: 280 },
+                    { type: 0, x: 6200, y: 280 },
+                    { type: 1, x: 6400, y: 280 },
+                    { type: 0, x: 6600, y: 280 },
+                    { type: 2, x: 6800, y: 280 },  // Tank
+                    { type: 1, x: 7000, y: 280 },
+                    { type: 0, x: 7200, y: 280 },
+                    { type: 1, x: 7400, y: 280 },
+                    { type: 0, x: 7600, y: 280 },
+                    { type: 2, x: 7800, y: 280 }   // Final tank
+                ],
+                sandbags: [
+                    { x: 1900, y: 280 },
+                    { x: 2500, y: 280 },
+                    { x: 3500, y: 280 },
+                    { x: 4300, y: 280 },
+                    { x: 5500, y: 280 },
+                    { x: 6100, y: 280 },
+                    { x: 6900, y: 280 },
+                    { x: 7500, y: 280 }
+                ],
+                platforms: [
+                    { x: 1970, y: 300, width: 80, height: 20 },
+                    { x: 2570, y: 300, width: 80, height: 20 },
+                    { x: 3570, y: 300, width: 80, height: 20 },
+                    { x: 4370, y: 300, width: 80, height: 20 },
+                    { x: 5570, y: 300, width: 80, height: 20 },
+                    { x: 6170, y: 300, width: 80, height: 20 },
+                    { x: 6970, y: 300, width: 80, height: 20 },
+                    { x: 7570, y: 300, width: 80, height: 20 }
+                ],
+                barbedWire: [
+                    { x: 1900, y: 260, width: 60 },
+                    { x: 2500, y: 260, width: 60 },
+                    { x: 3500, y: 260, width: 60 },
+                    { x: 4300, y: 260, width: 60 },
+                    { x: 5500, y: 260, width: 60 },
+                    { x: 6100, y: 260, width: 60 },
+                    { x: 6900, y: 260, width: 60 },
+                    { x: 7500, y: 260, width: 60 }
+                ]
+            },
+            3: {
+                name: "Tank Squadron",
+                startX: 0, 
+                endX: 10000,
+                enemies: [
+                    // Opening scout wave
+                    { type: 0, x: 500, y: 280 },
+                    { type: 1, x: 700, y: 280 },
+                    { type: 0, x: 900, y: 280 },
+                    { type: 1, x: 1100, y: 280 },
+                    { type: 0, x: 1300, y: 280 },
+                    // First tank encounter
+                    { type: 2, x: 1600, y: 280 },  // Tank
+                    { type: 1, x: 1800, y: 280 },
+                    { type: 0, x: 2000, y: 280 },
+                    { type: 1, x: 2200, y: 280 },
+                    { type: 0, x: 2400, y: 280 },
+                    // Heavy tank section
+                    { type: 1, x: 2800, y: 300 },  // Elevated behind sandbag
+                    { type: 2, x: 3000, y: 280 },  // Tank
+                    { type: 0, x: 3200, y: 280 },
+                    { type: 2, x: 3400, y: 280 },  // Tank
+                    { type: 1, x: 3600, y: 300 },  // Elevated behind sandbag
+                    { type: 0, x: 3800, y: 280 },
+                    { type: 1, x: 4000, y: 280 },
+                    // Mid-level armored assault
+                    { type: 0, x: 4400, y: 280 },
+                    { type: 2, x: 4600, y: 280 },  // Tank
+                    { type: 1, x: 4800, y: 280 },
+                    { type: 2, x: 5000, y: 280 },  // Tank
+                    { type: 0, x: 5200, y: 280 },
+                    { type: 1, x: 5400, y: 280 },
+                    { type: 1, x: 5600, y: 280 },
+                    { type: 0, x: 5800, y: 280 },
+                    { type: 2, x: 6000, y: 280 },  // Tank
+                    // Heavy resistance
+                    { type: 1, x: 6400, y: 280 },
+                    { type: 0, x: 6600, y: 280 },
+                    { type: 2, x: 6800, y: 280 },  // Tank
+                    { type: 1, x: 7000, y: 280 },
+                    { type: 0, x: 7200, y: 280 },
+                    { type: 2, x: 7400, y: 280 },  // Tank
+                    { type: 1, x: 7600, y: 280 },
+                    { type: 0, x: 7800, y: 280 },
+                    // Final desperate defense
+                    { type: 1, x: 8200, y: 280 },
+                    { type: 0, x: 8400, y: 280 },
+                    { type: 2, x: 8600, y: 280 },  // Tank
+                    { type: 1, x: 8800, y: 280 },
+                    { type: 2, x: 9000, y: 280 },  // Tank
+                    { type: 0, x: 9200, y: 280 },
+                    { type: 1, x: 9400, y: 280 },
+                    { type: 2, x: 9600, y: 280 },  // Tank
+                    { type: 0, x: 9800, y: 280 }   // Final soldier
+                ],
+                sandbags: [
+                    { x: 1700, y: 280 },
+                    { x: 2700, y: 280 },
+                    { x: 3500, y: 280 },
+                    { x: 4500, y: 280 },
+                    { x: 5900, y: 280 },
+                    { x: 6700, y: 280 },
+                    { x: 7300, y: 280 },
+                    { x: 8100, y: 280 },
+                    { x: 8500, y: 280 },
+                    { x: 9100, y: 280 },
+                    { x: 9500, y: 280 }
+                ],
+                platforms: [
+                    { x: 1770, y: 300, width: 80, height: 20 },
+                    { x: 2770, y: 300, width: 80, height: 20 },
+                    { x: 3570, y: 300, width: 80, height: 20 },
+                    { x: 4570, y: 300, width: 80, height: 20 },
+                    { x: 5970, y: 300, width: 80, height: 20 },
+                    { x: 6770, y: 300, width: 80, height: 20 },
+                    { x: 7370, y: 300, width: 80, height: 20 },
+                    { x: 8170, y: 300, width: 80, height: 20 },
+                    { x: 8570, y: 300, width: 80, height: 20 },
+                    { x: 9170, y: 300, width: 80, height: 20 },
+                    { x: 9570, y: 300, width: 80, height: 20 }
+                ],
+                barbedWire: [
+                    { x: 1700, y: 260, width: 60 },
+                    { x: 2700, y: 260, width: 60 },
+                    { x: 3500, y: 260, width: 60 },
+                    { x: 4500, y: 260, width: 60 },
+                    { x: 5900, y: 260, width: 60 },
+                    { x: 6700, y: 260, width: 60 },
+                    { x: 7300, y: 260, width: 60 },
+                    { x: 8100, y: 260, width: 60 },
+                    { x: 8500, y: 260, width: 60 },
+                    { x: 9100, y: 260, width: 60 },
+                    { x: 9500, y: 260, width: 60 }
+                ]
+            }
+        };
+    }
+    
+    startLevel(levelNumber) {
+        this.currentLevel = levelNumber;
+        this.currentLevelData = this.levelData[levelNumber];
+        this.levelSpawnIndex = 0;
+        this.levelComplete = false;
+        
+        if (!this.currentLevelData) {
+            // No more levels - victory!
+            this.gameState = 'victory';
+            return;
+        }
+        
+        // Make sure enemies array exists and sort by x position for proper spawning order
+        if (this.currentLevelData.enemies && this.currentLevelData.enemies.length > 0) {
+            this.currentLevelData.enemies.sort((a, b) => a.x - b.x);
+        }
+        
+        // Clear existing enemies, sandbags, platforms, and barbed wire
+        this.enemies = [];
+        this.sandbags = [];
+        this.platforms = [];
+        this.barbedWire = [];
+        
+        // Spawn sandbags for this level
+        if (this.currentLevelData.sandbags) {
+            for (const sandbagData of this.currentLevelData.sandbags) {
+                this.sandbags.push(new Sandbag(sandbagData.x, sandbagData.y));
+            }
+        }
+        
+        // Spawn platforms for this level
+        if (this.currentLevelData.platforms) {
+            for (const platformData of this.currentLevelData.platforms) {
+                this.platforms.push(new Platform(platformData.x, platformData.y, platformData.width, platformData.height));
+            }
+        }
+        
+        // Spawn barbed wire for this level
+        if (this.currentLevelData.barbedWire) {
+            for (const wireData of this.currentLevelData.barbedWire) {
+                this.barbedWire.push(new BarbedWire(wireData.x, wireData.y, wireData.width));
+            }
+        }
+        
+        // Reset camera to level start
+        this.camera.x = this.currentLevelData.startX;
+        
+        // Reset player position to level start
+        this.player.x = this.currentLevelData.startX + 100; // Start 100px into the level
+        this.player.y = 220; // Reset to ground level
+        this.player.velocityX = 0;
+        this.player.velocityY = 0;
+        
+        // Debug output for custom levels
+        if (levelNumber === 'custom') {
+            console.log('Starting custom level with', this.currentLevelData.enemies.length, 'enemies');
+            console.log('Level data:', this.currentLevelData);
+        }
+    }
+    
+    updateLevelSpawning() {
+        if (!this.currentLevelData || this.levelComplete) return;
+        
+        // Make sure we have enemies to spawn
+        if (!this.currentLevelData.enemies || this.currentLevelData.enemies.length === 0) {
+            return;
+        }
+        
+        // Spawn enemies that are now in view range, but only ahead of the player
+        const spawnRange = this.camera.x + this.canvas.width + 200; // Spawn enemies 200px ahead of screen
+        const playerX = this.player.x;
+        
+        for (let i = this.levelSpawnIndex; i < this.currentLevelData.enemies.length; i++) {
+            const enemy = this.currentLevelData.enemies[i];
+            
+            // Only spawn enemies that are ahead of the player and in view range
+            if (enemy.x > playerX && enemy.x <= spawnRange) {
+                // Spawn this enemy
+                console.log('Spawning enemy type', enemy.type, 'at', enemy.x, enemy.y);
+                this.enemies.push(new Enemy(enemy.x, enemy.y, enemy.type, this.assets));
+                this.levelSpawnIndex++;
+            } else if (enemy.x <= playerX) {
+                // Skip enemies behind the player
+                this.levelSpawnIndex++;
+            } else {
+                // Enemies are sorted by x position, so we can break here
+                break;
+            }
+        }
+        
+        // Check if level is complete
+        const playerReachedEnd = this.player.x >= this.currentLevelData.endX;
+        const allEnemiesSpawned = this.levelSpawnIndex >= this.currentLevelData.enemies.length;
+        const allEnemiesDefeated = this.enemies.length === 0;
+        
+        if (playerReachedEnd && allEnemiesSpawned && allEnemiesDefeated) {
+            this.levelComplete = true;
+            this.gameState = 'levelComplete';
+            this.levelCompleteTime = Date.now();
+            this.nextLevel = this.currentLevel + 1;
+        }
+    }
+    
     setupEventListeners() {
         window.addEventListener('keydown', (e) => {
             // Handle initial entry mode
@@ -254,13 +616,53 @@ class Game {
             if (this.gameState === 'title') {
                 if (e.key === ' ' || e.key === 'Enter') {
                     this.unlockAudio();
-                    this.startGame();
+                    this.startStory();
+                    e.preventDefault();
+                } else if (e.key === 'l' || e.key === 'L') {
+                    this.gameState = 'levelBuilder';
+                    this.initializeLevelBuilder();
                     e.preventDefault();
                 } else if (e.key === 't' || e.key === 'T') {
                     // Test sound (for debugging)
                     this.unlockAudio().then(() => {
                         setTimeout(() => this.playTestSound(), 100);
                     });
+                    e.preventDefault();
+                }
+                return;
+            } else if (this.gameState === 'story') {
+                if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight') {
+                    this.nextStorySlide();
+                    e.preventDefault();
+                } else if (e.key === 'ArrowLeft') {
+                    this.previousStorySlide();
+                    e.preventDefault();
+                } else if (e.key === 'Escape') {
+                    this.returnToTitle();
+                    e.preventDefault();
+                }
+                return;
+            }
+            
+            if (this.gameState === 'levelBuilder') {
+                // Level builder controls
+                if (e.key >= '1' && e.key <= '3') {
+                    this.levelBuilder.selectedEnemyType = parseInt(e.key) - 1;
+                    e.preventDefault();
+                } else if (e.key === 'ArrowLeft') {
+                    this.levelBuilder.cameraX = Math.max(0, this.levelBuilder.cameraX - 100);
+                    e.preventDefault();
+                } else if (e.key === 'ArrowRight') {
+                    this.levelBuilder.cameraX = Math.min(this.levelBuilder.mapWidth - this.canvas.width, this.levelBuilder.cameraX + 100);
+                    e.preventDefault();
+                } else if (e.key === 'g' || e.key === 'G') {
+                    this.levelBuilder.showGrid = !this.levelBuilder.showGrid;
+                    e.preventDefault();
+                } else if (e.key === 'Enter') {
+                    this.testCustomLevel();
+                    e.preventDefault();
+                } else if (e.key === 's' || e.key === 'S') {
+                    this.saveCustomLevel();
                     e.preventDefault();
                 }
                 return;
@@ -278,16 +680,23 @@ class Game {
                 }
             }
             
-            // Handle restart from game over
+            // Handle restart from game over or victory
             if (e.key === 'r' || e.key === 'R') {
-                if (this.gameState === 'gameOver') {
+                if (this.gameState === 'gameOver' || this.gameState === 'victory') {
                     this.restart();
+                }
+            }
+            
+            // Handle level complete screen
+            if (e.key === ' ' || e.key === 'Enter') {
+                if (this.gameState === 'levelComplete') {
+                    this.proceedToNextLevel();
                 }
             }
             
             // Return to title screen
             if (e.key === 'Escape') {
-                if (this.gameState === 'gameOver') {
+                if (this.gameState === 'gameOver' || this.gameState === 'victory' || this.gameState === 'levelBuilder' || this.gameState === 'levelComplete') {
                     this.returnToTitle();
                 }
             }
@@ -431,10 +840,16 @@ class Game {
                 }
             }
             
-            // Start game - audio will be unlocked on first interaction anyway  
-            this.startGame();
+            // Start story - audio will be unlocked on first interaction anyway  
+            this.startStory();
+        } else if (this.gameState === 'story') {
+            this.nextStorySlide();
         } else if (this.gameState === 'gameOver' && !this.enteringInitials) {
             this.returnToTitle();
+        } else if (this.gameState === 'levelComplete') {
+            this.proceedToNextLevel();
+        } else if (this.gameState === 'levelBuilder') {
+            this.handleLevelBuilderTouch(e);
         } else if (this.gameState === 'playing') {
             this.processTouches(e.touches);
         }
@@ -547,14 +962,20 @@ class Game {
                 }
             }
             
-            // Regular click - start game
+            // Regular click - start story
             this.unlockAudio().then(() => {
-                this.startGame();
+                this.startStory();
             }).catch(() => {
-                this.startGame(); // Start anyway if audio fails
+                this.startStory(); // Start anyway if audio fails
             });
+        } else if (this.gameState === 'story') {
+            this.nextStorySlide();
         } else if (this.gameState === 'gameOver' && !this.enteringInitials) {
             this.returnToTitle();
+        } else if (this.gameState === 'levelComplete') {
+            this.proceedToNextLevel();
+        } else if (this.gameState === 'levelBuilder') {
+            this.handleLevelBuilderClick(e);
         }
     }
     
@@ -562,6 +983,55 @@ class Game {
         if (this.gameState !== 'playing') return;
         
         this.player.update(this.keys);
+        
+        // Check player collision with sandbags
+        for (let sandbag of this.sandbags) {
+            if (this.checkCollision(this.player, sandbag)) {
+                // Check if player is landing on top (from above)
+                const playerBottom = this.player.y + this.player.height;
+                const sandbagTop = sandbag.y;
+                const playerWasAbove = playerBottom - this.player.velocityY <= sandbagTop;
+                
+                if (playerWasAbove && this.player.velocityY > 0) {
+                    // Player landing on top of sandbag
+                    this.player.y = sandbag.y - this.player.height;
+                    this.player.velocityY = 0;
+                    this.player.onGround = true;
+                } else {
+                    // Side collision - push player back
+                    if (this.player.x < sandbag.x) {
+                        // Player approaching from left, push left
+                        this.player.x = sandbag.x - this.player.width;
+                    } else {
+                        // Player approaching from right, push right  
+                        this.player.x = sandbag.x + sandbag.width;
+                    }
+                }
+            }
+        }
+        
+        // Check player collision with platforms (same logic)
+        for (let platform of this.platforms) {
+            if (this.checkCollision(this.player, platform)) {
+                const playerBottom = this.player.y + this.player.height;
+                const platformTop = platform.y;
+                const playerWasAbove = playerBottom - this.player.velocityY <= platformTop;
+                
+                if (playerWasAbove && this.player.velocityY > 0) {
+                    // Player landing on top of platform
+                    this.player.y = platform.y - this.player.height;
+                    this.player.velocityY = 0;
+                    this.player.onGround = true;
+                } else {
+                    // Side collision - push player back
+                    if (this.player.x < platform.x) {
+                        this.player.x = platform.x - this.player.width;
+                    } else {
+                        this.player.x = platform.x + platform.width;
+                    }
+                }
+            }
+        }
         
         // Handle mobile shooting (simulate X key press)
         if (this.keys['x']) {
@@ -601,20 +1071,23 @@ class Game {
                 this.bullets[i].x > this.camera.x + this.canvas.width + 100 || 
                 this.bullets[i].x < this.camera.x - 100) {
                 this.bullets.splice(i, 1);
+                continue;
+            }
+            
+            // Check bullet-sandbag collisions
+            for (let j = 0; j < this.sandbags.length; j++) {
+                if (this.sandbags[j].collidesWith(this.bullets[i])) {
+                    this.bullets.splice(i, 1);
+                    break; // Exit sandbag loop since bullet is destroyed
+                }
             }
         }
         
-        // Spawn enemies
-        const currentTime = Date.now();
-        if (currentTime - this.lastEnemySpawn > this.enemySpawnDelay) {
-            const spawnX = this.camera.x + this.canvas.width + 50;
-            const enemyType = Math.floor(Math.random() * 3);
-            const spawnY = 200;
-            this.enemies.push(new Enemy(spawnX, spawnY, enemyType, this.assets));
-            this.lastEnemySpawn = currentTime;
-        }
+        // Update level-based spawning instead of random spawning
+        this.updateLevelSpawning();
         
         // Spawn powerups (only spawn if no powerups currently exist)
+        const currentTime = Date.now();
         if (currentTime - this.lastPowerupSpawn > this.powerupSpawnDelay && 
             this.powerups.length === 0) {
             const spawnX = this.camera.x + this.canvas.width + 100 + Math.random() * 400;
@@ -671,6 +1144,21 @@ class Game {
         for (let i = this.enemies.length - 1; i >= 0; i--) {
             this.enemies[i].update(this.player, this.enemyBullets, this);
             // Enemies never disappear - they persist until killed
+            
+            // Check enemy collision with sandbags
+            for (let sandbag of this.sandbags) {
+                if (this.checkCollision(this.enemies[i], sandbag)) {
+                    // Push enemy back depending on direction of movement
+                    if (this.enemies[i].x < sandbag.x) {
+                        // Enemy approaching from left, push left
+                        this.enemies[i].x = sandbag.x - this.enemies[i].width;
+                    } else {
+                        // Enemy approaching from right, push right  
+                        this.enemies[i].x = sandbag.x + sandbag.width;
+                    }
+                }
+            }
+            
         }
         
         // Update powerups
@@ -696,6 +1184,15 @@ class Game {
                 this.enemyBullets[i].x > this.camera.x + this.canvas.width + 100 ||
                 bulletRange > maxRange) {
                 this.enemyBullets.splice(i, 1);
+                continue;
+            }
+            
+            // Check enemy bullet-sandbag collisions
+            for (let j = 0; j < this.sandbags.length; j++) {
+                if (this.sandbags[j].collidesWith(this.enemyBullets[i])) {
+                    this.enemyBullets.splice(i, 1);
+                    break; // Exit sandbag loop since bullet is destroyed
+                }
             }
         }
         
@@ -864,6 +1361,7 @@ class Game {
                 this.enteringInitials = false;
                 this.currentInitials = '';
                 this.newHighScoreIndex = -1;
+                this.wonGame = false;
             }
         } else if (e.key === 'Backspace') {
             // Remove last character
@@ -887,6 +1385,7 @@ class Game {
         this.enteringInitials = false;
         this.currentInitials = '';
         this.newHighScoreIndex = -1;
+        this.wonGame = false;
         
         // Reset player
         this.player.health = 10;
@@ -907,9 +1406,33 @@ class Game {
         this.mines = [];
         this.explosions = [];
         this.tankRemnants = [];
+        this.sandbags = [];
+        this.platforms = [];
+        this.barbedWire = [];
         this.lastEnemySpawn = 0;
         this.lastPowerupSpawn = 0;
         this.camera = { x: 0, y: 0 };
+        
+        // Start level 1
+        this.startLevel(1);
+    }
+    
+    startStory() {
+        this.gameState = 'story';
+        this.currentStorySlide = 0;
+    }
+    
+    nextStorySlide() {
+        this.currentStorySlide++;
+        if (this.currentStorySlide >= this.storySlides.length) {
+            this.startGame();
+        }
+    }
+    
+    previousStorySlide() {
+        if (this.currentStorySlide > 0) {
+            this.currentStorySlide--;
+        }
     }
     
     returnToTitle() {
@@ -920,6 +1443,7 @@ class Game {
         this.enteringInitials = false;
         this.currentInitials = '';
         this.newHighScoreIndex = -1;
+        this.wonGame = false;
     }
     
     // Sound effect methods
@@ -1473,6 +1997,29 @@ class Game {
             return;
         }
         
+        if (this.gameState === 'story') {
+            if (!this.titleMusicPlaying && this.audioUnlocked) {
+                this.startTitleMusic();
+            }
+            this.renderStoryScreen();
+            return;
+        }
+        
+        if (this.gameState === 'victory') {
+            this.renderVictoryScreen();
+            return;
+        }
+        
+        if (this.gameState === 'levelComplete') {
+            this.renderLevelCompleteScreen();
+            return;
+        }
+        
+        if (this.gameState === 'levelBuilder') {
+            this.renderLevelBuilder();
+            return;
+        }
+        
         // Draw grassy plain background
         this.renderBackground();
         
@@ -1493,6 +2040,15 @@ class Game {
         // Render powerups
         this.powerups.forEach(powerup => powerup.render(this.ctx));
         
+        // Render sandbags
+        this.sandbags.forEach(sandbag => sandbag.render(this.ctx));
+        
+        // Render platforms
+        this.platforms.forEach(platform => platform.render(this.ctx));
+        
+        // Render barbed wire
+        this.barbedWire.forEach(wire => wire.render(this.ctx));
+        
         // Render mines
         this.mines.forEach(mine => mine.render(this.ctx));
         
@@ -1510,6 +2066,7 @@ class Game {
         // Render UI (hearts and score) - not affected by camera
         this.renderUI();
         this.renderScore();
+        this.renderLevelProgress();
         this.renderTouchControls();
         
         // Render game over screen if needed
@@ -1632,10 +2189,20 @@ class Game {
     renderInitialEntry() {
         this.ctx.textAlign = 'center';
         
-        // New High Score text
-        this.ctx.fillStyle = '#FFD700';
-        this.ctx.font = 'bold 36px Arial';
-        this.ctx.fillText('NEW HIGH SCORE!', this.canvas.width / 2, 150);
+        // Title text - different for victory vs death
+        if (this.wonGame) {
+            this.ctx.fillStyle = '#FFD700';
+            this.ctx.font = 'bold 36px Arial';
+            this.ctx.fillText('VICTORY!', this.canvas.width / 2, 120);
+            
+            this.ctx.fillStyle = '#00FF00';
+            this.ctx.font = 'bold 28px Arial';
+            this.ctx.fillText('NEW HIGH SCORE!', this.canvas.width / 2, 150);
+        } else {
+            this.ctx.fillStyle = '#FFD700';
+            this.ctx.font = 'bold 36px Arial';
+            this.ctx.fillText('NEW HIGH SCORE!', this.canvas.width / 2, 150);
+        }
         
         // Score display
         this.ctx.fillStyle = '#FFFFFF';
@@ -1773,6 +2340,11 @@ class Game {
             this.ctx.font = 'bold 12px Arial';
             this.ctx.fillStyle = '#FFFFFF';
             this.ctx.fillText('Arrow keys to move | X to shoot | Space to jump', this.canvas.width / 2, 220);
+            
+            // Level builder access
+            this.ctx.font = 'bold 14px Arial';
+            this.ctx.fillStyle = '#FFFF00';
+            this.ctx.fillText('Press L for Level Builder', this.canvas.width / 2, 360);
         }
         this.ctx.restore();
         
@@ -1805,6 +2377,589 @@ class Game {
         this.ctx.restore();
         
         this.ctx.textAlign = 'left';
+    }
+    
+    renderStoryScreen() {
+        const slide = this.storySlides[this.currentStorySlide];
+        
+        // Background gradient based on story slide
+        this.ctx.fillStyle = slide.background;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // Add subtle texture/stars
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        for (let i = 0; i < 100; i++) {
+            const x = (i * 37) % this.canvas.width;
+            const y = (i * 73) % this.canvas.height;
+            this.ctx.fillRect(x, y, 1, 1);
+        }
+        
+        this.ctx.textAlign = 'center';
+        
+        // Title
+        this.ctx.save();
+        this.ctx.shadowColor = '#000000';
+        this.ctx.shadowBlur = 5;
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.font = 'bold 32px Arial';
+        this.ctx.fillText(slide.title, this.canvas.width / 2, 120);
+        this.ctx.restore();
+        
+        // Story text
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.font = '20px Arial';
+        const lines = slide.text.split('\n');
+        lines.forEach((line, index) => {
+            this.ctx.fillText(line, this.canvas.width / 2, 180 + (index * 30));
+        });
+        
+        // Navigation instructions
+        this.ctx.font = '16px Arial';
+        this.ctx.fillStyle = '#CCCCCC';
+        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile) {
+            this.ctx.fillText('TAP to continue', this.canvas.width / 2, this.canvas.height - 60);
+        } else {
+            this.ctx.fillText('SPACE to continue • ← → to navigate • ESC for title', this.canvas.width / 2, this.canvas.height - 60);
+        }
+        
+        // Progress indicator
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        for (let i = 0; i < this.storySlides.length; i++) {
+            const x = this.canvas.width / 2 - (this.storySlides.length * 15) / 2 + i * 15;
+            this.ctx.fillRect(x, this.canvas.height - 30, 10, 3);
+        }
+        
+        // Highlight current slide
+        this.ctx.fillStyle = '#FFFFFF';
+        const currentX = this.canvas.width / 2 - (this.storySlides.length * 15) / 2 + this.currentStorySlide * 15;
+        this.ctx.fillRect(currentX, this.canvas.height - 30, 10, 3);
+        
+        this.ctx.textAlign = 'left';
+    }
+    
+    renderVictoryScreen() {
+        // Draw background
+        this.renderBackground();
+        this.renderGround();
+        
+        // Victory overlay
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        this.ctx.textAlign = 'center';
+        
+        // Victory text
+        this.ctx.save();
+        this.ctx.shadowColor = '#000000';
+        this.ctx.shadowBlur = 8;
+        this.ctx.shadowOffsetX = 4;
+        this.ctx.shadowOffsetY = 4;
+        
+        this.ctx.fillStyle = '#FFD700';
+        this.ctx.strokeStyle = '#8B0000';
+        this.ctx.lineWidth = 4;
+        this.ctx.font = 'bold 56px Arial';
+        this.ctx.strokeText('VICTORY!', this.canvas.width / 2, 120);
+        this.ctx.fillText('VICTORY!', this.canvas.width / 2, 120);
+        
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.font = 'bold 24px Arial';
+        this.ctx.fillText('All enemies defeated!', this.canvas.width / 2, 160);
+        
+        this.ctx.fillStyle = '#FFD700';
+        this.ctx.font = 'bold 32px Arial';
+        this.ctx.fillText(`Final Score: ${this.score}`, this.canvas.width / 2, 220);
+        
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.font = '18px Arial';
+        this.ctx.fillText('Press R to Restart  -  Press ESC for Title Screen', this.canvas.width / 2, 280);
+        
+        this.ctx.restore();
+        this.ctx.textAlign = 'left';
+    }
+    
+    renderLevelCompleteScreen() {
+        // Draw background
+        this.renderBackground();
+        this.renderGround();
+        
+        // Level complete overlay
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        this.ctx.textAlign = 'center';
+        
+        // Level complete text
+        this.ctx.save();
+        this.ctx.shadowColor = '#000000';
+        this.ctx.shadowBlur = 6;
+        this.ctx.shadowOffsetX = 3;
+        this.ctx.shadowOffsetY = 3;
+        
+        this.ctx.fillStyle = '#00FF00';
+        this.ctx.strokeStyle = '#008000';
+        this.ctx.lineWidth = 3;
+        this.ctx.font = 'bold 48px Arial';
+        this.ctx.strokeText('LEVEL COMPLETE!', this.canvas.width / 2, 120);
+        this.ctx.fillText('LEVEL COMPLETE!', this.canvas.width / 2, 120);
+        
+        // Show completed level info
+        const completedLevel = this.currentLevel;
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.font = 'bold 24px Arial';
+        this.ctx.fillText(`Level ${completedLevel} Complete`, this.canvas.width / 2, 160);
+        
+        // Show next level info or final victory
+        if (this.levelData[this.nextLevel]) {
+            this.ctx.fillStyle = '#FFFF00';
+            this.ctx.font = 'bold 20px Arial';
+            this.ctx.fillText(`Next: ${this.levelData[this.nextLevel].name}`, this.canvas.width / 2, 200);
+            
+            this.ctx.fillStyle = '#FFFFFF';
+            this.ctx.font = '18px Arial';
+            this.ctx.fillText('Press SPACE or ENTER to Continue  -  Press ESC for Title', this.canvas.width / 2, 280);
+        } else {
+            this.ctx.fillStyle = '#FFD700';
+            this.ctx.font = 'bold 28px Arial';
+            this.ctx.fillText('ALL LEVELS COMPLETE!', this.canvas.width / 2, 200);
+            
+            this.ctx.fillStyle = '#FFFFFF';
+            this.ctx.font = '18px Arial';
+            this.ctx.fillText('Press SPACE or ENTER for Victory Screen  -  Press ESC for Title', this.canvas.width / 2, 280);
+        }
+        
+        // Current score
+        this.ctx.fillStyle = '#FFD700';
+        this.ctx.font = 'bold 22px Arial';
+        this.ctx.fillText(`Score: ${this.score}`, this.canvas.width / 2, 240);
+        
+        this.ctx.restore();
+        this.ctx.textAlign = 'left';
+    }
+    
+    proceedToNextLevel() {
+        if (this.levelData[this.nextLevel]) {
+            // Go to next level
+            this.startLevel(this.nextLevel);
+            this.gameState = 'playing';
+        } else {
+            // All levels complete - check for high score first
+            const highScorePosition = this.checkHighScore(this.score);
+            if (highScorePosition !== -1) {
+                this.enteringInitials = true;
+                this.newHighScoreIndex = highScorePosition;
+                this.currentInitials = '';
+                this.wonGame = true; // Flag to show victory message
+                this.gameState = 'gameOver'; // Use gameOver state to handle initials entry
+            } else {
+                this.gameState = 'victory';
+            }
+        }
+    }
+    
+    renderLevelProgress() {
+        if (!this.currentLevelData) return;
+        
+        // Level info in top right
+        this.ctx.save();
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        this.ctx.fillRect(this.canvas.width - 200, 10, 190, 80);
+        
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.font = 'bold 16px Arial';
+        this.ctx.fillText(`Level ${this.currentLevel}`, this.canvas.width - 190, 30);
+        
+        this.ctx.font = '14px Arial';
+        this.ctx.fillStyle = '#FFFF00';
+        this.ctx.fillText(this.currentLevelData.name, this.canvas.width - 190, 50);
+        
+        // Progress bar based on distance
+        const levelWidth = this.currentLevelData.endX - this.currentLevelData.startX;
+        const playerProgress = Math.max(0, this.player.x - this.currentLevelData.startX);
+        const progress = Math.min(playerProgress / levelWidth, 1);
+        
+        this.ctx.fillStyle = '#444444';
+        this.ctx.fillRect(this.canvas.width - 190, 60, 150, 8);
+        this.ctx.fillStyle = '#00FF00';
+        this.ctx.fillRect(this.canvas.width - 190, 60, 150 * progress, 8);
+        
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.font = '12px Arial';
+        this.ctx.fillText(`Enemies: ${this.enemies.length}`, this.canvas.width - 190, 85);
+        
+        this.ctx.restore();
+    }
+    
+    initializeLevelBuilder() {
+        this.levelBuilder = {
+            active: true,
+            selectedEnemyType: 0,
+            currentLevelNumber: 1,
+            enemyTypes: ['Soldier 1', 'Soldier 2', 'Tank'],
+            cameraX: 0,
+            mapWidth: 12000,
+            mapHeight: 400,
+            gridSize: 50,
+            showGrid: true,
+            editingLevel: {
+                name: 'Custom Level 1',
+                startX: 0,
+                endX: 6000,
+                enemies: [
+                    // Start with a few example enemies
+                    { type: 0, x: 800, y: 280 },
+                    { type: 1, x: 1200, y: 280 },
+                    { type: 2, x: 1800, y: 280 }
+                ]
+            }
+        };
+    }
+    
+    renderLevelBuilder() {
+        // Clear screen
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // Render map view
+        this.renderMapView();
+        
+        // Render UI overlay
+        this.renderBuilderUI();
+    }
+    
+    renderMapView() {
+        this.ctx.save();
+        
+        // Draw map background (sky and ground like in game)
+        this.renderBackground();
+        this.renderGround();
+        
+        // Apply camera translation
+        this.ctx.translate(-this.levelBuilder.cameraX, 0);
+        
+        // Draw grid if enabled
+        if (this.levelBuilder.showGrid) {
+            this.renderGrid();
+        }
+        
+        // Draw level boundaries
+        this.renderLevelBoundaries();
+        
+        // Draw placed enemies
+        this.renderPlacedEnemies();
+        
+        this.ctx.restore();
+    }
+    
+    renderGrid() {
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        this.ctx.lineWidth = 1;
+        
+        const gridSize = this.levelBuilder.gridSize;
+        const startX = Math.floor(this.levelBuilder.cameraX / gridSize) * gridSize;
+        const endX = startX + this.canvas.width + gridSize;
+        
+        // Vertical grid lines
+        for (let x = startX; x <= endX; x += gridSize) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(x, 0);
+            this.ctx.lineTo(x, this.canvas.height);
+            this.ctx.stroke();
+        }
+        
+        // Horizontal grid lines
+        for (let y = 0; y <= this.canvas.height; y += gridSize) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.levelBuilder.cameraX, y);
+            this.ctx.lineTo(this.levelBuilder.cameraX + this.canvas.width, y);
+            this.ctx.stroke();
+        }
+    }
+    
+    renderLevelBoundaries() {
+        const level = this.levelBuilder.editingLevel;
+        
+        // No-enemy zone (shaded red area)
+        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
+        this.ctx.fillRect(level.startX, 0, 100, this.canvas.height);
+        
+        // Start boundary
+        this.ctx.strokeStyle = '#00FF00';
+        this.ctx.lineWidth = 3;
+        this.ctx.beginPath();
+        this.ctx.moveTo(level.startX, 0);
+        this.ctx.lineTo(level.startX, this.canvas.height);
+        this.ctx.stroke();
+        
+        // Enemy placement boundary (100px buffer)
+        this.ctx.strokeStyle = '#FFFF00';
+        this.ctx.lineWidth = 2;
+        this.ctx.setLineDash([5, 5]);
+        this.ctx.beginPath();
+        this.ctx.moveTo(level.startX + 100, 0);
+        this.ctx.lineTo(level.startX + 100, this.canvas.height);
+        this.ctx.stroke();
+        this.ctx.setLineDash([]);
+        
+        // End boundary
+        this.ctx.strokeStyle = '#FF0000';
+        this.ctx.lineWidth = 3;
+        this.ctx.beginPath();
+        this.ctx.moveTo(level.endX, 0);
+        this.ctx.lineTo(level.endX, this.canvas.height);
+        this.ctx.stroke();
+        
+        // Boundary labels
+        this.ctx.fillStyle = '#00FF00';
+        this.ctx.font = '14px Arial';
+        this.ctx.fillText('START', level.startX + 5, 30);
+        
+        this.ctx.fillStyle = '#FFFF00';
+        this.ctx.fillText('ENEMIES', level.startX + 105, 30);
+        
+        this.ctx.fillStyle = '#FF0000';
+        this.ctx.fillText('END', level.endX + 5, 30);
+    }
+    
+    renderPlacedEnemies() {
+        this.levelBuilder.editingLevel.enemies.forEach((enemy, index) => {
+            // Draw enemy representation
+            this.ctx.fillStyle = enemy.type === 2 ? '#8B4513' : '#4CAF50';
+            const width = enemy.type === 2 ? 60 : 40;
+            const height = enemy.type === 2 ? 45 : 35;
+            
+            this.ctx.fillRect(enemy.x - width/2, enemy.y - height/2, width, height);
+            
+            // Draw enemy border
+            this.ctx.strokeStyle = '#FFFFFF';
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeRect(enemy.x - width/2, enemy.y - height/2, width, height);
+            
+            // Draw enemy type indicator
+            this.ctx.fillStyle = '#FFFFFF';
+            this.ctx.font = 'bold 12px Arial';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText(`${enemy.type}`, enemy.x, enemy.y + 4);
+            
+            // Debug: draw coordinates
+            this.ctx.fillStyle = '#FFFF00';
+            this.ctx.font = '10px Arial';
+            this.ctx.fillText(`(${enemy.x},${enemy.y})`, enemy.x, enemy.y - height/2 - 5);
+        });
+        
+        // Debug: show camera position
+        this.ctx.fillStyle = '#FF0000';
+        this.ctx.font = '14px Arial';
+        this.ctx.textAlign = 'left';
+        this.ctx.fillText(`Camera: ${this.levelBuilder.cameraX}`, this.levelBuilder.cameraX + 10, 50);
+        this.ctx.fillText(`Enemies: ${this.levelBuilder.editingLevel.enemies.length}`, this.levelBuilder.cameraX + 10, 70);
+    }
+    
+    renderBuilderUI() {
+        // Semi-transparent overlay for UI
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        this.ctx.fillRect(0, 0, this.canvas.width, 60);
+        
+        // Title
+        this.ctx.fillStyle = '#FFD700';
+        this.ctx.font = 'bold 20px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('LEVEL BUILDER', this.canvas.width / 2, 25);
+        
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.font = '12px Arial';
+        this.ctx.fillText(`${this.levelBuilder.editingLevel.name} | Enemies: ${this.levelBuilder.editingLevel.enemies.length}`, this.canvas.width / 2, 45);
+        
+        // Enemy type selector (top right)
+        this.renderEnemySelector();
+        
+        // Instructions (bottom)
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        this.ctx.fillRect(0, this.canvas.height - 40, this.canvas.width, 40);
+        
+        this.ctx.fillStyle = '#CCCCCC';
+        this.ctx.font = '11px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('1-3: Select Enemy | Click Map to Place | Arrow Keys: Move Camera | G: Toggle Grid | ENTER: Test | S: Save | ESC: Return', this.canvas.width / 2, this.canvas.height - 20);
+        
+        this.ctx.textAlign = 'left';
+    }
+    
+    renderEnemySelector() {
+        const startX = this.canvas.width - 200;
+        const startY = 70;
+        const spacing = 60;
+        
+        for (let i = 0; i < this.levelBuilder.enemyTypes.length; i++) {
+            const x = startX + (i * spacing);
+            const y = startY;
+            
+            // Selection box
+            if (i === this.levelBuilder.selectedEnemyType) {
+                this.ctx.strokeStyle = '#FFD700';
+                this.ctx.lineWidth = 3;
+            } else {
+                this.ctx.strokeStyle = '#666666';
+                this.ctx.lineWidth = 1;
+            }
+            this.ctx.strokeRect(x, y, 50, 40);
+            
+            // Enemy preview
+            this.ctx.fillStyle = i === 2 ? '#8B4513' : '#4CAF50';
+            this.ctx.fillRect(x + 5, y + 5, i === 2 ? 40 : 25, i === 2 ? 30 : 20);
+            
+            // Type number
+            this.ctx.fillStyle = '#FFD700';
+            this.ctx.font = 'bold 12px Arial';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText(`${i + 1}`, x + 25, y - 5);
+        }
+    }
+    
+    
+    handleLevelBuilderClick(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        const canvasX = (e.clientX - rect.left) * scaleX;
+        const canvasY = (e.clientY - rect.top) * scaleY;
+        
+        // Check if click is on enemy selector
+        const selectorStartX = this.canvas.width - 200;
+        const selectorY = 70;
+        const spacing = 60;
+        
+        if (canvasY >= selectorY && canvasY <= selectorY + 40) {
+            for (let i = 0; i < 3; i++) {
+                const x = selectorStartX + (i * spacing);
+                if (canvasX >= x && canvasX <= x + 50) {
+                    this.levelBuilder.selectedEnemyType = i;
+                    return;
+                }
+            }
+        }
+        
+        // Check if click is in map area (below UI, above bottom bar)
+        if (canvasY > 60 && canvasY < this.canvas.height - 40) {
+            // Convert screen coordinates to world coordinates
+            const worldX = canvasX + this.levelBuilder.cameraX;
+            const worldY = canvasY;
+            
+            // Snap to grid if enabled
+            let snapX = worldX;
+            let snapY = worldY;
+            
+            if (this.levelBuilder.showGrid) {
+                snapX = Math.round(worldX / this.levelBuilder.gridSize) * this.levelBuilder.gridSize;
+                snapY = Math.round(worldY / this.levelBuilder.gridSize) * this.levelBuilder.gridSize;
+            }
+            
+            // Check if clicking on existing enemy
+            const clickedEnemyIndex = this.findEnemyAtPosition(snapX, snapY);
+            if (clickedEnemyIndex >= 0) {
+                // Remove existing enemy
+                this.levelBuilder.editingLevel.enemies.splice(clickedEnemyIndex, 1);
+            } else {
+                // Only allow placing enemies to the right of the start position
+                if (snapX > this.levelBuilder.editingLevel.startX + 100) { // 100px buffer from start
+                    this.levelBuilder.editingLevel.enemies.push({
+                        type: this.levelBuilder.selectedEnemyType,
+                        x: snapX,
+                        y: snapY
+                    });
+                } else {
+                    this.showMessage('Place enemies ahead of the start line!');
+                }
+            }
+        }
+    }
+    
+    findEnemyAtPosition(x, y) {
+        const threshold = 30; // Click tolerance
+        
+        for (let i = 0; i < this.levelBuilder.editingLevel.enemies.length; i++) {
+            const enemy = this.levelBuilder.editingLevel.enemies[i];
+            const dx = Math.abs(enemy.x - x);
+            const dy = Math.abs(enemy.y - y);
+            
+            if (dx < threshold && dy < threshold) {
+                return i;
+            }
+        }
+        
+        return -1;
+    }
+    
+    handleLevelBuilderTouch(e) {
+        // Convert touch to click event
+        const rect = this.canvas.getBoundingClientRect();
+        const touch = e.touches[0] || e.changedTouches[0] || e;
+        const mockClick = {
+            clientX: touch.clientX,
+            clientY: touch.clientY
+        };
+        this.handleLevelBuilderClick(mockClick);
+    }
+    
+    
+    saveCustomLevel() {
+        const customLevel = {
+            name: this.levelBuilder.editingLevel.name,
+            startX: this.levelBuilder.editingLevel.startX,
+            endX: this.levelBuilder.editingLevel.endX,
+            enemies: [...this.levelBuilder.editingLevel.enemies] // Copy array
+        };
+        
+        try {
+            localStorage.setItem('customLevel', JSON.stringify(customLevel));
+            // Show confirmation message briefly
+            this.showMessage('Level saved!');
+        } catch (e) {
+            this.showMessage('Save failed!');
+        }
+    }
+    
+    testCustomLevel() {
+        if (this.levelBuilder.editingLevel.enemies.length === 0) {
+            this.showMessage('Add some enemies first!');
+            return;
+        }
+        
+        // Convert level builder format to game format
+        const customLevelData = {
+            name: this.levelBuilder.editingLevel.name,
+            startX: this.levelBuilder.editingLevel.startX,
+            endX: this.levelBuilder.editingLevel.endX,
+            enemies: [...this.levelBuilder.editingLevel.enemies] // Copy array
+        };
+        
+        // Add custom level to level data temporarily
+        this.levelData['custom'] = customLevelData;
+        
+        // Start the custom level
+        this.gameState = 'playing';
+        this.score = 0;
+        this.player.reset();
+        this.enemies = [];
+        this.bullets = [];
+        this.powerups = [];
+        this.mines = [];
+        this.explosions = [];
+        this.tankRemnants = [];
+        this.sandbags = [];
+        this.platforms = [];
+        this.barbedWire = [];
+        this.lastEnemySpawn = 0;
+        this.lastPowerupSpawn = 0;
+        this.camera = { x: 0, y: 0 };
+        
+        // Start custom level
+        this.startLevel('custom');
+    }
+    
+    showMessage(text) {
+        // Simple message display (could be enhanced with a proper notification system)
+        console.log(text); // For now, just log it
     }
     
     renderTitleScreenElements() {
@@ -2432,8 +3587,39 @@ class Enemy {
         this.velocityY += this.gravity;
         this.y += this.velocityY;
         
-        // Ground collision
-        if (this.y >= this.groundY) {
+        // Ground collision - check platforms first, then default ground
+        let standingOnPlatform = false;
+        
+        // Check if enemy is on any platform
+        if (game && game.platforms) {
+            for (let platform of game.platforms) {
+                const enemyBottom = this.y + this.height;
+                const platformTop = platform.y;
+                
+                // Check if enemy is mostly over the platform (need more overlap)
+                const enemyCenter = this.x + this.width / 2;
+                const platformCenter = platform.x + platform.width / 2;
+                const horizontalOverlap = Math.abs(enemyCenter - platformCenter) < platform.width / 2;
+                
+                // Check if enemy should be standing on this platform
+                if (horizontalOverlap) {
+                    // If enemy is at or below platform level, put them on top
+                    if (enemyBottom >= platformTop) {
+                        // Different positioning adjustments for different enemy types
+                        let adjustment = 3; // Default for tall soldiers
+                        if (this.type === 0) adjustment = 7; // Smaller soldier needs more adjustment
+                        this.y = (platform.y + platform.height) - this.height + adjustment;
+                        this.velocityY = 0;
+                        this.onGround = true;
+                        standingOnPlatform = true;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // If not on platform, use default ground collision
+        if (!standingOnPlatform && this.y >= this.groundY) {
             this.y = this.groundY;
             this.velocityY = 0;
             this.onGround = true;
@@ -2447,7 +3633,10 @@ class Enemy {
         const bulletX = this.x;
         const bulletY = this.y + this.height * 0.5;
         const isTank = this.type === 2;
-        enemyBullets.push(new EnemyBullet(bulletX, bulletY, false, isTank)); // false = shoot left
+        
+        // Shoot towards the player
+        const shootRight = player.x > this.x;
+        enemyBullets.push(new EnemyBullet(bulletX, bulletY, shootRight, isTank));
         
         // Play appropriate sound effect
         if (game) {
@@ -2993,6 +4182,171 @@ class TankRemnant {
         });
         
         ctx.restore();
+    }
+}
+
+class Sandbag {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.width = 60;
+        this.height = 40;
+        this.type = 'sandbag';
+    }
+    
+    render(ctx) {
+        ctx.save();
+        
+        // Main sandbag body - beige/tan color
+        ctx.fillStyle = '#D2B48C'; // Tan color
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        
+        // Sandbag border
+        ctx.strokeStyle = '#8B4513'; // Saddle brown
+        ctx.lineWidth = 2;
+        ctx.strokeRect(this.x, this.y, this.width, this.height);
+        
+        // Sandbag texture lines
+        ctx.strokeStyle = '#B8860B'; // Dark golden rod
+        ctx.lineWidth = 1;
+        
+        // Horizontal stitching lines
+        for (let y = this.y + 10; y < this.y + this.height - 5; y += 10) {
+            ctx.beginPath();
+            ctx.moveTo(this.x + 5, y);
+            ctx.lineTo(this.x + this.width - 5, y);
+            ctx.stroke();
+        }
+        
+        // Vertical tie marks
+        ctx.beginPath();
+        ctx.moveTo(this.x + this.width / 3, this.y + 5);
+        ctx.lineTo(this.x + this.width / 3, this.y + this.height - 5);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(this.x + (2 * this.width) / 3, this.y + 5);
+        ctx.lineTo(this.x + (2 * this.width) / 3, this.y + this.height - 5);
+        ctx.stroke();
+        
+        ctx.restore();
+    }
+    
+    // Check collision with bullets
+    collidesWith(bullet) {
+        return bullet.x < this.x + this.width &&
+               bullet.x + bullet.width > this.x &&
+               bullet.y < this.y + this.height &&
+               bullet.y + bullet.height > this.y;
+    }
+}
+
+class BarbedWire {
+    constructor(x, y, width) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = 20;
+    }
+    
+    render(ctx) {
+        ctx.save();
+        
+        // Main wire lines - multiple strands
+        ctx.strokeStyle = '#444444'; // Dark gray wire
+        ctx.lineWidth = 2;
+        
+        // Top wire line
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y + 3);
+        ctx.lineTo(this.x + this.width, this.y + 3);
+        ctx.stroke();
+        
+        // Middle wire line
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y + 10);
+        ctx.lineTo(this.x + this.width, this.y + 10);
+        ctx.stroke();
+        
+        // Bottom wire line
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y + 17);
+        ctx.lineTo(this.x + this.width, this.y + 17);
+        ctx.stroke();
+        
+        // Barbs along the wires
+        ctx.strokeStyle = '#666666';
+        ctx.lineWidth = 1;
+        const barbSpacing = 8;
+        
+        for (let x = this.x; x < this.x + this.width; x += barbSpacing) {
+            // Barbs on top wire
+            ctx.beginPath();
+            ctx.moveTo(x, this.y + 3);
+            ctx.lineTo(x - 3, this.y);
+            ctx.moveTo(x, this.y + 3);
+            ctx.lineTo(x + 3, this.y);
+            
+            // Barbs on middle wire
+            ctx.moveTo(x + 4, this.y + 10);
+            ctx.lineTo(x + 1, this.y + 6);
+            ctx.moveTo(x + 4, this.y + 10);
+            ctx.lineTo(x + 7, this.y + 14);
+            
+            // Barbs on bottom wire
+            ctx.moveTo(x + 2, this.y + 17);
+            ctx.lineTo(x - 1, this.y + 14);
+            ctx.moveTo(x + 2, this.y + 17);
+            ctx.lineTo(x + 5, this.y + 20);
+            ctx.stroke();
+        }
+        
+        ctx.restore();
+    }
+}
+
+class Platform {
+    constructor(x, y, width, height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.type = 'platform';
+    }
+    
+    render(ctx) {
+        ctx.save();
+        
+        // Platform surface - concrete gray
+        ctx.fillStyle = '#808080'; // Gray
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        
+        // Platform border
+        ctx.strokeStyle = '#555555'; // Dark gray
+        ctx.lineWidth = 2;
+        ctx.strokeRect(this.x, this.y, this.width, this.height);
+        
+        // Platform texture lines
+        ctx.strokeStyle = '#666666';
+        ctx.lineWidth = 1;
+        
+        // Horizontal lines every 8px
+        for (let y = this.y + 8; y < this.y + this.height; y += 8) {
+            ctx.beginPath();
+            ctx.moveTo(this.x + 2, y);
+            ctx.lineTo(this.x + this.width - 2, y);
+            ctx.stroke();
+        }
+        
+        ctx.restore();
+    }
+    
+    // Check if something is standing on top of platform
+    isOnTop(obj) {
+        return obj.x + obj.width > this.x &&
+               obj.x < this.x + this.width &&
+               obj.y + obj.height >= this.y &&
+               obj.y + obj.height <= this.y + 10; // Small tolerance
     }
 }
 
