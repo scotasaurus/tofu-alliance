@@ -370,40 +370,52 @@ class Game {
     }
     
     mobileAudioUnlock() {
+        console.log('Mobile audio unlock attempt');
+        
         if (!this.audioContext) {
             try {
                 this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                console.log('Created audio context, state:', this.audioContext.state);
             } catch (e) {
+                console.log('Failed to create audio context:', e);
                 return;
             }
         }
         
-        // Create and play a test beep to confirm audio is working
+        // Must resume audio context first on mobile
+        if (this.audioContext.state === 'suspended') {
+            this.audioContext.resume().then(() => {
+                console.log('Audio context resumed');
+                this.playUnlockSound();
+            }).catch(e => {
+                console.log('Failed to resume audio context:', e);
+            });
+        } else {
+            this.playUnlockSound();
+        }
+        
+        // Always mark as unlocked after user interaction
+        this.audioUnlocked = true;
+    }
+    
+    playUnlockSound() {
         try {
             const oscillator = this.audioContext.createOscillator();
             const gainNode = this.audioContext.createGain();
             oscillator.connect(gainNode);
             gainNode.connect(this.audioContext.destination);
             
-            // Play a confirmation beep instead of silent sound
-            gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.2);
+            // Play a confirmation beep
+            gainNode.gain.setValueAtTime(0.15, this.audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
             oscillator.frequency.setValueAtTime(880, this.audioContext.currentTime);
+            oscillator.type = 'sine';
             oscillator.start();
-            oscillator.stop(this.audioContext.currentTime + 0.2);
+            oscillator.stop(this.audioContext.currentTime + 0.3);
             
-            // Resume if suspended
-            if (this.audioContext.state === 'suspended') {
-                this.audioContext.resume().then(() => {
-                    this.audioUnlocked = true;
-                }).catch(() => {
-                    this.audioUnlocked = true; // Mark as unlocked anyway
-                });
-            } else {
-                this.audioUnlocked = true;
-            }
+            console.log('Played unlock confirmation sound');
         } catch (e) {
-            // Audio unlock failed, continue without audio
+            console.log('Failed to play unlock sound:', e);
         }
     }
     
@@ -419,7 +431,7 @@ class Game {
                 
                 // Check if tap is on audio button (canvas coords: x: 300-500, y: 120-160)
                 if (touchX >= 300 && touchX <= 500 && touchY >= 120 && touchY <= 160) {
-                    this.enableAudioExplicitly();
+                    this.mobileAudioUnlock();
                     return; // Don't start game, just enable audio
                 }
             }
