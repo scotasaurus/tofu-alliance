@@ -228,12 +228,16 @@ class Game {
         // Initialize audio context early but don't try to unlock without user interaction
         try {
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            console.log('Audio context created, state:', this.audioContext.state);
             // Modern browsers require user interaction - don't auto-unlock
             this.audioUnlocked = false;
         } catch (e) {
-            console.log('Audio context creation failed:', e);
+            // Audio context creation failed
         }
+        
+        // Create a simple audio element for mobile unlock test
+        this.testAudio = new Audio();
+        this.testAudio.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+Hyvmb/ACR8y/PTgiMBtnLJ+dum8/8da7n00p3a/wBTqOz4tWb0/yZ+Ovnx1Zn2/yts1u7qp93/ADB7zO7GfttZ/6JIpeHAHt1W/OKgOsn55ZDYB/bTb7Tz+q3+b+T4r0n4j9e3/OHJu/+R2Z7/tOeR5Y7h8fbP/Otp/KLI+OLY/Ly8vL3Vvg=';
+        this.testAudio.volume = 0.1;
         
         this.gameLoop();
     }
@@ -323,13 +327,11 @@ class Game {
             const canvasHeight = this.canvas.height; // 400
             
             this.virtualButtons = {
-                left: { x: 60, y: canvasHeight - 80, radius: 35, pressed: false },
-                right: { x: 140, y: canvasHeight - 80, radius: 35, pressed: false },
-                jump: { x: canvasWidth - 120, y: canvasHeight - 100, radius: 30, pressed: false },
-                shoot: { x: canvasWidth - 60, y: canvasHeight - 40, radius: 30, pressed: false }
+                left: { x: 60, y: 360, radius: 35, pressed: false },      // Bottom left corner
+                right: { x: 130, y: 360, radius: 35, pressed: false },    // Bottom left area
+                jump: { x: 680, y: 280, radius: 30, pressed: false },     // Top right area  
+                shoot: { x: 740, y: 360, radius: 30, pressed: false }     // Bottom right corner
             };
-            
-            console.log('Landscape mode - canvas controls at edges');
         } else {
             // Portrait or desktop - use original layout
             this.virtualButtons = {
@@ -370,39 +372,26 @@ class Game {
     }
     
     mobileAudioUnlock() {
-        // Create audio context if needed
+        // Try HTML5 Audio first - more reliable on mobile
+        try {
+            this.testAudio.currentTime = 0;
+            this.testAudio.play();
+        } catch (e) {
+            // HTML5 audio failed
+        }
+        
+        // Also unlock Web Audio API
         if (!this.audioContext) {
             try {
                 this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
             } catch (e) {
-                // Failed to create audio context
-                this.audioUnlocked = true; // Mark as unlocked so button disappears
+                this.audioUnlocked = true;
                 return;
             }
         }
         
-        // Create a buffer and play it immediately - this is the most reliable way for mobile
-        try {
-            const buffer = this.audioContext.createBuffer(1, this.audioContext.sampleRate * 0.2, this.audioContext.sampleRate);
-            const data = buffer.getChannelData(0);
-            
-            // Generate a simple beep directly into the buffer
-            for (let i = 0; i < data.length; i++) {
-                data[i] = Math.sin(2 * Math.PI * 880 * i / this.audioContext.sampleRate) * 0.1 * Math.exp(-i / (this.audioContext.sampleRate * 0.1));
-            }
-            
-            const source = this.audioContext.createBufferSource();
-            source.buffer = buffer;
-            source.connect(this.audioContext.destination);
-            source.start(0);
-            
-            // Resume context if needed
-            if (this.audioContext.state === 'suspended') {
-                this.audioContext.resume();
-            }
-            
-        } catch (e) {
-            // Audio failed, but still mark as unlocked
+        if (this.audioContext && this.audioContext.state === 'suspended') {
+            this.audioContext.resume();
         }
         
         this.audioUnlocked = true;
