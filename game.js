@@ -2364,17 +2364,58 @@ class Enemy {
     }
     
     update(player, enemyBullets, game) {
-        // Smart AI - move towards player
-        if (player.x < this.x) {
-            this.x -= this.speed; // Move left toward player
-            this.facingLeft = true;
-        } else {
-            this.x += this.speed; // Move right to chase player
-            this.facingLeft = false;
+        const distanceToPlayer = Math.abs(player.x - this.x);
+        
+        if (this.type === 2) { // Tank AI - maintain distance and retreat if too close
+            const optimalRange = 300; // Tanks want to stay at medium range
+            const tooClose = 200; // If player gets too close, retreat
+            
+            if (distanceToPlayer < tooClose) {
+                // Retreat - move away from player
+                if (player.x < this.x) {
+                    this.x += this.speed; // Move right away from player
+                    this.facingLeft = true; // Still face player
+                } else {
+                    this.x -= this.speed; // Move left away from player  
+                    this.facingLeft = false; // Still face player
+                }
+            } else if (distanceToPlayer > optimalRange) {
+                // Approach to optimal range
+                if (player.x < this.x) {
+                    this.x -= this.speed * 0.5; // Move slower when approaching
+                    this.facingLeft = true;
+                } else {
+                    this.x += this.speed * 0.5;
+                    this.facingLeft = false;
+                }
+            }
+            // If at optimal range, just stay still and shoot
+        } else { // Soldier AI - approach until close, then stop and shoot
+            const stopDistance = 150; // Soldiers stop approaching at this distance
+            
+            if (distanceToPlayer > stopDistance) {
+                // Approach player
+                if (player.x < this.x) {
+                    this.x -= this.speed;
+                    this.facingLeft = true;
+                } else {
+                    this.x += this.speed;
+                    this.facingLeft = false;
+                }
+            } else {
+                // Close enough - just face player and shoot, don't move
+                this.facingLeft = player.x < this.x;
+            }
         }
         
-        // Enemy shooting - much slower fire rate
-        const shootChance = this.type === 2 ? 0.002 : 0.004; // Much slower firing
+        // Enemy shooting - tanks fire less often, soldiers more often when close
+        let shootChance;
+        if (this.type === 2) { // Tank
+            shootChance = 0.003; // Steady fire rate for tanks
+        } else { // Soldiers
+            shootChance = distanceToPlayer < 150 ? 0.008 : 0.002; // Shoot more when close
+        }
+        
         if (Math.random() < shootChance) {
             this.shoot(player, enemyBullets, game);
         }
