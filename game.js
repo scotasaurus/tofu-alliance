@@ -191,21 +191,37 @@ class Game {
         
         // Story screen data
         this.currentStorySlide = 0;
+        this.storyTime = 0;
         this.storySlides = [
             {
-                title: "The Invasion Begins",
-                text: "The enemy forces have launched a massive assault\non the peaceful grassy plains. Only one brave\ndefender stands between them and total victory.",
-                background: "#2C5234"
+                title: "The Dark Hour Approaches...",
+                text: "A sinister army emerges from the shadows,\nthreatening the peaceful Grassy Plains.\nTheir goal: Total domination!",
+                background: "#8B0000",
+                backgroundGradient: ["#8B0000", "#4B0000"],
+                showEnemies: true,
+                showTofu: false,
+                dramaticText: true,
+                effects: "invasion"
             },
             {
-                title: "Last Stand",
-                text: "As Tofu, the unlikely hero, you must use your\nwits and reflexes to hold the line against\nwaves of soldiers and tanks.",
-                background: "#1A3A22"
+                title: "The Chosen One Awakens!",
+                text: "From the tranquil fields rises TOFU,\nan unlikely hero with extraordinary power!\n\"I will protect this land with my life!\"",
+                background: "#FFD700",
+                backgroundGradient: ["#FFD700", "#FFA500"],
+                showEnemies: false,
+                showTofu: true,
+                dramaticText: true,
+                effects: "heroic"
             },
             {
-                title: "Defend the Plains",
-                text: "Jump over obstacles, dodge enemy fire,\nand fight back to protect your homeland.\nThe fate of the grassy plains is in your hands!",
-                background: "#0F2718"
+                title: "EPIC BATTLE BEGINS!",
+                text: "Armed with determination and lightning reflexes,\nTofu faces impossible odds!\nWill courage triumph over evil?!",
+                background: "#FF4500",
+                backgroundGradient: ["#FF4500", "#8B0000"],
+                showEnemies: true,
+                showTofu: true,
+                dramaticText: true,
+                effects: "battle"
             }
         ];
         
@@ -213,6 +229,12 @@ class Game {
         this.titleMusic = null;
         this.titleMusicGain = null;
         this.titleMusicPlaying = false;
+        
+        // Story screen music
+        this.storyMusic = null;
+        this.storyMusicGain = null;
+        this.storyMusicPlaying = false;
+        this.currentStoryMusicType = null;
         this.audioUnlocked = false;
         
         // Gameplay music
@@ -980,6 +1002,12 @@ class Game {
     }
     
     update() {
+        // Update story animations
+        if (this.gameState === 'story') {
+            this.storyTime += 0.016; // ~60fps
+            return;
+        }
+        
         if (this.gameState !== 'playing') return;
         
         this.player.update(this.keys);
@@ -1420,24 +1448,38 @@ class Game {
     startStory() {
         this.gameState = 'story';
         this.currentStorySlide = 0;
+        this.storyTime = 0;
     }
     
     nextStorySlide() {
         this.currentStorySlide++;
+        this.storyTime = 0; // Reset animation time for new slide
         if (this.currentStorySlide >= this.storySlides.length) {
+            this.stopStoryMusic();
             this.startGame();
+        } else {
+            // Start music for new slide
+            if (this.audioUnlocked) {
+                this.startStoryMusic(this.currentStorySlide);
+            }
         }
     }
     
     previousStorySlide() {
         if (this.currentStorySlide > 0) {
             this.currentStorySlide--;
+            this.storyTime = 0; // Reset animation time for previous slide
+            // Start music for previous slide
+            if (this.audioUnlocked) {
+                this.startStoryMusic(this.currentStorySlide);
+            }
         }
     }
     
     returnToTitle() {
         this.stopTitleMusic();
         this.stopGameplayMusic();
+        this.stopStoryMusic();
         this.gameState = 'title';
         this.gameOver = false;
         this.enteringInitials = false;
@@ -1752,6 +1794,148 @@ class Game {
         this.gameplayMusicPlaying = false;
     }
     
+    startStoryMusic(slideIndex) {
+        if (!this.audioContext || !this.audioUnlocked) return;
+        
+        const slide = this.storySlides[slideIndex];
+        const musicType = slide.effects;
+        
+        // Only restart music if it's a different type
+        if (this.currentStoryMusicType === musicType && this.storyMusicPlaying) {
+            return;
+        }
+        
+        // Stop any existing story music
+        this.stopStoryMusic();
+        
+        this.currentStoryMusicType = musicType;
+        this.storyMusicPlaying = true;
+        this.playStoryTrack(musicType);
+    }
+    
+    stopStoryMusic() {
+        if (this.storyMusic) {
+            this.storyMusic.stop();
+            this.storyMusic = null;
+        }
+        if (this.storyMusicGain) {
+            this.storyMusicGain = null;
+        }
+        this.storyMusicPlaying = false;
+        this.currentStoryMusicType = null;
+    }
+    
+    playStoryTrack(musicType) {
+        if (!this.audioContext || !this.storyMusicPlaying) return;
+        
+        let melody = [];
+        let bassDrone = [];
+        
+        switch (musicType) {
+            case 'invasion':
+                // Dark, ominous melody with low drones
+                melody = [
+                    {note: 207, duration: 1.0}, // G#3
+                    {note: 233, duration: 1.0}, // A#3
+                    {note: 207, duration: 0.5}, // G#3
+                    {note: 185, duration: 1.5}, // F#3
+                    {note: 156, duration: 2.0}, // D#3
+                ];
+                bassDrone = [
+                    {note: 103, duration: 6.0}, // G#2 drone
+                ];
+                break;
+                
+            case 'heroic':
+                // Triumphant, rising melody
+                melody = [
+                    {note: 523, duration: 0.5}, // C5
+                    {note: 659, duration: 0.5}, // E5
+                    {note: 784, duration: 0.5}, // G5
+                    {note: 1047, duration: 1.0}, // C6
+                    {note: 880, duration: 0.5}, // A5
+                    {note: 784, duration: 1.0}, // G5
+                ];
+                bassDrone = [
+                    {note: 262, duration: 4.0}, // C4 drone
+                ];
+                break;
+                
+            case 'battle':
+                // Intense, fast-paced battle music
+                melody = [
+                    {note: 294, duration: 0.3}, // D4
+                    {note: 349, duration: 0.3}, // F4
+                    {note: 392, duration: 0.3}, // G4
+                    {note: 466, duration: 0.3}, // A#4
+                    {note: 392, duration: 0.3}, // G4
+                    {note: 349, duration: 0.3}, // F4
+                    {note: 294, duration: 0.6}, // D4
+                ];
+                bassDrone = [
+                    {note: 147, duration: 2.4}, // D3 drone
+                ];
+                break;
+        }
+        
+        let currentTime = this.audioContext.currentTime;
+        
+        // Create dramatic low-frequency drone
+        bassDrone.forEach(note => {
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+            
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(note.note, currentTime);
+            
+            gain.gain.setValueAtTime(0.1, currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.15, currentTime + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.05, currentTime + note.duration - 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.01, currentTime + note.duration);
+            
+            osc.connect(gain);
+            gain.connect(this.audioContext.destination);
+            
+            osc.start(currentTime);
+            osc.stop(currentTime + note.duration);
+            
+            currentTime += note.duration;
+        });
+        
+        // Reset current time for melody
+        currentTime = this.audioContext.currentTime + 0.2; // Slight delay
+        
+        // Play dramatic melody
+        melody.forEach(note => {
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+            
+            osc.type = musicType === 'heroic' ? 'triangle' : 'square';
+            osc.frequency.setValueAtTime(note.note, currentTime);
+            
+            const volume = musicType === 'invasion' ? 0.08 : 0.12;
+            gain.gain.setValueAtTime(0, currentTime);
+            gain.gain.exponentialRampToValueAtTime(volume, currentTime + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.01, currentTime + note.duration);
+            
+            osc.connect(gain);
+            gain.connect(this.audioContext.destination);
+            
+            osc.start(currentTime);
+            osc.stop(currentTime + note.duration);
+            
+            currentTime += note.duration;
+        });
+        
+        // Schedule next loop
+        const totalDuration = musicType === 'invasion' ? 6000 : musicType === 'heroic' ? 4000 : 2500;
+        setTimeout(() => {
+            if (this.gameState === 'story' && this.storyMusicPlaying) {
+                this.playStoryTrack(musicType);
+            }
+        }, totalDuration);
+    }
+    
     playGameplayTrack() {
         if (!this.audioContext || !this.gameplayMusicPlaying) return;
         
@@ -1998,8 +2182,8 @@ class Game {
         }
         
         if (this.gameState === 'story') {
-            if (!this.titleMusicPlaying && this.audioUnlocked) {
-                this.startTitleMusic();
+            if (!this.storyMusicPlaying && this.audioUnlocked) {
+                this.startStoryMusic(this.currentStorySlide);
             }
             this.renderStoryScreen();
             return;
@@ -2381,61 +2565,308 @@ class Game {
     
     renderStoryScreen() {
         const slide = this.storySlides[this.currentStorySlide];
+        const t = this.storyTime;
         
-        // Background gradient based on story slide
-        this.ctx.fillStyle = slide.background;
+        // Dramatic animated gradient background
+        const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, this.canvas.height);
+        const colorShift = Math.sin(t * 0.5) * 0.3;
+        gradient.addColorStop(0, slide.backgroundGradient[0]);
+        gradient.addColorStop(1, slide.backgroundGradient[1]);
+        this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // Add subtle texture/stars
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-        for (let i = 0; i < 100; i++) {
-            const x = (i * 37) % this.canvas.width;
-            const y = (i * 73) % this.canvas.height;
-            this.ctx.fillRect(x, y, 1, 1);
+        // Dramatic animated effects based on slide type
+        this.renderStoryEffects(slide.effects, t);
+        
+        // Character sprites with motion
+        if (slide.showTofu) {
+            this.renderStoryTofu(t);
         }
+        
+        if (slide.showEnemies) {
+            this.renderStoryEnemies(t);
+        }
+        
+        // Cinematic bars for widescreen effect
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        this.ctx.fillRect(0, 0, this.canvas.width, 40);
+        this.ctx.fillRect(0, this.canvas.height - 40, this.canvas.width, 40);
         
         this.ctx.textAlign = 'center';
         
-        // Title
+        // Dramatic title with anime-style effects
         this.ctx.save();
+        const titlePulse = 1 + Math.sin(t * 3) * 0.1;
+        this.ctx.scale(titlePulse, titlePulse);
+        this.ctx.translate(this.canvas.width / (2 * titlePulse), 80 / titlePulse);
+        
+        // Multiple shadow layers for dramatic effect
+        this.ctx.shadowColor = '#FF0000';
+        this.ctx.shadowBlur = 20;
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.font = 'bold 28px Arial';
+        this.ctx.fillText(slide.title, 0, 0);
+        
         this.ctx.shadowColor = '#000000';
         this.ctx.shadowBlur = 5;
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.font = 'bold 32px Arial';
-        this.ctx.fillText(slide.title, this.canvas.width / 2, 120);
+        this.ctx.fillStyle = '#FFFF00';
+        this.ctx.fillText(slide.title, 0, 0);
         this.ctx.restore();
         
-        // Story text
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.font = '20px Arial';
+        // Story text with typewriter effect
+        const textRevealSpeed = 40; // characters per second
+        const maxChars = Math.floor(t * textRevealSpeed);
         const lines = slide.text.split('\n');
-        lines.forEach((line, index) => {
-            this.ctx.fillText(line, this.canvas.width / 2, 180 + (index * 30));
+        let charCount = 0;
+        
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.font = '18px Arial';
+        this.ctx.shadowColor = '#000000';
+        this.ctx.shadowBlur = 3;
+        
+        lines.forEach((line, lineIndex) => {
+            if (charCount < maxChars) {
+                const remainingChars = maxChars - charCount;
+                const visibleText = line.substring(0, Math.min(line.length, remainingChars));
+                
+                // Text with dramatic glow effect
+                const textY = 200 + (lineIndex * 25);
+                this.ctx.fillStyle = '#00FFFF';
+                this.ctx.shadowBlur = 10;
+                this.ctx.fillText(visibleText, this.canvas.width / 2, textY);
+                
+                this.ctx.fillStyle = '#FFFFFF';
+                this.ctx.shadowBlur = 3;
+                this.ctx.fillText(visibleText, this.canvas.width / 2, textY);
+            }
+            charCount += line.length + 1; // +1 for newline
         });
         
-        // Navigation instructions
-        this.ctx.font = '16px Arial';
-        this.ctx.fillStyle = '#CCCCCC';
+        // Action lines and speed lines for motion effect
+        if (slide.effects === 'battle' || slide.effects === 'heroic') {
+            this.renderActionLines(t);
+        }
+        
+        // Navigation instructions with pulse effect
+        const instructionAlpha = 0.7 + Math.sin(t * 4) * 0.3;
+        this.ctx.globalAlpha = instructionAlpha;
+        this.ctx.font = '14px Arial';
+        this.ctx.fillStyle = '#FFFF00';
         const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         if (isMobile) {
-            this.ctx.fillText('TAP to continue', this.canvas.width / 2, this.canvas.height - 60);
+            this.ctx.fillText('TAP to continue', this.canvas.width / 2, this.canvas.height - 50);
         } else {
-            this.ctx.fillText('SPACE to continue • ← → to navigate • ESC for title', this.canvas.width / 2, this.canvas.height - 60);
+            this.ctx.fillText('SPACE to continue • ← → to navigate • ESC for title', this.canvas.width / 2, this.canvas.height - 50);
         }
+        this.ctx.globalAlpha = 1;
         
-        // Progress indicator
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-        for (let i = 0; i < this.storySlides.length; i++) {
-            const x = this.canvas.width / 2 - (this.storySlides.length * 15) / 2 + i * 15;
-            this.ctx.fillRect(x, this.canvas.height - 30, 10, 3);
-        }
+        // Progress indicator with anime-style design
+        this.renderStoryProgress();
         
-        // Highlight current slide
-        this.ctx.fillStyle = '#FFFFFF';
-        const currentX = this.canvas.width / 2 - (this.storySlides.length * 15) / 2 + this.currentStorySlide * 15;
-        this.ctx.fillRect(currentX, this.canvas.height - 30, 10, 3);
-        
+        // Reset all canvas properties to prevent affecting gameplay
+        this.ctx.globalAlpha = 1;
+        this.ctx.globalCompositeOperation = 'source-over';
+        this.ctx.shadowBlur = 0;
+        this.ctx.shadowColor = 'transparent';
         this.ctx.textAlign = 'left';
+    }
+    
+    renderStoryEffects(effectType, t) {
+        this.ctx.save();
+        
+        switch (effectType) {
+            case 'invasion':
+                // Dark swirling energy
+                this.ctx.globalAlpha = 0.3;
+                for (let i = 0; i < 8; i++) {
+                    const angle = (t + i) * 0.5;
+                    const x = this.canvas.width / 2 + Math.cos(angle) * (50 + i * 10);
+                    const y = this.canvas.height / 2 + Math.sin(angle) * (30 + i * 5);
+                    const size = 20 + Math.sin(t * 2 + i) * 10;
+                    
+                    this.ctx.fillStyle = '#800080';
+                    this.ctx.fillRect(x - size/2, y - size/2, size, size);
+                }
+                break;
+                
+            case 'heroic':
+                // Golden aura and light rays
+                this.ctx.globalAlpha = 0.4;
+                const centerX = this.canvas.width / 2;
+                const centerY = this.canvas.height / 2;
+                
+                // Rotating light rays
+                for (let i = 0; i < 12; i++) {
+                    const angle = (t * 2 + i * Math.PI / 6);
+                    const rayLength = 200 + Math.sin(t * 3) * 50;
+                    
+                    this.ctx.strokeStyle = '#FFD700';
+                    this.ctx.lineWidth = 3;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(centerX, centerY);
+                    this.ctx.lineTo(
+                        centerX + Math.cos(angle) * rayLength,
+                        centerY + Math.sin(angle) * rayLength
+                    );
+                    this.ctx.stroke();
+                }
+                break;
+                
+            case 'battle':
+                // Explosive energy and lightning
+                this.ctx.globalAlpha = 0.5;
+                for (let i = 0; i < 15; i++) {
+                    const x = Math.random() * this.canvas.width;
+                    const y = Math.random() * this.canvas.height;
+                    const intensity = Math.sin(t * 10 + i) * 0.5 + 0.5;
+                    
+                    if (intensity > 0.7) {
+                        this.ctx.strokeStyle = Math.random() > 0.5 ? '#FF0000' : '#FFFFFF';
+                        this.ctx.lineWidth = 2;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(x, y);
+                        this.ctx.lineTo(x + (Math.random() - 0.5) * 40, y + (Math.random() - 0.5) * 40);
+                        this.ctx.stroke();
+                    }
+                }
+                break;
+        }
+        
+        this.ctx.restore();
+    }
+    
+    renderStoryTofu(t) {
+        if (!this.assets.tofuSprite) return;
+        
+        // Tofu appears dramatically with scaling and glowing effect
+        const centerX = this.canvas.width / 2 - 60;
+        const centerY = this.canvas.height / 2;
+        
+        // Pulsing and floating motion
+        const scale = 1.2 + Math.sin(t * 3) * 0.1;
+        const floatY = Math.sin(t * 2) * 10;
+        const glowIntensity = Math.sin(t * 4) * 0.3 + 0.7;
+        
+        this.ctx.save();
+        this.ctx.translate(centerX, centerY + floatY);
+        this.ctx.scale(scale, scale);
+        
+        // Heroic glow effect
+        this.ctx.shadowColor = '#FFD700';
+        this.ctx.shadowBlur = 20 * glowIntensity;
+        this.ctx.globalAlpha = glowIntensity;
+        
+        // Draw Tofu sprite
+        const spriteSize = 80;
+        this.ctx.drawImage(
+            this.assets.tofuSprite, 
+            -spriteSize/2, 
+            -spriteSize/2, 
+            spriteSize, 
+            spriteSize
+        );
+        
+        this.ctx.restore();
+    }
+    
+    renderStoryEnemies(t) {
+        // Clean soldier sprites with dramatic movement and red glow
+        const soldiers = [
+            { sprite: this.assets.soldier1Sprite, x: this.canvas.width - 140, size: 70 },
+            { sprite: this.assets.soldier2Sprite, x: this.canvas.width - 220, size: 80 }
+        ];
+        
+        soldiers.forEach((soldier, index) => {
+            if (!soldier.sprite) return;
+            
+            const centerY = this.canvas.height / 2 + 30;
+            const menacingBob = Math.sin(t * 1.5 + index) * 8;
+            const redGlow = Math.sin(t * 4 + index) * 0.4 + 0.6;
+            
+            this.ctx.save();
+            this.ctx.translate(soldier.x, centerY + menacingBob);
+            
+            // Red menacing glow around the soldier
+            this.ctx.shadowColor = '#FF0000';
+            this.ctx.shadowBlur = 25 * redGlow;
+            this.ctx.globalAlpha = 0.9;
+            
+            // Draw the actual soldier sprite cleanly
+            this.ctx.drawImage(
+                soldier.sprite,
+                -soldier.size/2,
+                -soldier.size/2,
+                soldier.size,
+                soldier.size
+            );
+            
+            this.ctx.restore();
+        });
+    }
+    
+    renderActionLines(t) {
+        // Anime-style action lines for dramatic effect
+        this.ctx.save();
+        this.ctx.strokeStyle = '#FFFFFF';
+        this.ctx.globalAlpha = 0.6;
+        
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2;
+        
+        for (let i = 0; i < 20; i++) {
+            const angle = (i / 20) * Math.PI * 2;
+            const distance = 100 + (t * 50) % 200;
+            const lineLength = 30 + Math.sin(t * 4 + i) * 15;
+            
+            this.ctx.lineWidth = 2;
+            this.ctx.beginPath();
+            const startX = centerX + Math.cos(angle) * distance;
+            const startY = centerY + Math.sin(angle) * distance;
+            const endX = startX + Math.cos(angle) * lineLength;
+            const endY = startY + Math.sin(angle) * lineLength;
+            
+            this.ctx.moveTo(startX, startY);
+            this.ctx.lineTo(endX, endY);
+            this.ctx.stroke();
+        }
+        
+        this.ctx.restore();
+    }
+    
+    renderStoryProgress() {
+        // Anime-style progress indicator with dramatic styling
+        this.ctx.save();
+        
+        const centerX = this.canvas.width / 2;
+        const y = this.canvas.height - 20;
+        const dotSpacing = 25;
+        const startX = centerX - (this.storySlides.length - 1) * dotSpacing / 2;
+        
+        for (let i = 0; i < this.storySlides.length; i++) {
+            const x = startX + i * dotSpacing;
+            const isActive = i === this.currentStorySlide;
+            const pulse = isActive ? (1 + Math.sin(this.storyTime * 5) * 0.3) : 1;
+            
+            this.ctx.save();
+            this.ctx.translate(x, y);
+            this.ctx.scale(pulse, pulse);
+            
+            if (isActive) {
+                this.ctx.fillStyle = '#FFD700';
+                this.ctx.shadowColor = '#FFD700';
+                this.ctx.shadowBlur = 10;
+            } else {
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            }
+            
+            this.ctx.beginPath();
+            this.ctx.arc(0, 0, 5, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            this.ctx.restore();
+        }
+        
+        this.ctx.restore();
     }
     
     renderVictoryScreen() {
