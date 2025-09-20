@@ -13,7 +13,7 @@ class Game {
     }
     
     loadAssets() {
-        this.assetsToLoad = 7;
+        this.assetsToLoad = 10;
         this.assetsLoaded = 0;
         
         const tofuSprite = new Image();
@@ -43,6 +43,27 @@ class Game {
             this.checkAssetsLoaded();
         };
         tankSprite.src = 'tank.png';
+        
+        const sniperSprite = new Image();
+        sniperSprite.onload = () => {
+            this.assets.sniperSprite = sniperSprite;
+            this.checkAssetsLoaded();
+        };
+        sniperSprite.src = 'sniper.png';
+        
+        const boss1Sprite = new Image();
+        boss1Sprite.onload = () => {
+            this.assets.boss1Sprite = boss1Sprite;
+            this.checkAssetsLoaded();
+        };
+        boss1Sprite.src = 'boss1.png';
+        
+        const popcornSprite = new Image();
+        popcornSprite.onload = () => {
+            this.assets.popcornSprite = popcornSprite;
+            this.checkAssetsLoaded();
+        };
+        popcornSprite.src = 'popcorn.png';
         
         // Heart powerup sprite - create programmatically  
         const canvas = document.createElement('canvas');
@@ -187,35 +208,56 @@ class Game {
         this.gameOver = false;
         
         // Game state management
-        this.gameState = 'title'; // 'title', 'story', 'playing', 'gameOver', 'levelBuilder', 'victory', 'levelComplete'
+        this.gameState = 'title'; // 'title', 'story', 'playing', 'gameOver', 'levelBuilder', 'victory', 'levelComplete', 'bossCutscene'
         
         // Story screen data
         this.currentStorySlide = 0;
         this.storyTime = 0;
+        
+        // Boss cutscene data
+        this.bossCutsceneTime = 0;
+        this.bossCutsceneActive = false;
+        
         this.storySlides = [
             {
-                title: "The Dark Hour Approaches...",
-                text: "A sinister army emerges from the shadows,\nthreatening the peaceful Grassy Plains.\nTheir goal: Total domination!",
-                background: "#8B0000",
-                backgroundGradient: ["#8B0000", "#4B0000"],
-                showEnemies: true,
+                title: "EVIL AWAKENS!",
+                text: "\"MWAHAHAHA! I, POPCORN, will crush\nthe peaceful tofu! My human army\nshall conquer all!\"",
+                background: "#4B0082",
+                backgroundGradient: ["#4B0082", "#000000"],
+                showEnemies: false,
                 showTofu: false,
+                showPopcorn: true,
                 dramaticText: true,
-                effects: "invasion"
+                effects: "villain",
+                speaker: "popcorn"
             },
             {
-                title: "The Chosen One Awakens!",
-                text: "From the tranquil fields rises TOFU,\nan unlikely hero with extraordinary power!\n\"I will protect this land with my life!\"",
+                title: "THE HERO APPEARS!",
+                text: "\"Not today, Popcorn!\nI won't let you harm the innocent!\"",
                 background: "#FFD700",
                 backgroundGradient: ["#FFD700", "#FFA500"],
                 showEnemies: false,
                 showTofu: true,
+                showPopcorn: false,
                 dramaticText: true,
-                effects: "heroic"
+                effects: "heroic",
+                speaker: "tofu"
+            },
+            {
+                title: "CLASH OF DESTINIES!",
+                text: "The ultimate confrontation begins!\nGood versus evil in an epic battle\nfor the fate of the world!",
+                background: "#DC143C",
+                backgroundGradient: ["#DC143C", "#8B0000"],
+                showEnemies: true,
+                showTofu: true,
+                showPopcorn: true,
+                dramaticText: true,
+                effects: "confrontation",
+                speaker: "narrator"
             },
             {
                 title: "EPIC BATTLE BEGINS!",
-                text: "Armed with determination and lightning reflexes,\nTofu faces impossible odds!\nWill courage triumph over evil?!",
+                text: "Armed with determination and courage,\nTofu faces the evil army!\nWill good triumph over evil?!",
                 background: "#FF4500",
                 backgroundGradient: ["#FF4500", "#8B0000"],
                 showEnemies: true,
@@ -235,12 +277,29 @@ class Game {
         this.storyMusicGain = null;
         this.storyMusicPlaying = false;
         this.currentStoryMusicType = null;
+        this.storyMusicTimeout = null;
         this.audioUnlocked = false;
         
         // Gameplay music
         this.gameplayMusic = null;
         this.gameplayMusicGain = null;
         this.gameplayMusicPlaying = false;
+        
+        // Boss music
+        this.bossMusic = null;
+        this.bossMusicGain = null;
+        this.bossMusicPlaying = false;
+        this.bossActive = false;
+        
+        // Popcorn villain music
+        this.popcornMusic = null;
+        this.popcornMusicPlaying = false;
+        this.popcornMusicTimeout = null;
+        
+        // Mystery/suspense music
+        this.mysteryMusic = null;
+        this.mysteryMusicPlaying = false;
+        this.mysteryMusicTimeout = null;
         
         // Virtual button controls
         this.virtualButtons = {
@@ -436,7 +495,8 @@ class Game {
                     { type: 0, x: 900, y: 280 },
                     { type: 1, x: 1100, y: 280 },
                     { type: 0, x: 1300, y: 280 },
-                    // First tank encounter
+                    // First tank encounter with sniper support
+                    { type: 3, x: 1500, y: 280 },  // Sniper
                     { type: 2, x: 1600, y: 280 },  // Tank
                     { type: 1, x: 1800, y: 280 },
                     { type: 0, x: 2000, y: 280 },
@@ -450,9 +510,10 @@ class Game {
                     { type: 1, x: 3600, y: 300 },  // Elevated behind sandbag
                     { type: 0, x: 3800, y: 280 },
                     { type: 1, x: 4000, y: 280 },
-                    // Mid-level armored assault
+                    // Mid-level armored assault with sniper cover
                     { type: 0, x: 4400, y: 280 },
                     { type: 2, x: 4600, y: 280 },  // Tank
+                    { type: 3, x: 4700, y: 280 },  // Sniper
                     { type: 1, x: 4800, y: 280 },
                     { type: 2, x: 5000, y: 280 },  // Tank
                     { type: 0, x: 5200, y: 280 },
@@ -460,16 +521,17 @@ class Game {
                     { type: 1, x: 5600, y: 280 },
                     { type: 0, x: 5800, y: 280 },
                     { type: 2, x: 6000, y: 280 },  // Tank
-                    // Heavy resistance
+                    // Heavy resistance with elite sniper
                     { type: 1, x: 6400, y: 280 },
                     { type: 0, x: 6600, y: 280 },
                     { type: 2, x: 6800, y: 280 },  // Tank
+                    { type: 3, x: 6900, y: 280 },  // Sniper
                     { type: 1, x: 7000, y: 280 },
                     { type: 0, x: 7200, y: 280 },
                     { type: 2, x: 7400, y: 280 },  // Tank
                     { type: 1, x: 7600, y: 280 },
                     { type: 0, x: 7800, y: 280 },
-                    // Final desperate defense
+                    // Final desperate defense before the boss
                     { type: 1, x: 8200, y: 280 },
                     { type: 0, x: 8400, y: 280 },
                     { type: 2, x: 8600, y: 280 },  // Tank
@@ -478,7 +540,8 @@ class Game {
                     { type: 0, x: 9200, y: 280 },
                     { type: 1, x: 9400, y: 280 },
                     { type: 2, x: 9600, y: 280 },  // Tank
-                    { type: 0, x: 9800, y: 280 }   // Final soldier
+                    // THE BOSS - Final confrontation
+                    { type: 4, x: 9800, y: 280 }   // Boss1 - Powerful tank with machine gun
                 ],
                 sandbags: [
                     { x: 1700, y: 280 },
@@ -531,6 +594,8 @@ class Game {
         
         if (!this.currentLevelData) {
             // No more levels - victory!
+            this.stopGameplayMusic();
+            this.stopBossMusic();
             this.gameState = 'victory';
             return;
         }
@@ -571,7 +636,7 @@ class Game {
         this.camera.x = this.currentLevelData.startX;
         
         // Reset player position to level start
-        this.player.x = this.currentLevelData.startX + 100; // Start 100px into the level
+        this.player.x = this.currentLevelData.startX + 100; // Start 100px into the level  
         this.player.y = 220; // Reset to ground level
         this.player.velocityX = 0;
         this.player.velocityY = 0;
@@ -600,6 +665,12 @@ class Game {
             
             // Only spawn enemies that are ahead of the player and in view range
             if (enemy.x > playerX && enemy.x <= spawnRange) {
+                // Check if this is the boss - trigger cutscene
+                if (enemy.type === 4 && !this.bossCutsceneActive) {
+                    this.triggerBossCutscene();
+                    return; // Don't spawn the boss yet, wait for cutscene to finish
+                }
+                
                 // Spawn this enemy
                 console.log('Spawning enemy type', enemy.type, 'at', enemy.x, enemy.y);
                 this.enemies.push(new Enemy(enemy.x, enemy.y, enemy.type, this.assets));
@@ -641,6 +712,8 @@ class Game {
                     this.startStory();
                     e.preventDefault();
                 } else if (e.key === 'l' || e.key === 'L') {
+                    // Stop music before entering level builder
+                    this.stopTitleMusic();
                     this.gameState = 'levelBuilder';
                     this.initializeLevelBuilder();
                     e.preventDefault();
@@ -655,6 +728,12 @@ class Game {
             } else if (this.gameState === 'story') {
                 if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight') {
                     this.nextStorySlide();
+                    e.preventDefault();
+                }
+            } else if (this.gameState === 'bossCutscene') {
+                // Allow skipping cutscene
+                if (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape') {
+                    this.endBossCutscene();
                     e.preventDefault();
                 } else if (e.key === 'ArrowLeft') {
                     this.previousStorySlide();
@@ -1072,6 +1151,7 @@ class Game {
         if (this.player.health <= 0) {
             if (this.gameState === 'playing') {
                 this.stopGameplayMusic();
+                this.stopBossMusic();
                 this.gameState = 'gameOver';
                 this.gameOver = true;
                 // Check if this is a high score
@@ -1189,6 +1269,16 @@ class Game {
             
         }
         
+        // Boss music management - only during gameplay
+        if (this.gameState === 'playing') {
+            const bossPresent = this.enemies.some(enemy => enemy.type === 4);
+            if (bossPresent && !this.bossActive) {
+                this.startBossMusic();
+            } else if (!bossPresent && this.bossActive) {
+                this.stopBossMusic();
+            }
+        }
+        
         // Update powerups
         for (let i = this.powerups.length - 1; i >= 0; i--) {
             this.powerups[i].update();
@@ -1244,6 +1334,16 @@ class Game {
                             this.explosions.push(new TankExplosion(enemy.x + enemy.width/2, enemy.y + enemy.height/2));
                             // Create tank remnants that persist
                             this.tankRemnants.push(new TankRemnant(enemy.x, enemy.y, enemy.width, enemy.height));
+                        }
+                        
+                        // Dramatic boss explosion and victory music
+                        if (enemy.type === 4) {
+                            this.playBossExplosion();
+                            this.playVictoryMusic();
+                            // Create massive boss explosion
+                            this.explosions.push(new BossExplosion(enemy.x + enemy.width/2, enemy.y + enemy.height/2));
+                            // Stop boss music
+                            this.stopBossMusic();
                         }
                         this.enemies.splice(j, 1);
                     }
@@ -1405,7 +1505,8 @@ class Game {
     }
     
     startGame() {
-        this.stopTitleMusic();
+        this.stopStoryMusic();
+        this.stopPopcornMusic();
         this.startGameplayMusic();
         this.gameState = 'playing';
         this.gameOver = false;
@@ -1413,6 +1514,9 @@ class Game {
         this.enteringInitials = false;
         this.currentInitials = '';
         this.newHighScoreIndex = -1;
+        
+        // Reset to level 1
+        this.currentLevel = 1;
         this.wonGame = false;
         
         // Reset player
@@ -1446,6 +1550,8 @@ class Game {
     }
     
     startStory() {
+        // Stop title music before starting story
+        this.stopTitleMusic();
         this.gameState = 'story';
         this.currentStorySlide = 0;
         this.storyTime = 0;
@@ -1456,6 +1562,7 @@ class Game {
         this.storyTime = 0; // Reset animation time for new slide
         if (this.currentStorySlide >= this.storySlides.length) {
             this.stopStoryMusic();
+            this.stopPopcornMusic();
             this.startGame();
         } else {
             // Start music for new slide
@@ -1480,6 +1587,8 @@ class Game {
         this.stopTitleMusic();
         this.stopGameplayMusic();
         this.stopStoryMusic();
+        this.stopBossMusic();
+        this.stopPopcornMusic();
         this.gameState = 'title';
         this.gameOver = false;
         this.enteringInitials = false;
@@ -1650,6 +1759,572 @@ class Game {
         echo.stop(this.audioContext.currentTime + 0.8);
     }
     
+    playBossExplosion() {
+        if (!this.audioContext) return;
+        
+        // EPIC boss explosion - even more dramatic than tank
+        
+        // Massive deep rumble
+        const rumble = this.audioContext.createOscillator();
+        const rumbleGain = this.audioContext.createGain();
+        rumble.connect(rumbleGain);
+        rumbleGain.connect(this.audioContext.destination);
+        rumble.frequency.setValueAtTime(25, this.audioContext.currentTime);
+        rumble.frequency.exponentialRampToValueAtTime(8, this.audioContext.currentTime + 2.0);
+        rumbleGain.gain.setValueAtTime(1.0, this.audioContext.currentTime);
+        rumbleGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 2.0);
+        
+        // Massive explosion crack
+        const crack = this.audioContext.createOscillator();
+        const crackGain = this.audioContext.createGain();
+        crack.connect(crackGain);
+        crackGain.connect(this.audioContext.destination);
+        crack.frequency.setValueAtTime(800, this.audioContext.currentTime);
+        crack.frequency.exponentialRampToValueAtTime(60, this.audioContext.currentTime + 0.8);
+        crackGain.gain.setValueAtTime(0.9, this.audioContext.currentTime);
+        crackGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.8);
+        
+        // High metallic debris
+        const debris = this.audioContext.createOscillator();
+        const debrisGain = this.audioContext.createGain();
+        debris.connect(debrisGain);
+        debrisGain.connect(this.audioContext.destination);
+        debris.frequency.setValueAtTime(4000, this.audioContext.currentTime);
+        debris.frequency.exponentialRampToValueAtTime(800, this.audioContext.currentTime + 1.0);
+        debrisGain.gain.setValueAtTime(0.4, this.audioContext.currentTime);
+        debrisGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 1.0);
+        
+        // Multiple explosion echoes for boss
+        for (let i = 0; i < 3; i++) {
+            const echo = this.audioContext.createOscillator();
+            const echoGain = this.audioContext.createGain();
+            echo.connect(echoGain);
+            echoGain.connect(this.audioContext.destination);
+            const delay = 0.3 + (i * 0.2);
+            echo.frequency.setValueAtTime(300 - (i * 50), this.audioContext.currentTime + delay);
+            echo.frequency.exponentialRampToValueAtTime(40 - (i * 10), this.audioContext.currentTime + delay + 0.6);
+            echoGain.gain.setValueAtTime(0.3 - (i * 0.05), this.audioContext.currentTime + delay);
+            echoGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + delay + 0.6);
+            echo.start(this.audioContext.currentTime + delay);
+            echo.stop(this.audioContext.currentTime + delay + 0.6);
+        }
+        
+        rumble.start(this.audioContext.currentTime);
+        rumble.stop(this.audioContext.currentTime + 2.0);
+        crack.start(this.audioContext.currentTime);
+        crack.stop(this.audioContext.currentTime + 0.8);
+        debris.start(this.audioContext.currentTime);
+        debris.stop(this.audioContext.currentTime + 1.0);
+    }
+    
+    playVictoryMusic() {
+        if (!this.audioContext) return;
+        
+        // Epic victory fanfare
+        const notes = [
+            { freq: 523.25, time: 0.0, duration: 0.5 }, // C5
+            { freq: 659.25, time: 0.5, duration: 0.5 }, // E5
+            { freq: 783.99, time: 1.0, duration: 0.5 }, // G5
+            { freq: 1046.5, time: 1.5, duration: 1.0 }, // C6 - triumphant high note
+            { freq: 783.99, time: 2.5, duration: 0.5 }, // G5
+            { freq: 1046.5, time: 3.0, duration: 1.5 }  // C6 - final victory note
+        ];
+        
+        notes.forEach(note => {
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(note.freq, this.audioContext.currentTime + note.time);
+            gainNode.gain.setValueAtTime(0.6, this.audioContext.currentTime + note.time);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + note.time + note.duration);
+            
+            oscillator.start(this.audioContext.currentTime + note.time);
+            oscillator.stop(this.audioContext.currentTime + note.time + note.duration);
+        });
+        
+        // Add triumphant harmony
+        const harmonyNotes = [
+            { freq: 392.00, time: 1.5, duration: 1.0 }, // G4
+            { freq: 523.25, time: 2.5, duration: 0.5 }, // C5
+            { freq: 659.25, time: 3.0, duration: 1.5 }  // E5
+        ];
+        
+        harmonyNotes.forEach(note => {
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(note.freq, this.audioContext.currentTime + note.time);
+            gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime + note.time);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + note.time + note.duration);
+            
+            oscillator.start(this.audioContext.currentTime + note.time);
+            oscillator.stop(this.audioContext.currentTime + note.time + note.duration);
+        });
+    }
+    
+    startPopcornMusic() {
+        if (!this.audioContext || this.popcornMusicPlaying || !this.audioUnlocked) {
+            console.log('POPCORN MUSIC BLOCKED - audioContext:', !!this.audioContext, 'playing:', this.popcornMusicPlaying, 'unlocked:', this.audioUnlocked);
+            return;
+        }
+        
+        console.log('STARTING NEW POPCORN VILLAIN MUSIC - CONTEXT:', this.gameState);
+        console.log('Audio context state:', this.audioContext.state);
+        console.log('Current time:', this.audioContext.currentTime);
+        this.popcornMusicPlaying = true;
+        this.playPopcornTrack();
+    }
+    
+    startEnhancedPopcornMusic() {
+        if (!this.audioContext || this.popcornMusicPlaying || !this.audioUnlocked) return;
+        
+        console.log('STARTING ENHANCED POPCORN MUSIC WITH STORY EFFECTS');
+        this.popcornMusicPlaying = true;
+        this.playEnhancedPopcornTrack();
+    }
+    
+    stopPopcornMusic() {
+        if (this.popcornMusic) {
+            this.popcornMusic.stop();
+            this.popcornMusic = null;
+        }
+        if (this.popcornMusicTimeout) {
+            clearTimeout(this.popcornMusicTimeout);
+            this.popcornMusicTimeout = null;
+        }
+        this.popcornMusicPlaying = false;
+    }
+    
+    stopAllMusic() {
+        // Stop all audio but don't mess with initialization state
+        this.stopTitleMusic();
+        this.stopGameplayMusic();
+        this.stopStoryMusic();
+        this.stopBossMusic();
+        this.stopPopcornMusic();
+        this.stopMysteryMusic();
+        
+        // Only clear the playing flags, not the core state
+        this.currentStoryMusicType = null;
+    }
+    
+    startMysteryMusic() {
+        if (!this.audioContext || this.mysteryMusicPlaying || !this.audioUnlocked) return;
+        
+        console.log('STARTING MYSTERY MUSIC');
+        this.mysteryMusicPlaying = true;
+        this.playMysteryTrack();
+    }
+    
+    stopMysteryMusic() {
+        if (this.mysteryMusic) {
+            this.mysteryMusic.stop();
+            this.mysteryMusic = null;
+        }
+        if (this.mysteryMusicTimeout) {
+            clearTimeout(this.mysteryMusicTimeout);
+            this.mysteryMusicTimeout = null;
+        }
+        this.mysteryMusicPlaying = false;
+    }
+    
+    playMysteryTrack() {
+        if (!this.audioContext || !this.audioUnlocked) return;
+        
+        console.log('PLAYING MYSTERY TRACK - D3, E3, F3, G3 progression');
+        
+        // Original popcorn music - mysterious and suspenseful
+        const now = this.audioContext.currentTime;
+        
+        // Deep, ominous bass line (ORIGINAL)
+        const bass = this.audioContext.createOscillator();
+        const bassGain = this.audioContext.createGain();
+        bass.connect(bassGain);
+        bassGain.connect(this.audioContext.destination);
+        
+        // Original bass progression: D minor scale
+        const bassNotes = [146.83, 164.81, 174.61, 196.00]; // D3, E3, F3, G3
+        
+        bassNotes.forEach((freq, i) => {
+            setTimeout(() => {
+                if (this.mysteryMusicPlaying) {
+                    bass.frequency.setValueAtTime(freq, this.audioContext.currentTime);
+                }
+            }, i * 800);
+        });
+        
+        bass.frequency.setValueAtTime(bassNotes[0], now);
+        bassGain.gain.setValueAtTime(0.4, now);
+        bassGain.gain.exponentialRampToValueAtTime(0.01, now + 4);
+        
+        // Original dark, dissonant harmony
+        const harmony = this.audioContext.createOscillator();
+        const harmonyGain = this.audioContext.createGain();
+        harmony.connect(harmonyGain);
+        harmonyGain.connect(this.audioContext.destination);
+        
+        const harmonyNotes = [220.00, 246.94, 261.63, 293.66]; // A3, B3, C4, D4
+        let harmonyTime = now + 0.4;
+        
+        harmonyNotes.forEach((freq, i) => {
+            setTimeout(() => {
+                if (this.mysteryMusicPlaying) {
+                    harmony.frequency.setValueAtTime(freq, this.audioContext.currentTime);
+                }
+            }, i * 800 + 400);
+        });
+        
+        harmony.frequency.setValueAtTime(harmonyNotes[0], harmonyTime);
+        harmonyGain.gain.setValueAtTime(0.2, harmonyTime);
+        harmonyGain.gain.exponentialRampToValueAtTime(0.01, harmonyTime + 3.6);
+        
+        // Original evil tremolo effect
+        const tremolo = this.audioContext.createOscillator();
+        const tremoloGain = this.audioContext.createGain();
+        tremolo.connect(tremoloGain);
+        tremoloGain.connect(this.audioContext.destination);
+        
+        tremolo.frequency.setValueAtTime(8, now); // Original 8 Hz tremolo
+        tremoloGain.gain.setValueAtTime(0.1, now);
+        tremoloGain.gain.exponentialRampToValueAtTime(0.01, now + 4);
+        
+        bass.start(now);
+        bass.stop(now + 4);
+        harmony.start(harmonyTime);
+        harmony.stop(harmonyTime + 3.6);
+        tremolo.start(now);
+        tremolo.stop(now + 4);
+        
+        this.mysteryMusic = bass; // Store reference for stopping
+        
+        // Original loop timing
+        this.mysteryMusicTimeout = setTimeout(() => {
+            if (this.mysteryMusicPlaying) {
+                this.playMysteryTrack();
+            }
+        }, 3200);
+    }
+    
+    playPopcornTrack() {
+        if (!this.audioContext || !this.audioUnlocked) return;
+        
+        console.log('PLAYING NEW POPCORN TRACK - G2, A2, B2, C#3 progression');
+        console.log('Game state:', this.gameState);
+        console.log('Story music playing:', this.storyMusicPlaying);
+        console.log('Popcorn music playing:', this.popcornMusicPlaying);
+        console.log('Audio context current time:', this.audioContext.currentTime);
+        
+        // NEW evil villain music for popcorn - more dramatic and sinister
+        const now = this.audioContext.currentTime;
+        
+        console.log('=== POPCORN TRACK AUDIO NODES ===');
+        console.log('Creating bass oscillator...');
+        
+        // Ultra-deep menacing bass
+        const bass = this.audioContext.createOscillator();
+        const bassGain = this.audioContext.createGain();
+        bass.connect(bassGain);
+        bassGain.connect(this.audioContext.destination);
+        
+        // More aggressive villain progression
+        const bassNotes = [98.00, 110.00, 123.47, 138.59]; // G2, A2, B2, C#3
+        let bassTime = now;
+        
+        bassNotes.forEach((freq, i) => {
+            setTimeout(() => {
+                if (this.popcornMusicPlaying) {
+                    bass.frequency.setValueAtTime(freq, this.audioContext.currentTime);
+                }
+            }, i * 600); // Faster progression
+        });
+        
+        bass.frequency.setValueAtTime(bassNotes[0], now);
+        bassGain.gain.setValueAtTime(0.5, now); // Louder
+        bassGain.gain.exponentialRampToValueAtTime(0.01, now + 3);
+        
+        // Sinister high-pitched discord
+        const discord = this.audioContext.createOscillator();
+        const discordGain = this.audioContext.createGain();
+        discord.connect(discordGain);
+        discordGain.connect(this.audioContext.destination);
+        
+        // Dissonant high notes for evil effect
+        const discordNotes = [466.16, 523.25, 587.33, 659.25]; // A#4, C5, D5, E5
+        let discordTime = now + 0.3;
+        
+        discordNotes.forEach((freq, i) => {
+            setTimeout(() => {
+                if (this.popcornMusicPlaying) {
+                    discord.frequency.setValueAtTime(freq, this.audioContext.currentTime);
+                }
+            }, i * 600 + 300);
+        });
+        
+        discord.frequency.setValueAtTime(discordNotes[0], discordTime);
+        discordGain.gain.setValueAtTime(0.15, discordTime);
+        discordGain.gain.exponentialRampToValueAtTime(0.01, discordTime + 2.7);
+        
+        // Evil pulsing effect
+        const pulse = this.audioContext.createOscillator();
+        const pulseGain = this.audioContext.createGain();
+        pulse.connect(pulseGain);
+        pulseGain.connect(this.audioContext.destination);
+        
+        pulse.frequency.setValueAtTime(12, now); // 12 Hz evil pulse
+        pulseGain.gain.setValueAtTime(0.08, now);
+        pulseGain.gain.exponentialRampToValueAtTime(0.01, now + 3);
+        
+        bass.start(now);
+        bass.stop(now + 3);
+        discord.start(discordTime);
+        discord.stop(discordTime + 2.7);
+        pulse.start(now);
+        pulse.stop(now + 3);
+        
+        this.popcornMusic = bass; // Store reference for stopping
+        
+        // Add echo effects to bass for richness - ALWAYS APPLY
+        console.log('Adding echo effects to bass for story-like audio');
+        for (let i = 0; i < 2; i++) {
+            const echo = this.audioContext.createOscillator();
+            const echoGain = this.audioContext.createGain();
+            echo.connect(echoGain);
+            echoGain.connect(this.audioContext.destination);
+            
+            const delay = 0.15 + (i * 0.1);
+            echo.frequency.setValueAtTime(bassNotes[0] * 0.5, now + delay); // Lower octave echo
+            echoGain.gain.setValueAtTime(0.15 - (i * 0.05), now + delay);
+            echoGain.gain.exponentialRampToValueAtTime(0.01, now + delay + 2.8);
+            echo.start(now + delay);
+            echo.stop(now + delay + 2.8);
+        }
+        
+        // Add dramatic villain drums using filtered noise
+        console.log('Adding villain drum effects to popcorn music');
+        const villainDrumPattern = [
+            // Heavy menacing beat pattern - kicks and snares but no crash
+            {type: 'kick', time: 0},
+            {type: 'kick', time: 0.3},
+            {type: 'snare', time: 0.6},
+            {type: 'kick', time: 0.9},
+            {type: 'snare', time: 1.2},
+            {type: 'kick', time: 1.8},
+            {type: 'snare', time: 2.1},
+        ];
+        
+        villainDrumPattern.forEach((drum, index) => {
+            console.log(`Creating drum ${index}: ${drum.type} at time ${drum.time}`);
+            const noise = this.audioContext.createBufferSource();
+            const buffer = this.audioContext.createBuffer(1, this.audioContext.sampleRate * 0.1, this.audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            // Generate white noise
+            for (let i = 0; i < buffer.length; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            noise.buffer = buffer;
+            
+            const filter = this.audioContext.createBiquadFilter();
+            const gain = this.audioContext.createGain();
+            
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.audioContext.destination);
+            
+            const startTime = this.audioContext.currentTime + drum.time;
+            
+            switch(drum.type) {
+                case 'kick':
+                    filter.frequency.setValueAtTime(60, startTime); // Even deeper kick for villain
+                    filter.Q.setValueAtTime(1.5, startTime);
+                    gain.gain.setValueAtTime(0.25, startTime); // Louder for drama
+                    gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.2);
+                    break;
+                case 'snare':
+                    filter.frequency.setValueAtTime(2000, startTime); // Sharp crack
+                    filter.Q.setValueAtTime(0.3, startTime);
+                    gain.gain.setValueAtTime(0.15, startTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.1);
+                    break;
+                case 'crash':
+                    filter.frequency.setValueAtTime(5000, startTime); // Evil crash
+                    filter.Q.setValueAtTime(0.2, startTime);
+                    gain.gain.setValueAtTime(0.2, startTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.8);
+                    break;
+            }
+            
+            console.log(`Starting ${drum.type} drum at ${startTime}`);
+            noise.start(startTime);
+            noise.stop(startTime + 0.1);
+        });
+        
+        // Loop the evil villain music
+        this.popcornMusicTimeout = setTimeout(() => {
+            if (this.popcornMusicPlaying) {
+                this.playPopcornTrack();
+            }
+        }, 2400);
+    }
+    
+    playEnhancedPopcornTrack() {
+        if (!this.audioContext || !this.audioUnlocked) return;
+        
+        console.log('PLAYING ENHANCED POPCORN TRACK WITH REVERB AND EFFECTS');
+        
+        const now = this.audioContext.currentTime;
+        
+        // Create reverb convolver
+        const convolver = this.audioContext.createConvolver();
+        const impulseBuffer = this.audioContext.createBuffer(2, this.audioContext.sampleRate * 2, this.audioContext.sampleRate);
+        for (let channel = 0; channel < impulseBuffer.numberOfChannels; channel++) {
+            const channelData = impulseBuffer.getChannelData(channel);
+            for (let i = 0; i < channelData.length; i++) {
+                channelData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / channelData.length, 2);
+            }
+        }
+        convolver.buffer = impulseBuffer;
+        
+        // Create delay
+        const delay = this.audioContext.createDelay(0.3);
+        delay.delayTime.setValueAtTime(0.15, now);
+        const delayGain = this.audioContext.createGain();
+        delayGain.gain.setValueAtTime(0.3, now);
+        
+        // Master gain for the enhanced track
+        const masterGain = this.audioContext.createGain();
+        masterGain.gain.setValueAtTime(0.8, now);
+        
+        // Ultra-deep menacing bass with reverb
+        const bass = this.audioContext.createOscillator();
+        const bassGain = this.audioContext.createGain();
+        bass.connect(bassGain);
+        bassGain.connect(convolver);
+        bassGain.connect(delay);
+        convolver.connect(masterGain);
+        delay.connect(delayGain);
+        delayGain.connect(masterGain);
+        masterGain.connect(this.audioContext.destination);
+        
+        const bassNotes = [98.00, 110.00, 123.47, 138.59]; // G2, A2, B2, C#3
+        bassNotes.forEach((freq, i) => {
+            setTimeout(() => {
+                if (this.popcornMusicPlaying) {
+                    bass.frequency.setValueAtTime(freq, this.audioContext.currentTime);
+                }
+            }, i * 600);
+        });
+        
+        bass.frequency.setValueAtTime(bassNotes[0], now);
+        bassGain.gain.setValueAtTime(0.6, now);
+        bassGain.gain.exponentialRampToValueAtTime(0.01, now + 3);
+        
+        // Enhanced discord with effects
+        const discord = this.audioContext.createOscillator();
+        const discordGain = this.audioContext.createGain();
+        discord.connect(discordGain);
+        discordGain.connect(convolver);
+        discordGain.connect(delay);
+        
+        const discordNotes = [466.16, 523.25, 587.33, 659.25];
+        let discordTime = now + 0.3;
+        
+        discordNotes.forEach((freq, i) => {
+            setTimeout(() => {
+                if (this.popcornMusicPlaying) {
+                    discord.frequency.setValueAtTime(freq, this.audioContext.currentTime);
+                }
+            }, i * 600 + 300);
+        });
+        
+        discord.frequency.setValueAtTime(discordNotes[0], discordTime);
+        discordGain.gain.setValueAtTime(0.2, discordTime);
+        discordGain.gain.exponentialRampToValueAtTime(0.01, discordTime + 2.7);
+        
+        // Evil pulsing with reverb
+        const pulse = this.audioContext.createOscillator();
+        const pulseGain = this.audioContext.createGain();
+        pulse.connect(pulseGain);
+        pulseGain.connect(convolver);
+        
+        pulse.frequency.setValueAtTime(12, now);
+        pulseGain.gain.setValueAtTime(0.1, now);
+        pulseGain.gain.exponentialRampToValueAtTime(0.01, now + 3);
+        
+        bass.start(now);
+        bass.stop(now + 3);
+        discord.start(discordTime);
+        discord.stop(discordTime + 2.7);
+        pulse.start(now);
+        pulse.stop(now + 3);
+        
+        this.popcornMusic = bass;
+        
+        // Add enhanced drum effects
+        const villainDrumPattern = [
+            {type: 'kick', time: 0},
+            {type: 'kick', time: 0.3},
+            {type: 'snare', time: 0.6},
+            {type: 'kick', time: 0.9},
+            {type: 'snare', time: 1.2},
+            {type: 'crash', time: 1.5},
+            {type: 'kick', time: 1.8},
+            {type: 'snare', time: 2.1},
+        ];
+        
+        villainDrumPattern.forEach((drum, index) => {
+            const noise = this.audioContext.createBufferSource();
+            const buffer = this.audioContext.createBuffer(1, this.audioContext.sampleRate * 0.1, this.audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < buffer.length; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            noise.buffer = buffer;
+            
+            const filter = this.audioContext.createBiquadFilter();
+            const gain = this.audioContext.createGain();
+            
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(convolver); // Add reverb to drums too
+            
+            const startTime = this.audioContext.currentTime + drum.time;
+            
+            switch(drum.type) {
+                case 'kick':
+                    filter.frequency.setValueAtTime(80, startTime);
+                    filter.Q.setValueAtTime(2, startTime);
+                    gain.gain.setValueAtTime(0.4, startTime);
+                    break;
+                case 'snare':
+                    filter.frequency.setValueAtTime(200, startTime);
+                    filter.Q.setValueAtTime(1, startTime);
+                    gain.gain.setValueAtTime(0.3, startTime);
+                    break;
+                case 'crash':
+                    filter.frequency.setValueAtTime(8000, startTime);
+                    filter.Q.setValueAtTime(0.1, startTime);
+                    gain.gain.setValueAtTime(0.2, startTime);
+                    break;
+            }
+            
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.1);
+            noise.start(startTime);
+            noise.stop(startTime + 0.1);
+        });
+        
+        // Loop the enhanced music
+        this.popcornMusicTimeout = setTimeout(() => {
+            if (this.popcornMusicPlaying) {
+                this.playEnhancedPopcornTrack();
+            }
+        }, 2400);
+    }
+    
     unlockAudio() {
         if (this.audioUnlocked) return Promise.resolve();
         
@@ -1800,17 +2475,26 @@ class Game {
         const slide = this.storySlides[slideIndex];
         const musicType = slide.effects;
         
-        // Only restart music if it's a different type
-        if (this.currentStoryMusicType === musicType && this.storyMusicPlaying) {
-            return;
-        }
+        console.log(`Starting story music: slide ${slideIndex}, type: ${musicType}, current: ${this.currentStoryMusicType}`);
+        console.log(`Music states - story: ${this.storyMusicPlaying}, popcorn: ${this.popcornMusicPlaying}`);
+        console.log(`Game state when starting story music: ${this.gameState}`);
         
-        // Stop any existing story music
+        // Always stop existing music when changing slides  
         this.stopStoryMusic();
+        this.stopPopcornMusic();
+        this.stopMysteryMusic();
         
         this.currentStoryMusicType = musicType;
-        this.storyMusicPlaying = true;
-        this.playStoryTrack(musicType);
+        
+        // Handle villain music separately with popcorn music system (INTRO SEQUENCE)
+        if (musicType === 'villain') {
+            console.log('STORY MODE: Starting popcorn music for villain');
+            this.startPopcornMusic();
+        } else {
+            console.log('STORY MODE: Starting story music track:', musicType);
+            this.storyMusicPlaying = true;
+            this.playStoryTrack(musicType);
+        }
     }
     
     stopStoryMusic() {
@@ -1821,12 +2505,18 @@ class Game {
         if (this.storyMusicGain) {
             this.storyMusicGain = null;
         }
+        if (this.storyMusicTimeout) {
+            clearTimeout(this.storyMusicTimeout);
+            this.storyMusicTimeout = null;
+        }
         this.storyMusicPlaying = false;
         this.currentStoryMusicType = null;
     }
     
     playStoryTrack(musicType) {
         if (!this.audioContext || !this.storyMusicPlaying) return;
+        
+        console.log('PLAYSTORYTRACK CALLED WITH:', musicType, 'storyMusicPlaying:', this.storyMusicPlaying);
         
         let melody = [];
         let bassDrone = [];
@@ -1847,17 +2537,48 @@ class Game {
                 break;
                 
             case 'heroic':
-                // Triumphant, rising melody
+                // EPIC heroic entrance - building intensity to match villain drama
                 melody = [
-                    {note: 523, duration: 0.5}, // C5
-                    {note: 659, duration: 0.5}, // E5
-                    {note: 784, duration: 0.5}, // G5
-                    {note: 1047, duration: 1.0}, // C6
-                    {note: 880, duration: 0.5}, // A5
-                    {note: 784, duration: 1.0}, // G5
+                    // Building tension
+                    {note: 392, duration: 0.4}, // G4 - start lower
+                    {note: 523, duration: 0.4}, // C5 - building up
+                    {note: 659, duration: 0.4}, // E5 - more intensity
+                    {note: 784, duration: 0.3}, // G5 - faster rhythm
+                    {note: 1047, duration: 0.3}, // C6 - peak power
+                    {note: 1175, duration: 0.3}, // D6 - even higher
+                    {note: 1319, duration: 0.5}, // E6 - triumphant peak
+                    {note: 1047, duration: 0.3}, // C6 - power chord
+                    {note: 784, duration: 0.3}, // G5 - driving rhythm
+                    {note: 880, duration: 0.3}, // A5 - tension
+                    {note: 1047, duration: 0.8}, // C6 - final power note
                 ];
                 bassDrone = [
-                    {note: 262, duration: 4.0}, // C4 drone
+                    {note: 131, duration: 2.0}, // C3 - deeper, more powerful drone
+                    {note: 196, duration: 2.0}, // G3 - harmonic power
+                ];
+                break;
+                
+            case 'confrontation':
+                // INTENSE building tension - the calm before the storm
+                melody = [
+                    // Ominous building tension
+                    {note: 220, duration: 0.8}, // A3 - dark start
+                    {note: 277, duration: 0.6}, // C#4 - tension rising
+                    {note: 330, duration: 0.6}, // E4 - building
+                    {note: 415, duration: 0.5}, // G#4 - more intensity
+                    {note: 554, duration: 0.4}, // C#5 - climbing higher
+                    {note: 659, duration: 0.4}, // E5 - escalating
+                    {note: 831, duration: 0.3}, // G#5 - peak tension
+                    // Explosive climax  
+                    {note: 1109, duration: 0.6}, // C#6 - explosive peak
+                    {note: 932, duration: 0.3}, // A#5 - dramatic fall
+                    {note: 831, duration: 0.3}, // G#5 - power chord
+                    {note: 659, duration: 0.4}, // E5 - driving to battle
+                    {note: 554, duration: 0.8}, // C#5 - final tension note
+                ];
+                bassDrone = [
+                    {note: 110, duration: 3.0}, // A2 - ominous deep drone
+                    {note: 138, duration: 3.0}, // C#3 - harmonic tension
                 ];
                 break;
                 
@@ -1876,9 +2597,27 @@ class Game {
                     {note: 147, duration: 2.4}, // D3 drone
                 ];
                 break;
+                
+            case 'villain':
+                // Evil popcorn villain music - aggressive and menacing
+                melody = [
+                    {note: 98, duration: 0.6},   // G2
+                    {note: 110, duration: 0.6},  // A2
+                    {note: 123, duration: 0.6},  // B2
+                    {note: 138, duration: 1.2},  // C#3
+                    {note: 123, duration: 0.6},  // B2
+                    {note: 98, duration: 1.6},   // G2
+                ];
+                bassDrone = [
+                    {note: 73, duration: 6.0}, // D2 deep evil drone
+                ];
+                break;
         }
         
         let currentTime = this.audioContext.currentTime;
+        
+        console.log('=== STORY TRACK AUDIO NODES ===');
+        console.log('Creating story bass drone...');
         
         // Create dramatic low-frequency drone
         bassDrone.forEach(note => {
@@ -1929,7 +2668,7 @@ class Game {
         
         // Schedule next loop
         const totalDuration = musicType === 'invasion' ? 6000 : musicType === 'heroic' ? 4000 : 2500;
-        setTimeout(() => {
+        this.storyMusicTimeout = setTimeout(() => {
             if (this.gameState === 'story' && this.storyMusicPlaying) {
                 this.playStoryTrack(musicType);
             }
@@ -2125,6 +2864,131 @@ class Game {
         }, 4000);
     }
     
+    startBossMusic() {
+        if (!this.audioContext || this.bossMusicPlaying || !this.audioUnlocked) return;
+        
+        // Stop regular gameplay music
+        this.stopGameplayMusic();
+        
+        this.bossMusicPlaying = true;
+        this.bossActive = true;
+        this.playBossTrack();
+    }
+    
+    stopBossMusic() {
+        if (this.bossMusic) {
+            this.bossMusic.stop();
+            this.bossMusic = null;
+        }
+        if (this.bossMusicGain) {
+            this.bossMusicGain = null;
+        }
+        this.bossMusicPlaying = false;
+        this.bossActive = false;
+        
+        // Resume normal gameplay music ONLY if we're in playing state and no boss is present
+        const bossPresent = this.enemies.some(enemy => enemy.type === 4);
+        if (this.gameState === 'playing' && !this.gameplayMusicPlaying && !bossPresent) {
+            this.startGameplayMusic();
+        }
+    }
+    
+    playBossTrack() {
+        if (!this.audioContext || !this.bossMusicPlaying) return;
+        
+        // Epic, intense boss battle music - fast-paced and dramatic
+        const melody = [
+            {note: 277, duration: 0.2}, // C#4
+            {note: 311, duration: 0.2}, // D#4
+            {note: 349, duration: 0.2}, // F4
+            {note: 415, duration: 0.2}, // G#4
+            {note: 466, duration: 0.2}, // A#4
+            {note: 554, duration: 0.2}, // C#5
+            {note: 622, duration: 0.2}, // D#5
+            {note: 698, duration: 0.2}, // F5
+            // Descending power chord
+            {note: 830, duration: 0.3}, // G#5
+            {note: 698, duration: 0.3}, // F5
+            {note: 554, duration: 0.3}, // C#5
+            {note: 415, duration: 0.4}, // G#4
+            // Fast arpeggios
+            {note: 277, duration: 0.15}, // C#4
+            {note: 349, duration: 0.15}, // F4
+            {note: 415, duration: 0.15}, // G#4
+            {note: 554, duration: 0.15}, // C#5
+            {note: 277, duration: 0.15}, // C#4
+            {note: 349, duration: 0.15}, // F4
+            {note: 415, duration: 0.15}, // G#4
+            {note: 554, duration: 0.15}, // C#5
+        ];
+        
+        // Dramatic bass line
+        const bassLine = [
+            {note: 138, duration: 0.4}, // C#3
+            {note: 174, duration: 0.4}, // F3
+            {note: 207, duration: 0.4}, // G#3
+            {note: 174, duration: 0.4}, // F3
+            {note: 138, duration: 0.4}, // C#3
+            {note: 155, duration: 0.4}, // D#3
+            {note: 138, duration: 0.8}, // C#3
+        ];
+        
+        let currentTime = this.audioContext.currentTime;
+        
+        // Play powerful bass line
+        bassLine.forEach(note => {
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+            
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(note.note, currentTime);
+            
+            gain.gain.setValueAtTime(0.2, currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.25, currentTime + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.1, currentTime + note.duration - 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.01, currentTime + note.duration);
+            
+            osc.connect(gain);
+            gain.connect(this.audioContext.destination);
+            
+            osc.start(currentTime);
+            osc.stop(currentTime + note.duration);
+            
+            currentTime += note.duration;
+        });
+        
+        // Reset time for melody
+        currentTime = this.audioContext.currentTime + 0.1;
+        
+        // Play intense melody
+        melody.forEach(note => {
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+            
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(note.note, currentTime);
+            
+            gain.gain.setValueAtTime(0, currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.15, currentTime + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.01, currentTime + note.duration);
+            
+            osc.connect(gain);
+            gain.connect(this.audioContext.destination);
+            
+            osc.start(currentTime);
+            osc.stop(currentTime + note.duration);
+            
+            currentTime += note.duration;
+        });
+        
+        // Schedule next loop - faster for intensity
+        setTimeout(() => {
+            if (this.bossActive && this.bossMusicPlaying) {
+                this.playBossTrack();
+            }
+        }, 2000);
+    }
+    
     playMineExplosion() {
         if (!this.audioContext) return;
         
@@ -2183,9 +3047,20 @@ class Game {
         
         if (this.gameState === 'story') {
             if (!this.storyMusicPlaying && this.audioUnlocked) {
+                console.log('RENDER LOOP: Starting story music for slide', this.currentStorySlide);
                 this.startStoryMusic(this.currentStorySlide);
             }
             this.renderStoryScreen();
+            return;
+        }
+        
+        if (this.gameState === 'bossCutscene') {
+            // Same music handling as story mode
+            if (!this.storyMusicPlaying && this.audioUnlocked) {
+                console.log('BOSS CUTSCENE RENDER LOOP: Starting music like story mode');
+                this.startStoryMusic(0); // Villain slide
+            }
+            this.renderBossCutscene();
             return;
         }
         
@@ -2251,6 +3126,7 @@ class Game {
         this.renderUI();
         this.renderScore();
         this.renderLevelProgress();
+        this.renderBossHealthUI();
         this.renderTouchControls();
         
         // Render game over screen if needed
@@ -2352,6 +3228,60 @@ class Game {
         // Draw outline for visibility
         ctx.strokeText(scoreText, x, y);
         ctx.fillText(scoreText, x, y);
+        
+        ctx.restore();
+    }
+    
+    renderBossHealthUI() {
+        const ctx = this.ctx;
+        
+        // Find active boss enemies
+        const bosses = this.enemies.filter(enemy => enemy.type === 4 && enemy.health > 0);
+        
+        if (bosses.length === 0) return;
+        
+        const boss = bosses[0]; // Show first boss if multiple exist
+        
+        // Boss health bar at top center of screen
+        ctx.save();
+        
+        const barWidth = 400;
+        const barHeight = 20;
+        const barX = (this.canvas.width - barWidth) / 2;
+        const barY = 20;
+        
+        // Boss name/title
+        ctx.fillStyle = '#FFFFFF';
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
+        ctx.font = 'bold 18px Arial';
+        ctx.textAlign = 'center';
+        const bossTitle = 'BOSS TANK';
+        ctx.strokeText(bossTitle, this.canvas.width / 2, barY - 8);
+        ctx.fillText(bossTitle, this.canvas.width / 2, barY - 8);
+        
+        // Health bar background
+        ctx.fillStyle = '#444444';
+        ctx.fillRect(barX, barY, barWidth, barHeight);
+        
+        // Health bar fill
+        const healthPercent = boss.health / boss.maxHealth;
+        ctx.fillStyle = '#FF4444';
+        ctx.fillRect(barX, barY, barWidth * healthPercent, barHeight);
+        
+        // Health bar border
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(barX, barY, barWidth, barHeight);
+        
+        // Health text
+        ctx.fillStyle = '#FFFFFF';
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
+        ctx.font = 'bold 14px Arial';
+        const healthText = `${boss.health} / ${boss.maxHealth}`;
+        ctx.strokeText(healthText, this.canvas.width / 2, barY + barHeight + 18);
+        ctx.fillText(healthText, this.canvas.width / 2, barY + barHeight + 18);
         
         ctx.restore();
     }
@@ -2580,7 +3510,11 @@ class Game {
         
         // Character sprites with motion
         if (slide.showTofu) {
-            this.renderStoryTofu(t);
+            this.renderStoryTofu(t, slide);
+        }
+        
+        if (slide.showPopcorn) {
+            this.renderStoryPopcorn(t);
         }
         
         if (slide.showEnemies) {
@@ -2613,31 +3547,93 @@ class Game {
         this.ctx.fillText(slide.title, 0, 0);
         this.ctx.restore();
         
-        // Story text with typewriter effect
+        // Story text with dramatic anime-style effects based on speaker
         const textRevealSpeed = 40; // characters per second
         const maxChars = Math.floor(t * textRevealSpeed);
         const lines = slide.text.split('\n');
         let charCount = 0;
         
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.font = '18px Arial';
-        this.ctx.shadowColor = '#000000';
-        this.ctx.shadowBlur = 3;
+        // Different styles based on who's speaking
+        let primaryColor = '#FFFFFF';
+        let glowColor = '#00FFFF';
+        let shadowIntensity = 3;
+        let fontSize = '18px';
+        
+        if (slide.speaker === 'popcorn') {
+            primaryColor = '#FFD700';
+            glowColor = '#8B008B';
+            shadowIntensity = 15;
+            fontSize = '20px';
+        } else if (slide.speaker === 'tofu') {
+            primaryColor = '#FFFFFF';
+            glowColor = '#FFD700';
+            shadowIntensity = 10;
+            fontSize = '19px';
+        } else if (slide.speaker === 'both') {
+            // Alternating colors for confrontation
+            const colorFlash = Math.sin(t * 8) > 0;
+            primaryColor = colorFlash ? '#FFD700' : '#DC143C';
+            glowColor = colorFlash ? '#DC143C' : '#FFD700';
+            shadowIntensity = 12;
+            fontSize = '21px';
+        }
+        
+        this.ctx.font = `bold ${fontSize} Arial`;
         
         lines.forEach((line, lineIndex) => {
             if (charCount < maxChars) {
                 const remainingChars = maxChars - charCount;
                 const visibleText = line.substring(0, Math.min(line.length, remainingChars));
                 
-                // Text with dramatic glow effect
-                const textY = 200 + (lineIndex * 25);
-                this.ctx.fillStyle = '#00FFFF';
-                this.ctx.shadowBlur = 10;
-                this.ctx.fillText(visibleText, this.canvas.width / 2, textY);
+                const textY = 200 + (lineIndex * 30);
                 
-                this.ctx.fillStyle = '#FFFFFF';
-                this.ctx.shadowBlur = 3;
-                this.ctx.fillText(visibleText, this.canvas.width / 2, textY);
+                // Special flashing effect for villain dialogue
+                if (slide.speaker === 'popcorn') {
+                    const flashIntensity = Math.sin(t * 6) * 0.5 + 0.5;
+                    const scale = 1 + flashIntensity * 0.2;
+                    
+                    this.ctx.save();
+                    this.ctx.translate(this.canvas.width / 2, textY);
+                    this.ctx.scale(scale, scale);
+                    
+                    // Multiple shadow layers for evil effect
+                    this.ctx.shadowColor = glowColor;
+                    this.ctx.shadowBlur = shadowIntensity + flashIntensity * 10;
+                    this.ctx.fillStyle = glowColor;
+                    this.ctx.fillText(visibleText, 0, 0);
+                    
+                    this.ctx.shadowBlur = shadowIntensity;
+                    this.ctx.fillStyle = primaryColor;
+                    this.ctx.fillText(visibleText, 0, 0);
+                    
+                    this.ctx.restore();
+                } else if (slide.speaker === 'both') {
+                    // Confrontation text with energy crackling
+                    this.ctx.save();
+                    const shake = Math.sin(t * 15) * 2;
+                    this.ctx.translate(this.canvas.width / 2 + shake, textY + Math.sin(t * 12) * 1);
+                    
+                    this.ctx.shadowColor = glowColor;
+                    this.ctx.shadowBlur = shadowIntensity;
+                    this.ctx.fillStyle = glowColor;
+                    this.ctx.fillText(visibleText, 0, 0);
+                    
+                    this.ctx.shadowBlur = 5;
+                    this.ctx.fillStyle = primaryColor;
+                    this.ctx.fillText(visibleText, 0, 0);
+                    
+                    this.ctx.restore();
+                } else {
+                    // Normal heroic text with gentle glow
+                    this.ctx.shadowColor = glowColor;
+                    this.ctx.shadowBlur = shadowIntensity;
+                    this.ctx.fillStyle = glowColor;
+                    this.ctx.fillText(visibleText, this.canvas.width / 2, textY);
+                    
+                    this.ctx.shadowBlur = 3;
+                    this.ctx.fillStyle = primaryColor;
+                    this.ctx.fillText(visibleText, this.canvas.width / 2, textY);
+                }
             }
             charCount += line.length + 1; // +1 for newline
         });
@@ -2730,31 +3726,147 @@ class Game {
                     }
                 }
                 break;
+                
+            case 'villain':
+                // Dark evil energy and purple lightning
+                this.ctx.globalAlpha = 0.6;
+                
+                // Swirling dark vortex
+                for (let i = 0; i < 12; i++) {
+                    const angle = (t * 1.5 + i * Math.PI / 6);
+                    const radius = 80 + Math.sin(t * 2 + i) * 30;
+                    const x = this.canvas.width / 2 + Math.cos(angle) * radius;
+                    const y = this.canvas.height / 2 + Math.sin(angle) * radius;
+                    
+                    this.ctx.fillStyle = `hsl(${280 + Math.sin(t + i) * 20}, 70%, 30%)`;
+                    this.ctx.beginPath();
+                    this.ctx.arc(x, y, 8 + Math.sin(t * 4 + i) * 4, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+                
+                // Evil lightning strikes
+                this.ctx.globalAlpha = 0.8;
+                for (let i = 0; i < 6; i++) {
+                    if (Math.sin(t * 8 + i * 2) > 0.6) {
+                        this.ctx.strokeStyle = '#8B008B';
+                        this.ctx.lineWidth = 3;
+                        this.ctx.shadowColor = '#8B008B';
+                        this.ctx.shadowBlur = 15;
+                        
+                        const startX = this.canvas.width * 0.2 + Math.random() * this.canvas.width * 0.6;
+                        const startY = 50;
+                        const endX = startX + (Math.random() - 0.5) * 200;
+                        const endY = this.canvas.height - 50;
+                        
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(startX, startY);
+                        // Zigzag lightning effect
+                        for (let j = 1; j < 8; j++) {
+                            const segmentY = startY + (endY - startY) * (j / 8);
+                            const segmentX = startX + (endX - startX) * (j / 8) + (Math.random() - 0.5) * 40;
+                            this.ctx.lineTo(segmentX, segmentY);
+                        }
+                        this.ctx.stroke();
+                    }
+                }
+                break;
+                
+            case 'confrontation':
+                // Explosive clash effects - red vs gold
+                this.ctx.globalAlpha = 0.4;
+                
+                // Energy clash in the center
+                const clashCenterX = this.canvas.width / 2;
+                const clashCenterY = this.canvas.height / 2;
+                const clashIntensity = Math.sin(t * 6) * 0.5 + 0.5;
+                
+                // Red energy from right (villain side)
+                for (let i = 0; i < 8; i++) {
+                    const angle = (t * 3 + i * Math.PI / 4);
+                    const radius = 60 + clashIntensity * 40;
+                    const x = clashCenterX + 100 + Math.cos(angle) * radius;
+                    const y = clashCenterY + Math.sin(angle) * radius;
+                    
+                    this.ctx.fillStyle = '#DC143C';
+                    this.ctx.shadowColor = '#DC143C';
+                    this.ctx.shadowBlur = 20;
+                    this.ctx.beginPath();
+                    this.ctx.arc(x, y, 6 + clashIntensity * 8, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+                
+                // Gold energy from left (hero side)
+                for (let i = 0; i < 8; i++) {
+                    const angle = (t * -3 + i * Math.PI / 4);
+                    const radius = 60 + clashIntensity * 40;
+                    const x = clashCenterX - 100 + Math.cos(angle) * radius;
+                    const y = clashCenterY + Math.sin(angle) * radius;
+                    
+                    this.ctx.fillStyle = '#FFD700';
+                    this.ctx.shadowColor = '#FFD700';
+                    this.ctx.shadowBlur = 20;
+                    this.ctx.beginPath();
+                    this.ctx.arc(x, y, 6 + clashIntensity * 8, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+                
+                // Lightning clash in center
+                if (clashIntensity > 0.7) {
+                    this.ctx.strokeStyle = '#FFFFFF';
+                    this.ctx.lineWidth = 4;
+                    this.ctx.shadowColor = '#FFFFFF';
+                    this.ctx.shadowBlur = 25;
+                    
+                    for (let i = 0; i < 5; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const length = 50 + Math.random() * 50;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(clashCenterX, clashCenterY);
+                        this.ctx.lineTo(
+                            clashCenterX + Math.cos(angle) * length,
+                            clashCenterY + Math.sin(angle) * length
+                        );
+                        this.ctx.stroke();
+                    }
+                }
+                break;
         }
         
         this.ctx.restore();
     }
     
-    renderStoryTofu(t) {
+    renderStoryTofu(t, slide = null) {
         if (!this.assets.tofuSprite) return;
         
-        // Tofu appears dramatically with scaling and glowing effect
-        const centerX = this.canvas.width / 2 - 60;
         const centerY = this.canvas.height / 2;
+        let centerX = this.canvas.width / 2 - 60;
+        let scale = 1.2 + Math.sin(t * 3) * 0.1;
         
-        // Pulsing and floating motion
-        const scale = 1.2 + Math.sin(t * 3) * 0.1;
-        const floatY = Math.sin(t * 2) * 10;
+        // Pop in dramatically and stay in position  
+        const popIn = Math.min(1, t / 10); // Pop in over 10 frames
+        // Smooth entrance scaling - no sudden size change
+        const entranceScale = popIn < 0.8 ? (popIn / 0.8) * 0.3 + 0.7 : 1;
+        
+        // For confrontation scenes, position on left side
+        if (slide && (slide.effects === 'confrontation' || slide.speaker === 'narrator')) {
+            centerX = this.canvas.width / 2 - 120; // Fixed position on left side
+            scale = (1.8 + Math.sin(t * 3) * 0.2) * entranceScale; // Larger for confrontation
+        } else {
+            scale = (scale) * entranceScale;
+        }
+        
+        // Heroic floating motion
+        const floatY = Math.sin(t * 2) * 12;
         const glowIntensity = Math.sin(t * 4) * 0.3 + 0.7;
         
         this.ctx.save();
         this.ctx.translate(centerX, centerY + floatY);
         this.ctx.scale(scale, scale);
         
-        // Heroic glow effect
+        // Enhanced heroic glow effect
         this.ctx.shadowColor = '#FFD700';
-        this.ctx.shadowBlur = 20 * glowIntensity;
-        this.ctx.globalAlpha = glowIntensity;
+        this.ctx.shadowBlur = 25 * glowIntensity;
+        this.ctx.globalAlpha = 0.95;
         
         // Draw Tofu sprite
         const spriteSize = 80;
@@ -2767,6 +3879,29 @@ class Game {
         );
         
         this.ctx.restore();
+        
+        // Additional heroic effects for confrontation
+        if (slide && (slide.effects === 'confrontation' || slide.speaker === 'narrator') && t > 20) {
+            // Golden energy aura
+            this.ctx.save();
+            this.ctx.globalAlpha = 0.5;
+            
+            for (let i = 0; i < 8; i++) {
+                const angle = (t * -2 + i * Math.PI / 4);
+                const radius = 70 + Math.sin(t * 3 + i) * 15;
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + floatY + Math.sin(angle) * radius;
+                
+                this.ctx.fillStyle = `hsl(${45 + Math.sin(t + i) * 10}, 100%, 60%)`;
+                this.ctx.shadowColor = '#FFD700';
+                this.ctx.shadowBlur = 20;
+                this.ctx.beginPath();
+                this.ctx.arc(x, y, 6 + Math.sin(t * 4 + i) * 3, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            
+            this.ctx.restore();
+        }
     }
     
     renderStoryEnemies(t) {
@@ -2802,6 +3937,313 @@ class Game {
             
             this.ctx.restore();
         });
+    }
+    
+    renderStoryPopcorn(t) {
+        if (!this.assets.popcornSprite) return;
+        
+        // Dramatic popcorn villain - oversized and menacing
+        const centerX = this.canvas.width / 2 + 120; // Offset to right side
+        const centerY = this.canvas.height / 2 - 20;
+        
+        // Pop in dramatically and stay in position
+        const popIn = Math.min(1, t / 10); // Pop in over 10 frames
+        const actualX = this.canvas.width / 2 + 120; // Fixed position on right side
+        // Smooth entrance scaling - no sudden size change
+        const entranceScale = popIn < 0.8 ? (popIn / 0.8) * 0.3 + 0.7 : 1;
+        
+        // Menacing floating and scaling - BIGGER
+        const scale = (2.5 + Math.sin(t * 2.5) * 0.3) * entranceScale; // Even larger and more dramatic
+        const floatY = Math.sin(t * 1.8) * 15;
+        const evilPulse = Math.sin(t * 6) * 0.3 + 0.7;
+        
+        this.ctx.save();
+        this.ctx.translate(actualX, centerY + floatY);
+        this.ctx.scale(scale, scale);
+        
+        // Evil purple/dark glow around sprite
+        this.ctx.shadowColor = '#8B008B';
+        this.ctx.shadowBlur = 40 * evilPulse;
+        this.ctx.globalAlpha = 0.95;
+        
+        // Draw the actual popcorn sprite with evil aura
+        const spriteSize = 100; // Massive villain size
+        this.ctx.drawImage(
+            this.assets.popcornSprite,
+            -spriteSize / 2,
+            -spriteSize / 2,
+            spriteSize,
+            spriteSize
+        );
+        
+        this.ctx.restore();
+        
+        // Additional evil effects around the popcorn sprite
+        if (popIn > 0.6) {
+            // Dark energy swirls
+            this.ctx.save();
+            this.ctx.globalAlpha = 0.6;
+            
+            for (let i = 0; i < 8; i++) {
+                const angle = (t * 2 + i * Math.PI / 4);
+                const radius = 60 + Math.sin(t * 3 + i) * 20;
+                const x = actualX + Math.cos(angle) * radius;
+                const y = centerY + floatY + Math.sin(angle) * radius;
+                
+                this.ctx.fillStyle = `hsl(${280 + Math.sin(t + i) * 20}, 70%, 40%)`;
+                this.ctx.shadowColor = '#8B008B';
+                this.ctx.shadowBlur = 15;
+                this.ctx.beginPath();
+                this.ctx.arc(x, y, 8 + Math.sin(t * 4 + i) * 4, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            
+            this.ctx.restore();
+        }
+        
+        // Lightning effects around popcorn
+        if (popIn > 0.8) {
+            this.ctx.save();
+            this.ctx.strokeStyle = '#8B008B';
+            this.ctx.shadowColor = '#8B008B';
+            this.ctx.shadowBlur = 15;
+            this.ctx.lineWidth = 3;
+            this.ctx.globalAlpha = 0.8;
+            
+            for (let i = 0; i < 6; i++) {
+                const angle = (i / 6) * Math.PI * 2 + t * 2;
+                const radius = 90 + Math.sin(t * 3 + i) * 25;
+                const startX = actualX + Math.cos(angle) * radius;
+                const startY = centerY + Math.sin(angle) * radius + floatY;
+                const endX = actualX + Math.cos(angle) * (radius + 40);
+                const endY = centerY + Math.sin(angle) * (radius + 40) + floatY;
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(startX, startY);
+                this.ctx.lineTo(endX, endY);
+                this.ctx.stroke();
+            }
+            
+            this.ctx.restore();
+        }
+    }
+    
+    triggerBossCutscene() {
+        // ONLY stop gameplay and boss music
+        this.stopGameplayMusic();
+        this.stopBossMusic();
+        
+        // Set gameState FIRST so echo effects activate
+        this.gameState = 'bossCutscene';
+        
+        // DON'T start music here - let render loop handle it like story mode
+        this.storyMusicPlaying = false; // Force render loop to start music
+        this.currentStoryMusicType = 'villain';
+        this.bossCutsceneTime = 0;
+        this.bossCutsceneActive = true;
+        
+        // Pause player movement during cutscene
+        this.player.velocityX = 0;
+        this.player.isMoving = false;
+    }
+    
+    renderBossCutscene() {
+        const t = this.bossCutsceneTime;
+        
+        // Continue rendering the game world as background
+        this.renderBackground();
+        this.ctx.save();
+        this.ctx.translate(-this.camera.x, -this.camera.y);
+        this.renderGround();
+        this.player.render(this.ctx);
+        this.bullets.forEach(bullet => bullet.render(this.ctx));
+        this.enemies.forEach(enemy => enemy.render(this.ctx));
+        this.powerups.forEach(powerup => powerup.render(this.ctx));
+        this.sandbags.forEach(sandbag => sandbag.render(this.ctx));
+        this.platforms.forEach(platform => platform.render(this.ctx));
+        this.barbedWire.forEach(wire => wire.render(this.ctx));
+        this.mines.forEach(mine => mine.render(this.ctx));
+        this.explosions.forEach(explosion => explosion.render(this.ctx));
+        this.tankRemnants.forEach(remnant => remnant.render(this.ctx));
+        this.enemyBullets.forEach(bullet => bullet.render(this.ctx));
+        this.ctx.restore();
+        
+        // Render UI (hearts and score) - not affected by camera
+        this.renderUI();
+        this.renderScore();
+        this.renderLevelProgress();
+        this.renderBossHealthUI();
+        this.renderTouchControls();
+        
+        // Giant Popcorn entrance from right side
+        this.renderGiantPopcorn(t);
+        
+        // Cutscene dialogue
+        this.renderBossDialogue(t);
+        
+        // Auto-advance cutscene
+        this.bossCutsceneTime++;
+        
+        // End cutscene after dialogue is complete
+        if (t > 780) { // 13 seconds at 60fps - after all dialogue finishes
+            this.endBossCutscene();
+        }
+    }
+    
+    renderGiantPopcorn(t) {
+        if (!this.assets.popcornSprite) return;
+        
+        // YUUUGE popcorn - half the screen size
+        const screenHeight = this.canvas.height;
+        const popcornSize = screenHeight * 0.5; // Half screen height
+        
+        // Slide in from right side
+        const slideProgress = Math.min(1, t / 60); // Slide in over 1 second
+        const startX = this.canvas.width + popcornSize;
+        const endX = this.canvas.width - popcornSize * 0.6; // Position on right side
+        const currentX = startX - (slideProgress * (startX - endX));
+        
+        // Pan out after dialogue (after t > 720)
+        let panOutProgress = 0;
+        if (t > 720) {
+            panOutProgress = Math.min(1, (t - 720) / 60); // Pan out over 1 second
+        }
+        const panX = currentX + (panOutProgress * (this.canvas.width + popcornSize));
+        
+        const centerY = this.canvas.height / 2;
+        
+        // Menacing floating animation
+        const floatY = Math.sin(t * 0.05) * 20;
+        const evilPulse = Math.sin(t * 0.15) * 0.3 + 0.7;
+        
+        this.ctx.save();
+        this.ctx.translate(panX, centerY + floatY);
+        
+        // Evil aura effects
+        this.ctx.shadowColor = '#8B008B';
+        this.ctx.shadowBlur = 60 * evilPulse;
+        this.ctx.globalAlpha = 0.95;
+        
+        // Draw massive Popcorn sprite
+        this.ctx.drawImage(
+            this.assets.popcornSprite,
+            -popcornSize / 2,
+            -popcornSize / 2,
+            popcornSize,
+            popcornSize
+        );
+        
+        this.ctx.restore();
+        
+        // Additional menacing effects
+        if (slideProgress > 0.8) {
+            this.ctx.save();
+            this.ctx.globalAlpha = 0.4;
+            
+            // Dark energy swirls around the giant popcorn
+            for (let i = 0; i < 12; i++) {
+                const angle = (t * 0.02 + i * Math.PI / 6);
+                const radius = popcornSize * 0.4 + Math.sin(t * 0.03 + i) * 30;
+                const x = panX + Math.cos(angle) * radius;
+                const y = centerY + floatY + Math.sin(angle) * radius;
+                
+                this.ctx.fillStyle = `hsl(${280 + Math.sin(t * 0.01 + i) * 20}, 70%, 30%)`;
+                this.ctx.shadowColor = '#8B008B';
+                this.ctx.shadowBlur = 25;
+                this.ctx.beginPath();
+                this.ctx.arc(x, y, 15 + Math.sin(t * 0.05 + i) * 8, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            
+            this.ctx.restore();
+        }
+    }
+    
+    renderBossDialogue(t) {
+        // Only show dialogue after Popcorn has mostly slid in
+        if (t < 45) return;
+        
+        const dialogueTime = t - 45;
+        
+        // Dialogue text with typewriter effect
+        let dialogue = "";
+        let speaker = "";
+        
+        let currentDialogueTime = 0;
+        if (dialogueTime < 360) {
+            dialogue = "BEHOLD MY ULTIMATE CREATION!\nThis massive war machine will\ncrush you like the pathetic\ntofu you are! MWAHAHAHA!";
+            speaker = "POPCORN";
+            currentDialogueTime = dialogueTime;
+        } else if (dialogueTime < 720) {
+            dialogue = "You think your little\npea-shooter can stop\nTHIS monstrosity?\nPrepare for DOOM!";
+            speaker = "POPCORN";
+            currentDialogueTime = dialogueTime - 360; // Reset for second dialogue
+        }
+        
+        if (dialogue === "") return;
+        
+        // Typewriter effect - slower for readability
+        const charsPerSecond = 24; // Double speed
+        const maxChars = Math.floor(currentDialogueTime * charsPerSecond / 60);
+        const visibleText = dialogue.substring(0, maxChars);
+        
+        // Dialogue box background
+        const boxWidth = 400;
+        const boxHeight = 120;
+        const boxX = (this.canvas.width - boxWidth) / 2;
+        const boxY = this.canvas.height - boxHeight - 40;
+        
+        this.ctx.save();
+        this.ctx.fillStyle = 'rgba(75, 0, 130, 0.9)'; // Evil purple background
+        this.ctx.strokeStyle = '#FFD700';
+        this.ctx.lineWidth = 3;
+        this.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+        this.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+        
+        // Speaker name
+        this.ctx.fillStyle = '#FFD700';
+        this.ctx.font = 'bold 16px Arial';
+        this.ctx.textAlign = 'left';
+        this.ctx.fillText(speaker + ":", boxX + 15, boxY + 25);
+        
+        // Dialogue text with evil effects
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.font = 'bold 14px Arial';
+        this.ctx.shadowColor = '#8B008B';
+        this.ctx.shadowBlur = 8;
+        
+        const lines = visibleText.split('\n');
+        lines.forEach((line, index) => {
+            const textY = boxY + 50 + (index * 18);
+            // Evil text shake effect
+            const shakeX = Math.sin(t * 0.3 + index) * 2;
+            const shakeY = Math.cos(t * 0.25 + index) * 1;
+            this.ctx.fillText(line, boxX + 15 + shakeX, textY + shakeY);
+        });
+        
+        this.ctx.restore();
+    }
+    
+    endBossCutscene() {
+        // Stop any cutscene music that might be playing
+        this.stopStoryMusic();
+        this.stopPopcornMusic();
+        
+        this.gameState = 'playing';
+        this.bossCutsceneActive = false;
+        
+        // Now spawn the actual boss
+        const bossData = this.currentLevelData.enemies.find(e => e.type === 4);
+        if (bossData && this.levelSpawnIndex < this.currentLevelData.enemies.length) {
+            const boss = new Enemy(bossData.x, bossData.y, bossData.type, this.assets);
+            this.enemies.push(boss);
+            this.levelSpawnIndex++;
+        }
+        
+        // Start boss music
+        if (!this.bossMusicPlaying) {
+            this.startBossMusic();
+        }
     }
     
     renderActionLines(t) {
@@ -2976,6 +4418,9 @@ class Game {
             this.gameState = 'playing';
         } else {
             // All levels complete - check for high score first
+            this.stopGameplayMusic();
+            this.stopBossMusic();
+            
             const highScorePosition = this.checkHighScore(this.score);
             if (highScorePosition !== -1) {
                 this.enteringInitials = true;
@@ -3889,10 +5334,24 @@ class Enemy {
     constructor(x, y, type, assets) {
         this.x = x;
         this.y = y;
-        this.type = type; // 0 = soldier1, 1 = soldier2, 2 = tank
+        this.type = type; // 0 = soldier1, 1 = soldier2, 2 = tank, 3 = sniper, 4 = boss1
         this.assets = assets;
         
-        if (type === 2) { // tank
+        if (type === 4) { // boss1 - powerful tank boss, 25% bigger
+            this.width = 250;  // 200 * 1.25 = 250
+            this.height = 188;  // 150 * 1.25 = 188 
+            this.speed = 0.3;
+            this.sprite = assets.boss1Sprite;
+            this.maxHealth = 50; // Boss has lots of health
+            this.machineGunMode = false;
+            this.machineGunCooldown = 0;
+            this.machineGunBurstCount = 0;
+        } else if (type === 3) { // sniper - 10% smaller
+            this.width = 81;   // 90 * 0.9 = 81
+            this.height = 99;  // 110 * 0.9 = 99
+            this.speed = 1.0;
+            this.sprite = assets.sniperSprite;
+        } else if (type === 2) { // tank
             this.width = 160;
             this.height = 120;
             this.speed = 0.5;
@@ -3910,12 +5369,16 @@ class Enemy {
         }
         
         // Different ground levels for different enemy types
-        if (type === 0) { // soldier 1 - keep at 200
+        if (type === 0) { // soldier 1
             this.groundY = 200;
-        } else if (type === 1) { // soldier 2 - lower
+        } else if (type === 1) { // soldier 2
             this.groundY = 207;
-        } else { // tank - lower
+        } else if (type === 2) { // tank
             this.groundY = 208;
+        } else if (type === 3) { // sniper
+            this.groundY = 229;
+        } else { // boss1
+            this.groundY = 150; // Boss tank higher on ground
         }
         this.velocityY = 0;
         this.gravity = 0.5;
@@ -3925,12 +5388,22 @@ class Enemy {
         
         // Sound properties
         this.lastEngineSound = 0;
-        this.engineSound = (type === 2); // Only tanks make engine sounds
+        this.engineSound = (type === 2 || type === 4); // Tanks and boss1 make engine sounds
         
         // Health system
-        if (type === 2) { // tank
+        if (type === 4) { // boss1 - already set above but make sure
+            if (!this.maxHealth) {
+                this.health = 50;
+                this.maxHealth = 50;
+            } else {
+                this.health = this.maxHealth;
+            }
+        } else if (type === 2) { // tank
             this.health = 3;
             this.maxHealth = 3;
+        } else if (type === 3) { // sniper - tougher than regular soldiers
+            this.health = 2;
+            this.maxHealth = 2;
         } else { // soldiers
             this.health = 1;
             this.maxHealth = 1;
@@ -3944,15 +5417,64 @@ class Enemy {
             this.pointValue = 5;
         } else if (type === 1) { // soldier 2 (small)
             this.pointValue = 10;  
-        } else { // tank
+        } else if (type === 2) { // tank
             this.pointValue = 100;
+        } else if (type === 3) { // sniper
+            this.pointValue = 150;
+        } else { // boss1
+            this.pointValue = 1000;
         }
     }
     
     update(player, enemyBullets, game) {
         const distanceToPlayer = Math.abs(player.x - this.x);
         
-        if (this.type === 2) { // Tank AI - maintain distance and retreat if too close
+        if (this.type === 4) { // Boss1 AI - aggressive tank with machine gun
+            const optimalRange = 400; // Boss wants longer range
+            const tooClose = 250; // If player gets too close, retreat more aggressively
+            
+            // Machine gun burst mode logic
+            if (this.machineGunCooldown > 0) {
+                this.machineGunCooldown--;
+            }
+            
+            if (distanceToPlayer < tooClose) {
+                // Aggressive retreat
+                if (player.x < this.x) {
+                    this.x += this.speed * 1.5; // Move faster when retreating
+                    this.facingLeft = true;
+                } else {
+                    this.x -= this.speed * 1.5;
+                    this.facingLeft = false;
+                }
+            } else if (distanceToPlayer > optimalRange) {
+                // Approach to optimal range
+                if (player.x < this.x) {
+                    this.x -= this.speed * 0.7;
+                    this.facingLeft = true;
+                } else {
+                    this.x += this.speed * 0.7;
+                    this.facingLeft = false;
+                }
+            }
+        } else if (this.type === 3) { // Sniper AI - maintain long distance, rarely move
+            const sniperRange = 500; // Snipers like long range
+            const tooClose = 300; // Move away if player gets too close
+            
+            if (distanceToPlayer < tooClose) {
+                // Retreat to maintain distance
+                if (player.x < this.x) {
+                    this.x += this.speed;
+                    this.facingLeft = true;
+                } else {
+                    this.x -= this.speed;
+                    this.facingLeft = false;
+                }
+            } else {
+                // Just face player and shoot, rarely move
+                this.facingLeft = player.x < this.x;
+            }
+        } else if (this.type === 2) { // Tank AI - maintain distance and retreat if too close
             const optimalRange = 300; // Tanks want to stay at medium range
             const tooClose = 200; // If player gets too close, retreat
             
@@ -3994,16 +5516,39 @@ class Enemy {
             }
         }
         
-        // Enemy shooting - tanks fire less often, soldiers more often when close
+        // Enemy shooting - different rates and patterns for each type
         let shootChance;
-        if (this.type === 2) { // Tank
+        let specialShoot = false;
+        
+        if (this.type === 4) { // Boss1 - machine gun bursts
+            if (this.machineGunMode && this.machineGunBurstCount > 0) {
+                shootChance = 0.3; // Very high chance during burst
+                specialShoot = true;
+                this.machineGunBurstCount--;
+                if (this.machineGunBurstCount <= 0) {
+                    this.machineGunMode = false;
+                    this.machineGunCooldown = 120; // 2 second cooldown
+                }
+            } else if (this.machineGunCooldown <= 0 && Math.random() < 0.01) {
+                // Start machine gun burst
+                this.machineGunMode = true;
+                this.machineGunBurstCount = 8; // 8 bullet burst
+                shootChance = 0.3;
+                specialShoot = true;
+            } else {
+                shootChance = 0.005; // Regular tank cannon shots
+            }
+        } else if (this.type === 3) { // Sniper - powerful, accurate shots
+            shootChance = 0.004; // Less frequent but deadly
+            specialShoot = true;
+        } else if (this.type === 2) { // Tank
             shootChance = 0.003; // Steady fire rate for tanks
         } else { // Soldiers
             shootChance = distanceToPlayer < 150 ? 0.008 : 0.002; // Shoot more when close
         }
         
         if (Math.random() < shootChance) {
-            this.shoot(player, enemyBullets, game);
+            this.shoot(player, enemyBullets, game, specialShoot);
         }
         
         // Tank engine sounds
@@ -4060,18 +5605,27 @@ class Enemy {
         this.animationFrame += this.animationSpeed;
     }
     
-    shoot(player, enemyBullets, game) {
+    shoot(player, enemyBullets, game, specialShoot = false) {
         const bulletX = this.x;
         const bulletY = this.y + this.height * 0.5;
-        const isTank = this.type === 2;
+        
+        // Determine bullet type and properties
+        let bulletType = 'normal';
+        if (this.type === 4) { // Boss1
+            bulletType = specialShoot ? 'machinegun' : 'tank';
+        } else if (this.type === 3) { // Sniper
+            bulletType = 'sniper';
+        } else if (this.type === 2) { // Tank
+            bulletType = 'tank';
+        }
         
         // Shoot towards the player
         const shootRight = player.x > this.x;
-        enemyBullets.push(new EnemyBullet(bulletX, bulletY, shootRight, isTank));
+        enemyBullets.push(new EnemyBullet(bulletX, bulletY, shootRight, bulletType));
         
         // Play appropriate sound effect
         if (game) {
-            if (isTank) {
+            if (bulletType === 'tank' || bulletType === 'sniper') {
                 game.playTankShoot();
             } else {
                 game.playEnemyShoot();
@@ -4093,7 +5647,10 @@ class Enemy {
             ctx.save();
             
             // Flip sprite based on facing direction
-            if (this.facingLeft) {
+            // Boss1 needs special handling - reverse the normal flipping
+            const shouldFlip = this.type === 4 ? !this.facingLeft : this.facingLeft;
+            
+            if (shouldFlip) {
                 ctx.translate(this.x + this.width, this.y);
                 ctx.scale(-1, 1);
             } else {
@@ -4115,18 +5672,19 @@ class Enemy {
             
             ctx.restore();
             
-            // Draw health indicator for tanks
-            if (this.type === 2 && this.health < this.maxHealth) {
+            // Draw health indicator for damaged enemies
+            if (this.health < this.maxHealth) {
                 this.renderHealthBar(ctx);
             }
         }
     }
     
     renderHealthBar(ctx) {
-        const barWidth = this.width * 0.8;
-        const barHeight = 4;
+        const isBoss = this.type === 4;
+        const barWidth = isBoss ? this.width * 0.9 : this.width * 0.8;
+        const barHeight = isBoss ? 8 : 4;
         const barX = this.x + (this.width - barWidth) / 2;
-        const barY = this.y - 10;
+        const barY = this.y - (isBoss ? 15 : 10);
         
         // Background
         ctx.fillStyle = '#FF0000';
@@ -4134,26 +5692,65 @@ class Enemy {
         
         // Health portion
         const healthPercent = this.health / this.maxHealth;
-        ctx.fillStyle = '#00FF00';
+        ctx.fillStyle = isBoss ? '#FFD700' : '#00FF00'; // Gold for boss, green for others
         ctx.fillRect(barX, barY, barWidth * healthPercent, barHeight);
         
         // Border
         ctx.strokeStyle = '#000000';
-        ctx.lineWidth = 1;
+        ctx.lineWidth = isBoss ? 2 : 1;
         ctx.strokeRect(barX, barY, barWidth, barHeight);
+        
+        // Boss health text
+        if (isBoss) {
+            ctx.save();
+            ctx.fillStyle = '#FFFFFF';
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            const healthText = `${this.health}/${this.maxHealth}`;
+            const textX = barX + barWidth / 2;
+            const textY = barY - 5;
+            ctx.strokeText(healthText, textX, textY);
+            ctx.fillText(healthText, textX, textY);
+            ctx.restore();
+        }
     }
 }
 
 class EnemyBullet {
-    constructor(x, y, facingRight, isTank = false) {
+    constructor(x, y, facingRight, bulletType = 'normal') {
         this.x = x;
         this.y = y;
         this.startX = x; // Remember starting position for range calculation
-        this.width = isTank ? 16 : 6; // Made tank bullets bigger
-        this.height = isTank ? 12 : 6; // Made tank bullets bigger
-        this.speed = 4;
         this.direction = facingRight ? 1 : -1;
-        this.isTank = isTank;
+        this.bulletType = bulletType;
+        
+        // Set properties based on bullet type
+        if (bulletType === 'sniper') {
+            this.width = 8;
+            this.height = 3;
+            this.speed = 12; // Much faster
+            this.damage = 3; // Much more powerful
+        } else if (bulletType === 'machinegun') {
+            this.width = 4;
+            this.height = 2;
+            this.speed = 8; // Fast machine gun bullets
+            this.damage = 1;
+        } else if (bulletType === 'tank') {
+            this.width = 16;
+            this.height = 12;
+            this.speed = 4;
+            this.damage = 2;
+        } else { // normal soldier bullets
+            this.width = 6;
+            this.height = 6;
+            this.speed = 4;
+            this.damage = 1;
+        }
+        
+        // Backward compatibility
+        this.isTank = (bulletType === 'tank');
     }
     
     update() {
@@ -4161,7 +5758,19 @@ class EnemyBullet {
     }
     
     render(ctx) {
-        if (this.isTank) {
+        if (this.bulletType === 'sniper') {
+            // Sniper bullets - bright yellow/orange, very thin and fast-looking
+            ctx.fillStyle = '#FFD700';
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+            ctx.fillStyle = '#FF8C00';
+            ctx.fillRect(this.x + 1, this.y, this.width - 2, this.height);
+        } else if (this.bulletType === 'machinegun') {
+            // Machine gun bullets - small, fast, bright red
+            ctx.fillStyle = '#FF6600';
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+            ctx.fillStyle = '#FF0000';
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+        } else if (this.bulletType === 'tank') {
             // Tank bullets - larger and darker
             ctx.fillStyle = '#8B0000';
             ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -4504,6 +6113,113 @@ class TankExplosion {
         // Draw all particles
         this.particles.forEach(particle => {
             if (particle.size > 0.5 && particle.life > 0) {
+                ctx.save();
+                ctx.globalAlpha = particle.life * alpha;
+                ctx.fillStyle = particle.color;
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        });
+        
+        ctx.restore();
+    }
+}
+
+class BossExplosion {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.timer = 0;
+        this.maxTime = 180; // Dramatic long explosion (3 seconds)
+        this.finished = false;
+        this.particles = [];
+        
+        // Create MASSIVE explosion particles for boss
+        for (let i = 0; i < 80; i++) {
+            this.particles.push({
+                x: x,
+                y: y,
+                vx: (Math.random() - 0.5) * 24, // Even faster spread
+                vy: (Math.random() - 0.5) * 24 - 6,
+                size: Math.random() * 18 + 6, // Huge particles
+                color: this.getParticleColor(),
+                life: Math.random() * 0.8 + 0.7 // Long-lasting particles
+            });
+        }
+        
+        // Add massive smoke cloud
+        for (let i = 0; i < 50; i++) {
+            this.particles.push({
+                x: x + (Math.random() - 0.5) * 80,
+                y: y + (Math.random() - 0.5) * 80,
+                vx: (Math.random() - 0.5) * 8,
+                vy: -Math.random() * 12 - 4, // Strong upward smoke
+                size: Math.random() * 25 + 15,
+                color: '#333333', // Dark dramatic smoke
+                life: 1.0,
+                isSmoke: true
+            });
+        }
+    }
+    
+    getParticleColor() {
+        const colors = ['#FF0000', '#FF4500', '#FFD700', '#FF6600', '#FFA500', '#FFFF00', '#FF1493', '#8A2BE2'];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+    
+    update() {
+        this.timer++;
+        if (this.timer >= this.maxTime) {
+            this.finished = true;
+            return;
+        }
+        
+        // Update particles
+        this.particles.forEach(particle => {
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+            particle.vy += particle.isSmoke ? 0.03 : 0.25; // Gentler gravity for longer effect
+            particle.size *= particle.isSmoke ? 0.995 : 0.98; // Slower fade for dramatic effect
+            particle.vx *= 0.99; // Less air resistance for bigger explosion
+            particle.life -= particle.isSmoke ? 0.005 : 0.008; // Much slower fade
+        });
+        
+        // Remove dead particles
+        this.particles = this.particles.filter(p => p.life > 0 && p.size > 1);
+    }
+    
+    render(ctx) {
+        const alpha = 1 - (this.timer / this.maxTime);
+        
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        
+        // Draw MASSIVE explosion flash (much bigger and longer)
+        if (this.timer < 30) {
+            const flashRadius = (30 - this.timer) * 40; // Enormous flash
+            const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, flashRadius);
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+            gradient.addColorStop(0.2, 'rgba(255, 100, 100, 0.9)');
+            gradient.addColorStop(0.5, 'rgba(255, 50, 0, 0.6)');
+            gradient.addColorStop(0.8, 'rgba(255, 0, 0, 0.3)');
+            gradient.addColorStop(1, 'rgba(100, 0, 0, 0)');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, flashRadius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        // Screen shake effect for first 60 frames
+        if (this.timer < 60) {
+            const shakeIntensity = (60 - this.timer) / 6;
+            ctx.translate((Math.random() - 0.5) * shakeIntensity, (Math.random() - 0.5) * shakeIntensity);
+        }
+        
+        // Draw all particles
+        this.particles.forEach(particle => {
+            if (particle.size > 1 && particle.life > 0) {
                 ctx.save();
                 ctx.globalAlpha = particle.life * alpha;
                 ctx.fillStyle = particle.color;
