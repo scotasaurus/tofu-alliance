@@ -13,7 +13,7 @@ class Game {
     }
     
     loadAssets() {
-        this.assetsToLoad = 10;
+        this.assetsToLoad = 12;
         this.assetsLoaded = 0;
         
         const tofuSprite = new Image();
@@ -64,7 +64,21 @@ class Game {
             this.checkAssetsLoaded();
         };
         popcornSprite.src = 'popcorn.png';
-        
+
+        const shieldSprite = new Image();
+        shieldSprite.onload = () => {
+            this.assets.shieldSprite = shieldSprite;
+            this.checkAssetsLoaded();
+        };
+        shieldSprite.src = 'shield.png';
+
+        const mechSprite = new Image();
+        mechSprite.onload = () => {
+            this.assets.mechSprite = mechSprite;
+            this.checkAssetsLoaded();
+        };
+        mechSprite.src = 'mech.png';
+
         // Heart powerup sprite - create programmatically  
         const canvas = document.createElement('canvas');
         canvas.width = 24;
@@ -92,8 +106,41 @@ class Game {
             this.checkAssetsLoaded();
         };
         heartSprite.src = canvas.toDataURL();
-        
-        // Rapid-fire powerup sprite - create programmatically  
+
+        // Golden heart powerup sprite — full heal, gold w/ darker outline
+        const goldCanvas = document.createElement('canvas');
+        goldCanvas.width = 24;
+        goldCanvas.height = 24;
+        const goldCtx = goldCanvas.getContext('2d');
+        const goldGrad = goldCtx.createLinearGradient(0, 0, 0, 24);
+        goldGrad.addColorStop(0, '#FFF4A8');
+        goldGrad.addColorStop(0.5, '#FFD700');
+        goldGrad.addColorStop(1, '#C29200');
+        goldCtx.fillStyle = goldGrad;
+        goldCtx.beginPath();
+        goldCtx.moveTo(12, 6);
+        goldCtx.bezierCurveTo(8, 2, 2, 6, 8, 12);
+        goldCtx.lineTo(12, 18);
+        goldCtx.lineTo(16, 12);
+        goldCtx.bezierCurveTo(22, 6, 16, 2, 12, 6);
+        goldCtx.fill();
+        goldCtx.strokeStyle = '#6B4A00';
+        goldCtx.lineWidth = 1.5;
+        goldCtx.stroke();
+        // Inner highlight
+        goldCtx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+        goldCtx.beginPath();
+        goldCtx.ellipse(9, 8, 2, 1.4, -0.5, 0, Math.PI * 2);
+        goldCtx.fill();
+
+        const goldenHeartSprite = new Image();
+        goldenHeartSprite.onload = () => {
+            this.assets.goldenHeartSprite = goldenHeartSprite;
+            this.checkAssetsLoaded();
+        };
+        goldenHeartSprite.src = goldCanvas.toDataURL();
+
+        // Rapid-fire powerup sprite - create programmatically
         const rfCanvas = document.createElement('canvas');
         rfCanvas.width = 24;
         rfCanvas.height = 24;
@@ -201,10 +248,12 @@ class Game {
         this.sandbags = [];
         this.platforms = [];
         this.barbedWire = [];
+        this.woodenCrates = [];
+        this.warehouseCrates = [];
+        this.destructibleCrates = [];
+        this.bunkers = [];
         this.lastEnemySpawn = 0;
         this.enemySpawnDelay = 3000;
-        this.lastPowerupSpawn = 0;
-        this.powerupSpawnDelay = 12000; // Spawn heart powerups every 12 seconds
         this.gameOver = false;
         
         // Game state management
@@ -329,6 +378,7 @@ class Game {
         
         // Level system
         this.currentLevel = 1;
+        this.currentWorld = 1;
         this.levelData = this.createDefaultLevels();
         this.currentLevelData = null;
         this.levelSpawnIndex = 0;
@@ -358,9 +408,10 @@ class Game {
     createDefaultLevels() {
         return {
             1: {
-                name: "First Contact",
-                startX: 0,
-                endX: 6000,
+                1: {
+                    name: "First Contact",
+                    startX: 0,
+                    endX: 6000,
                 enemies: [
                     // Early encounters
                     { type: 0, x: 800, y: 280 },
@@ -387,6 +438,7 @@ class Game {
                     { type: 0, x: 5000, y: 280 },
                     { type: 1, x: 5200, y: 280 },
                     { type: 0, x: 5400, y: 280 },
+                    { type: 6, x: 5500, y: 180 },  // Tower - guards level end
                     { type: 1, x: 5600, y: 280 },
                     { type: 0, x: 5800, y: 280 }
                 ],
@@ -408,9 +460,9 @@ class Game {
                     { x: 4500, y: 260, width: 60 },  // Over left side of third sandbag
                     { x: 5300, y: 260, width: 60 }   // Over left side of fourth sandbag
                 ]
-            },
-            2: {
-                name: "Reinforcements", 
+                },
+                2: {
+                    name: "Reinforcements", 
                 startX: 0,
                 endX: 8000,
                 enemies: [
@@ -451,6 +503,7 @@ class Game {
                     { type: 0, x: 7200, y: 280 },
                     { type: 1, x: 7400, y: 280 },
                     { type: 0, x: 7600, y: 280 },
+                    { type: 6, x: 7650, y: 180 },  // Tower - guards level end
                     { type: 2, x: 7800, y: 280 }   // Final tank
                 ],
                 sandbags: [
@@ -483,9 +536,9 @@ class Game {
                     { x: 6900, y: 260, width: 60 },
                     { x: 7500, y: 260, width: 60 }
                 ]
-            },
-            3: {
-                name: "Tank Squadron",
+                },
+                3: {
+                    name: "Tank Squadron",
                 startX: 0, 
                 endX: 10000,
                 enemies: [
@@ -581,23 +634,336 @@ class Game {
                     { x: 8500, y: 260, width: 60 },
                     { x: 9100, y: 260, width: 60 },
                     { x: 9500, y: 260, width: 60 }
+                ],
+                bunkers: [
+                    { x: 9900, y: 220, width: 220, height: 130 }  // End-of-world gateway
                 ]
+                }
+            },
+            2: {
+                1: {
+                    name: "New Territory",
+                    startX: 0,
+                    endX: 7000,
+                    enemies: [
+                        // Desert patrol
+                        { type: 0, x: 600, y: 280 },
+                        { type: 1, x: 900, y: 280 },
+                        { type: 3, x: 1200, y: 280 },  // Sniper
+                        { type: 0, x: 1500, y: 280 },
+                        { type: 2, x: 1800, y: 280 },  // Tank
+                        // Mountain pass assault
+                        { type: 1, x: 2400, y: 300 },  // Elevated
+                        { type: 0, x: 2600, y: 280 },
+                        { type: 1, x: 2800, y: 300 },  // Elevated
+                        { type: 3, x: 3000, y: 280 },  // Sniper
+                        { type: 2, x: 3200, y: 280 },  // Tank
+                        // Heavy resistance
+                        { type: 0, x: 3800, y: 280 },
+                        { type: 1, x: 4000, y: 280 },
+                        { type: 2, x: 4200, y: 280 },  // Tank
+                        { type: 3, x: 4300, y: 280 },  // Sniper
+                        { type: 0, x: 4500, y: 280 },
+                        { type: 1, x: 4700, y: 300 },  // Elevated
+                        // Final push
+                        { type: 2, x: 5200, y: 280 },  // Tank
+                        { type: 0, x: 5400, y: 280 },
+                        { type: 1, x: 5600, y: 280 },
+                        { type: 3, x: 5700, y: 280 },  // Sniper
+                        { type: 2, x: 5900, y: 280 },  // Tank
+                        { type: 0, x: 6100, y: 280 },
+                        { type: 1, x: 6300, y: 280 },
+                        { type: 2, x: 6500, y: 280 },  // Tank
+                        { type: 0, x: 6700, y: 280 }
+                    ],
+                    sandbags: [
+                        { x: 1100, y: 280 },
+                        { x: 2300, y: 280 },
+                        { x: 3700, y: 280 },
+                        { x: 4600, y: 280 },
+                        { x: 5800, y: 280 }
+                    ],
+                    platforms: [
+                        { x: 1170, y: 300, width: 80, height: 20 },
+                        { x: 2370, y: 300, width: 80, height: 20 },
+                        { x: 3770, y: 300, width: 80, height: 20 },
+                        { x: 4670, y: 300, width: 80, height: 20 },
+                        { x: 5870, y: 300, width: 80, height: 20 }
+                    ],
+                    barbedWire: [
+                        { x: 1100, y: 260, width: 60 },
+                        { x: 2300, y: 260, width: 60 },
+                        { x: 3700, y: 260, width: 60 },
+                        { x: 4600, y: 260, width: 60 },
+                        { x: 5800, y: 260, width: 60 }
+                    ],
+                    warehouseCrates: [
+                        // Organized warehouse clusters like a real storage facility
+                        // Cluster 1 - Entry storage
+                        { x: 400, y: 280, width: 45 },
+                        { x: 450, y: 280, width: 40 },
+                        { x: 495, y: 280, width: 45 },
+                        // Cluster 2 - Mid-left storage
+                        { x: 1300, y: 280, width: 50 },
+                        { x: 1355, y: 280, width: 45 },
+                        { x: 1405, y: 280, width: 50 },
+                        { x: 1460, y: 280, width: 40 },
+                        // Cluster 3 - Central storage bay
+                        { x: 2500, y: 280, width: 55 },
+                        { x: 2560, y: 280, width: 50 },
+                        { x: 2615, y: 280, width: 45 },
+                        { x: 2665, y: 280, width: 55 },
+                        { x: 2725, y: 280, width: 40 },
+                        // Cluster 4 - Right storage area
+                        { x: 4100, y: 280, width: 50 },
+                        { x: 4155, y: 280, width: 45 },
+                        { x: 4205, y: 280, width: 50 },
+                        // Cluster 5 - Deep storage
+                        { x: 5300, y: 280, width: 60 },
+                        { x: 5365, y: 280, width: 50 },
+                        { x: 5420, y: 280, width: 55 },
+                        { x: 5480, y: 280, width: 45 },
+                        // Cluster 6 - Final storage bay
+                        { x: 6200, y: 280, width: 50 },
+                        { x: 6255, y: 280, width: 45 },
+                        { x: 6305, y: 280, width: 50 }
+                    ],
+                    destructibleCrates: [
+                        // Crates that can be destroyed for points
+                        { x: 800, y: 280, width: 40, points: 50 },
+                        { x: 1600, y: 280, width: 40, points: 50 },
+                        { x: 2100, y: 280, width: 40, points: 50 },
+                        { x: 3500, y: 280, width: 40, points: 50 },
+                        { x: 4400, y: 280, width: 40, points: 50 },
+                        { x: 5700, y: 280, width: 40, points: 50 },
+                        { x: 6200, y: 280, width: 40, points: 50 }
+                    ]
+                },
+                2: {
+                    name: "Fortress Assault",
+                    startX: 0,
+                    endX: 9000,
+                    enemies: [
+                        // Opening defense line
+                        { type: 1, x: 500, y: 300 },   // Elevated
+                        { type: 3, x: 700, y: 280 },   // Sniper
+                        { type: 0, x: 900, y: 280 },
+                        { type: 2, x: 1100, y: 280 },  // Tank
+                        { type: 1, x: 1300, y: 300 },  // Elevated
+                        // Fortress outer defenses
+                        { type: 0, x: 1800, y: 280 },
+                        { type: 3, x: 2000, y: 280 },  // Sniper
+                        { type: 2, x: 2200, y: 280 },  // Tank
+                        { type: 1, x: 2400, y: 300 },  // Elevated
+                        { type: 0, x: 2600, y: 280 },
+                        { type: 2, x: 2800, y: 280 },  // Tank
+                        // Mid-fortress heavy armor
+                        { type: 3, x: 3400, y: 280 },  // Sniper
+                        { type: 2, x: 3600, y: 280 },  // Tank
+                        { type: 1, x: 3800, y: 300 },  // Elevated
+                        { type: 2, x: 4000, y: 280 },  // Tank
+                        { type: 0, x: 4200, y: 280 },
+                        { type: 3, x: 4300, y: 280 },  // Sniper
+                        // Inner fortress defenses
+                        { type: 2, x: 5000, y: 280 },  // Tank
+                        { type: 1, x: 5200, y: 300 },  // Elevated
+                        { type: 2, x: 5400, y: 280 },  // Tank
+                        { type: 3, x: 5500, y: 280 },  // Sniper
+                        { type: 0, x: 5700, y: 280 },
+                        { type: 1, x: 5900, y: 280 },
+                        // Final fortress push
+                        { type: 2, x: 6500, y: 280 },  // Tank
+                        { type: 3, x: 6600, y: 280 },  // Sniper
+                        { type: 2, x: 6800, y: 280 },  // Tank
+                        { type: 1, x: 7000, y: 300 },  // Elevated
+                        { type: 0, x: 7200, y: 280 },
+                        { type: 2, x: 7400, y: 280 },  // Tank
+                        { type: 1, x: 7600, y: 280 },
+                        { type: 3, x: 7700, y: 280 },  // Sniper
+                        { type: 2, x: 7900, y: 280 },  // Tank
+                        { type: 0, x: 8100, y: 280 },
+                        { type: 1, x: 8300, y: 280 },
+                        { type: 2, x: 8500, y: 280 },  // Tank
+                        { type: 0, x: 8700, y: 280 }
+                    ],
+                    sandbags: [
+                        { x: 400, y: 280 },
+                        { x: 1200, y: 280 },
+                        { x: 1900, y: 280 },
+                        { x: 2700, y: 280 },
+                        { x: 3700, y: 280 },
+                        { x: 4900, y: 280 },
+                        { x: 5800, y: 280 },
+                        { x: 6900, y: 280 },
+                        { x: 8000, y: 280 }
+                    ],
+                    platforms: [
+                        { x: 470, y: 300, width: 80, height: 20 },
+                        { x: 1270, y: 300, width: 80, height: 20 },
+                        { x: 1970, y: 300, width: 80, height: 20 },
+                        { x: 2770, y: 300, width: 80, height: 20 },
+                        { x: 3770, y: 300, width: 80, height: 20 },
+                        { x: 4970, y: 300, width: 80, height: 20 },
+                        { x: 5870, y: 300, width: 80, height: 20 },
+                        { x: 6970, y: 300, width: 80, height: 20 },
+                        { x: 8070, y: 300, width: 80, height: 20 }
+                    ],
+                    barbedWire: [
+                        { x: 400, y: 260, width: 60 },
+                        { x: 1200, y: 260, width: 60 },
+                        { x: 1900, y: 260, width: 60 },
+                        { x: 2700, y: 260, width: 60 },
+                        { x: 3700, y: 260, width: 60 },
+                        { x: 4900, y: 260, width: 60 },
+                        { x: 5800, y: 260, width: 60 },
+                        { x: 6900, y: 260, width: 60 },
+                        { x: 8000, y: 260, width: 60 }
+                    ],
+                    warehouseCrates: [
+                        // Heavy fortress warehouse - organized military storage
+                        // Fortress Cluster 1 - Entry checkpoint storage
+                        { x: 300, y: 280, width: 60 },
+                        { x: 365, y: 280, width: 50 },
+                        { x: 420, y: 280, width: 55 },
+                        // Fortress Cluster 2 - Mid-left armory
+                        { x: 1500, y: 280, width: 55 },
+                        { x: 1560, y: 280, width: 50 },
+                        { x: 1615, y: 280, width: 45 },
+                        // Fortress Cluster 3 - Central supply depot
+                        { x: 2900, y: 280, width: 45 },
+                        { x: 2950, y: 280, width: 50 },
+                        { x: 3005, y: 280, width: 55 },
+                        { x: 3065, y: 280, width: 45 },
+                        // Fortress Cluster 4 - Heavy weapons storage
+                        { x: 4600, y: 280, width: 55 },
+                        { x: 4660, y: 280, width: 50 },
+                        { x: 4715, y: 280, width: 60 },
+                        { x: 4780, y: 280, width: 45 },
+                        // Fortress Cluster 5 - Communications equipment
+                        { x: 6200, y: 280, width: 60 },
+                        { x: 6265, y: 280, width: 50 },
+                        { x: 6320, y: 280, width: 55 },
+                        // Fortress Cluster 6 - Final defense supplies
+                        { x: 7800, y: 280, width: 45 },
+                        { x: 7850, y: 280, width: 50 },
+                        { x: 7905, y: 280, width: 55 },
+                        { x: 7965, y: 280, width: 45 }
+                    ],
+                    destructibleCrates: [
+                        // More destructible crates in fortress level
+                        { x: 1000, y: 280, width: 40, points: 50 },
+                        { x: 1700, y: 280, width: 40, points: 50 },
+                        { x: 2500, y: 280, width: 40, points: 50 },
+                        { x: 3500, y: 280, width: 40, points: 50 },
+                        { x: 4300, y: 280, width: 40, points: 50 },
+                        { x: 5100, y: 280, width: 40, points: 50 },
+                        { x: 5900, y: 280, width: 40, points: 50 },
+                        { x: 6800, y: 280, width: 40, points: 50 },
+                        { x: 7500, y: 280, width: 40, points: 50 },
+                        { x: 8600, y: 280, width: 40, points: 50 }
+                    ]
+                },
+                3: {
+                    name: "The Popcorn Showdown",
+                    startX: 0,
+                    endX: 11000,
+                    enemies: [
+                        // Pre-boss gauntlet
+                        { type: 2, x: 800, y: 280 },   // Tank
+                        { type: 3, x: 900, y: 280 },   // Sniper
+                        { type: 1, x: 1100, y: 300 },  // Elevated
+                        { type: 2, x: 1300, y: 280 },  // Tank
+                        { type: 0, x: 1500, y: 280 },
+                        // Elite guard squadron
+                        { type: 3, x: 2200, y: 280 },  // Sniper
+                        { type: 2, x: 2400, y: 280 },  // Tank
+                        { type: 2, x: 2600, y: 280 },  // Tank
+                        { type: 1, x: 2800, y: 300 },  // Elevated
+                        { type: 3, x: 2900, y: 280 },  // Sniper
+                        { type: 0, x: 3100, y: 280 },
+                        { type: 1, x: 3300, y: 280 },
+                        // Final approach to boss
+                        { type: 2, x: 4000, y: 280 },  // Tank
+                        { type: 3, x: 4100, y: 280 },  // Sniper
+                        { type: 2, x: 4300, y: 280 },  // Tank
+                        { type: 1, x: 4500, y: 300 },  // Elevated
+                        { type: 0, x: 4700, y: 280 },
+                        // Boss encounter area - THE MECH
+                        { type: 5, x: 9500, y: 260 }   // Mech Boss - Final underground boss
+                    ],
+                    sandbags: [
+                        { x: 1000, y: 280 },
+                        { x: 2100, y: 280 },
+                        { x: 2700, y: 280 },
+                        { x: 3900, y: 280 },
+                        { x: 4400, y: 280 },
+                        { x: 8000, y: 280 }
+                    ],
+                    platforms: [
+                        { x: 1070, y: 300, width: 80, height: 20 },
+                        { x: 2170, y: 300, width: 80, height: 20 },
+                        { x: 2770, y: 300, width: 80, height: 20 },
+                        { x: 3970, y: 300, width: 80, height: 20 },
+                        { x: 4470, y: 300, width: 80, height: 20 },
+                        { x: 8070, y: 300, width: 120, height: 20 }  // Wider platform for boss area
+                    ],
+                    barbedWire: [
+                        { x: 1000, y: 260, width: 60 },
+                        { x: 2100, y: 260, width: 60 },
+                        { x: 2700, y: 260, width: 60 },
+                        { x: 3900, y: 260, width: 60 },
+                        { x: 4400, y: 260, width: 60 },
+                        { x: 8000, y: 260, width: 100 }  // Longer barbed wire for boss area
+                    ],
+                    warehouseCrates: [
+                        // Boss level warehouse - strategic clusters before boss encounter
+                        // Command Cluster 1 - Entry supplies
+                        { x: 500, y: 280, width: 50 },
+                        { x: 555, y: 280, width: 45 },
+                        // Command Cluster 2 - Tactical equipment
+                        { x: 1500, y: 280, width: 45 },
+                        { x: 1550, y: 280, width: 50 },
+                        // Command Cluster 3 - Pre-boss staging area
+                        { x: 3200, y: 280, width: 40 },
+                        { x: 3245, y: 280, width: 55 },
+                        { x: 3305, y: 280, width: 45 },
+                        // Command Cluster 4 - Final defensive position (sparse for boss fight)
+                        { x: 6000, y: 280, width: 50 },
+                        { x: 6055, y: 280, width: 45 }
+                    ],
+                    destructibleCrates: [
+                        // Strategic destructible crates before boss
+                        { x: 1200, y: 280, width: 40, points: 75 },  // Higher points for final level
+                        { x: 2800, y: 280, width: 40, points: 75 },
+                        { x: 4100, y: 280, width: 40, points: 75 },
+                        { x: 5200, y: 280, width: 40, points: 75 },
+                        { x: 6500, y: 280, width: 40, points: 75 }
+                    ]
+                }
             }
         };
     }
     
     startLevel(levelNumber) {
         this.currentLevel = levelNumber;
-        this.currentLevelData = this.levelData[levelNumber];
+        this.currentLevelData = this.levelData[this.currentWorld][levelNumber];
         this.levelSpawnIndex = 0;
         this.levelComplete = false;
         
         if (!this.currentLevelData) {
-            // No more levels - victory!
-            this.stopGameplayMusic();
-            this.stopBossMusic();
-            this.gameState = 'victory';
-            return;
+            // Check if we should move to next world or victory
+            if (this.levelData[this.currentWorld + 1]) {
+                // Move to next world
+                this.currentWorld++;
+                this.currentLevel = 1;
+                this.currentLevelData = this.levelData[this.currentWorld][1];
+            } else {
+                // No more worlds - victory!
+                this.stopGameplayMusic();
+                this.stopBossMusic();
+                this.gameState = 'victory';
+                return;
+            }
         }
         
         // Make sure enemies array exists and sort by x position for proper spawning order
@@ -610,6 +976,10 @@ class Game {
         this.sandbags = [];
         this.platforms = [];
         this.barbedWire = [];
+        this.woodenCrates = [];
+        this.warehouseCrates = [];
+        this.destructibleCrates = [];
+        this.bunkers = [];
         
         // Spawn sandbags for this level
         if (this.currentLevelData.sandbags) {
@@ -625,13 +995,43 @@ class Game {
             }
         }
         
-        // Spawn barbed wire for this level
+        // Spawn barbed wire for World 1, wooden crates for World 2
         if (this.currentLevelData.barbedWire) {
             for (const wireData of this.currentLevelData.barbedWire) {
-                this.barbedWire.push(new BarbedWire(wireData.x, wireData.y, wireData.width));
+                if (this.currentWorld === 2) {
+                    // Use wooden crates instead of barbed wire for World 2
+                    // Ground level is 320, crate height is 40, so crate Y should be 280
+                    this.woodenCrates.push(new WoodenCrate(wireData.x, 280, wireData.width));
+                } else {
+                    // Use barbed wire for World 1
+                    this.barbedWire.push(new BarbedWire(wireData.x, wireData.y, wireData.width));
+                }
             }
         }
-        
+
+        // Spawn warehouse crates (for atmosphere in World 2)
+        if (this.currentLevelData.warehouseCrates) {
+            for (const crateData of this.currentLevelData.warehouseCrates) {
+                // Ground level is 320, crate height is 40, so crate Y should be 280
+                this.warehouseCrates.push(new WoodenCrate(crateData.x, 280, crateData.width));
+            }
+        }
+
+        // Spawn destructible crates (for points in World 2)
+        if (this.currentLevelData.destructibleCrates) {
+            for (const crateData of this.currentLevelData.destructibleCrates) {
+                // Ground level is 320, crate height is 40, so crate Y should be 280
+                this.destructibleCrates.push(new DestructibleCrate(crateData.x, 280, crateData.width, crateData.points));
+            }
+        }
+
+        // Spawn bunkers (end-of-world transition structures)
+        if (this.currentLevelData.bunkers) {
+            for (const b of this.currentLevelData.bunkers) {
+                this.bunkers.push(new Bunker(b.x, b.y, b.width, b.height));
+            }
+        }
+
         // Reset camera to level start
         this.camera.x = this.currentLevelData.startX;
         
@@ -673,7 +1073,19 @@ class Game {
                 
                 // Spawn this enemy
                 console.log('Spawning enemy type', enemy.type, 'at', enemy.x, enemy.y);
-                this.enemies.push(new Enemy(enemy.x, enemy.y, enemy.type, this.assets));
+                const newEnemy = new Enemy(enemy.x, enemy.y, enemy.type, this.assets);
+                this.enemies.push(newEnemy);
+                // Towers spawn with 2 soldier enemies mounted on top
+                if (enemy.type === 6) {
+                    const s1 = new Enemy(newEnemy.x, newEnemy.y, 0, this.assets); // soldier_1
+                    s1.mountedTower = newEnemy;
+                    s1.mountOffsetX = -38;
+                    this.enemies.push(s1);
+                    const s2 = new Enemy(newEnemy.x, newEnemy.y, 1, this.assets); // soldier_2
+                    s2.mountedTower = newEnemy;
+                    s2.mountOffsetX = 38;
+                    this.enemies.push(s2);
+                }
                 this.levelSpawnIndex++;
             } else if (enemy.x <= playerX) {
                 // Skip enemies behind the player
@@ -1116,7 +1528,59 @@ class Game {
                 }
             }
         }
-        
+
+        // Check player collision with wooden crates (same logic as sandbags)
+        for (let crate of this.woodenCrates) {
+            if (this.checkCollision(this.player, crate)) {
+                // Check if player is landing on top (from above)
+                const playerBottom = this.player.y + this.player.height;
+                const crateTop = crate.y;
+                const playerWasAbove = playerBottom - this.player.velocityY <= crateTop;
+
+                if (playerWasAbove && this.player.velocityY > 0) {
+                    // Player landing on top of crate
+                    this.player.y = crate.y - this.player.height;
+                    this.player.velocityY = 0;
+                    this.player.onGround = true;
+                } else {
+                    // Side collision - push player back
+                    if (this.player.x < crate.x) {
+                        // Player approaching from left, push left
+                        this.player.x = crate.x - this.player.width;
+                    } else {
+                        // Player approaching from right, push right
+                        this.player.x = crate.x + crate.width;
+                    }
+                }
+            }
+        }
+
+        // Check player collision with warehouse crates (same logic as sandbags)
+        for (let crate of this.warehouseCrates) {
+            if (this.checkCollision(this.player, crate)) {
+                // Check if player is landing on top (from above)
+                const playerBottom = this.player.y + this.player.height;
+                const crateTop = crate.y;
+                const playerWasAbove = playerBottom - this.player.velocityY <= crateTop;
+
+                if (playerWasAbove && this.player.velocityY > 0) {
+                    // Player landing on top of crate
+                    this.player.y = crate.y - this.player.height;
+                    this.player.velocityY = 0;
+                    this.player.onGround = true;
+                } else {
+                    // Side collision - push player back
+                    if (this.player.x < crate.x) {
+                        // Player approaching from left, push left
+                        this.player.x = crate.x - this.player.width;
+                    } else {
+                        // Player approaching from right, push right
+                        this.player.x = crate.x + crate.width;
+                    }
+                }
+            }
+        }
+
         // Check player collision with platforms (same logic)
         for (let platform of this.platforms) {
             if (this.checkCollision(this.player, platform)) {
@@ -1183,37 +1647,70 @@ class Game {
             }
             
             // Check bullet-sandbag collisions
+            let bulletDestroyed = false;
             for (let j = 0; j < this.sandbags.length; j++) {
                 if (this.sandbags[j].collidesWith(this.bullets[i])) {
                     this.bullets.splice(i, 1);
+                    bulletDestroyed = true;
                     break; // Exit sandbag loop since bullet is destroyed
                 }
+            }
+
+            // Check bullet-wooden crate collisions (if bullet still exists)
+            if (!bulletDestroyed && i < this.bullets.length) {
+                for (let j = 0; j < this.woodenCrates.length; j++) {
+                    if (this.woodenCrates[j].collidesWith(this.bullets[i])) {
+                        this.bullets.splice(i, 1);
+                        bulletDestroyed = true;
+                        break; // Exit wooden crate loop since bullet is destroyed
+                    }
+                }
+            }
+
+            // Check bullet-warehouse crate collisions (if bullet still exists)
+            if (!bulletDestroyed && i < this.bullets.length) {
+                for (let j = 0; j < this.warehouseCrates.length; j++) {
+                    if (this.warehouseCrates[j].collidesWith(this.bullets[i])) {
+                        this.bullets.splice(i, 1);
+                        bulletDestroyed = true;
+                        break; // Exit warehouse crate loop since bullet is destroyed
+                    }
+                }
+            }
+
+            // Only check destructible crates if bullet wasn't already destroyed
+            if (!bulletDestroyed && i < this.bullets.length) {
+                // Check bullet-destructible crate collisions
+                for (let j = 0; j < this.destructibleCrates.length; j++) {
+                    if (this.destructibleCrates[j].checkBulletCollision(this.bullets[i])) {
+                        const crate = this.destructibleCrates[j];
+                        const points = crate.takeDamage();
+                        this.bullets.splice(i, 1);
+                        bulletDestroyed = true;
+                        if (points > 0) {
+                            this.score += points;
+                            // Create a small explosion effect
+                            this.explosions.push(new Explosion(crate.x + crate.width/2, crate.y + crate.height/2));
+                            // Remove destroyed crate
+                            this.destructibleCrates.splice(j, 1);
+                        }
+                        break; // Exit crate loop since bullet is destroyed
+                    }
+                }
+            }
+
+            // Adjust loop index if bullet was destroyed
+            if (bulletDestroyed) {
+                i--; // Compensate for the removed bullet
             }
         }
         
         // Update level-based spawning instead of random spawning
         this.updateLevelSpawning();
-        
-        // Spawn powerups (only spawn if no powerups currently exist)
-        const currentTime = Date.now();
-        if (currentTime - this.lastPowerupSpawn > this.powerupSpawnDelay && 
-            this.powerups.length === 0) {
-            const spawnX = this.camera.x + this.canvas.width + 100 + Math.random() * 400;
-            const spawnY = 120 + Math.random() * 150;
-            
-            // 50% chance for heart powerup (if player is damaged), 50% for rapid-fire
-            const needsHealth = this.player.health < this.player.maxHealth;
-            const powerupType = (needsHealth && Math.random() < 0.5) ? 'heart' : 'rapidfire';
-            
-            if (powerupType === 'heart' && needsHealth) {
-                this.powerups.push(new HeartPowerup(spawnX, spawnY, this.assets));
-            } else {
-                this.powerups.push(new RapidFirePowerup(spawnX, spawnY, this.assets));
-            }
-            
-            this.lastPowerupSpawn = currentTime;
-        }
-        
+
+        // Powerups are now driven by enemy drops (see rollEnemyDrop + bullet-enemy collision).
+        // No time-based spawner — that incentivized camping.
+
         // Spawn mines occasionally with better spacing
         if (Math.random() < 0.003 && this.mines.length === 0) { // Lower chance and only if no mines exist
             const spawnX = this.camera.x + this.canvas.width + 200 + Math.random() * 400; // Further ahead with more spread
@@ -1261,8 +1758,36 @@ class Game {
                         // Enemy approaching from left, push left
                         this.enemies[i].x = sandbag.x - this.enemies[i].width;
                     } else {
-                        // Enemy approaching from right, push right  
+                        // Enemy approaching from right, push right
                         this.enemies[i].x = sandbag.x + sandbag.width;
+                    }
+                }
+            }
+
+            // Check enemy collision with wooden crates
+            for (let crate of this.woodenCrates) {
+                if (this.checkCollision(this.enemies[i], crate)) {
+                    // Push enemy back depending on direction of movement
+                    if (this.enemies[i].x < crate.x) {
+                        // Enemy approaching from left, push left
+                        this.enemies[i].x = crate.x - this.enemies[i].width;
+                    } else {
+                        // Enemy approaching from right, push right
+                        this.enemies[i].x = crate.x + crate.width;
+                    }
+                }
+            }
+
+            // Check enemy collision with warehouse crates
+            for (let crate of this.warehouseCrates) {
+                if (this.checkCollision(this.enemies[i], crate)) {
+                    // Push enemy back depending on direction of movement
+                    if (this.enemies[i].x < crate.x) {
+                        // Enemy approaching from left, push left
+                        this.enemies[i].x = crate.x - this.enemies[i].width;
+                    } else {
+                        // Enemy approaching from right, push right
+                        this.enemies[i].x = crate.x + crate.width;
                     }
                 }
             }
@@ -1271,7 +1796,7 @@ class Game {
         
         // Boss music management - only during gameplay
         if (this.gameState === 'playing') {
-            const bossPresent = this.enemies.some(enemy => enemy.type === 4);
+            const bossPresent = this.enemies.some(enemy => enemy.type === 4 || enemy.type === 5);
             if (bossPresent && !this.bossActive) {
                 this.startBossMusic();
             } else if (!bossPresent && this.bossActive) {
@@ -1306,10 +1831,34 @@ class Game {
             }
             
             // Check enemy bullet-sandbag collisions
+            let enemyBulletDestroyed = false;
             for (let j = 0; j < this.sandbags.length; j++) {
                 if (this.sandbags[j].collidesWith(this.enemyBullets[i])) {
                     this.enemyBullets.splice(i, 1);
+                    enemyBulletDestroyed = true;
                     break; // Exit sandbag loop since bullet is destroyed
+                }
+            }
+
+            // Check enemy bullet-wooden crate collisions (if bullet still exists)
+            if (!enemyBulletDestroyed && i < this.enemyBullets.length) {
+                for (let j = 0; j < this.woodenCrates.length; j++) {
+                    if (this.woodenCrates[j].collidesWith(this.enemyBullets[i])) {
+                        this.enemyBullets.splice(i, 1);
+                        enemyBulletDestroyed = true;
+                        break; // Exit wooden crate loop since bullet is destroyed
+                    }
+                }
+            }
+
+            // Check enemy bullet-warehouse crate collisions (if bullet still exists)
+            if (!enemyBulletDestroyed && i < this.enemyBullets.length) {
+                for (let j = 0; j < this.warehouseCrates.length; j++) {
+                    if (this.warehouseCrates[j].collidesWith(this.enemyBullets[i])) {
+                        this.enemyBullets.splice(i, 1);
+                        enemyBulletDestroyed = true;
+                        break; // Exit warehouse crate loop since bullet is destroyed
+                    }
                 }
             }
         }
@@ -1317,6 +1866,8 @@ class Game {
         // Check bullet-enemy collisions
         for (let i = this.bullets.length - 1; i >= 0; i--) {
             for (let j = this.enemies.length - 1; j >= 0; j--) {
+                // Mounted soldiers are protected by the tower they're on
+                if (this.enemies[j].mountedTower) continue;
                 if (this.checkCollision(this.bullets[i], this.enemies[j])) {
                     this.bullets.splice(i, 1);
                     
@@ -1337,7 +1888,7 @@ class Game {
                         }
                         
                         // Dramatic boss explosion and victory music
-                        if (enemy.type === 4) {
+                        if (enemy.type === 4 || enemy.type === 5) {
                             this.playBossExplosion();
                             this.playVictoryMusic();
                             // Create massive boss explosion
@@ -1345,6 +1896,17 @@ class Game {
                             // Stop boss music
                             this.stopBossMusic();
                         }
+
+                        // Tower collapse — mounted soldiers detach next frame and fall via gravity
+                        if (enemy.type === 6) {
+                            this.playTankExplosion();
+                            this.explosions.push(new TankExplosion(enemy.x + enemy.width/2, enemy.y + enemy.height/2));
+                            this.tankRemnants.push(new TankRemnant(enemy.x + 10, enemy.y + 30, enemy.width - 20, enemy.height - 30));
+                        }
+
+                        // Roll enemy drop (powerups now come from kills, not a time spawner)
+                        this.dropPowerup(this.rollEnemyDrop(enemy), enemy);
+
                         this.enemies.splice(j, 1);
                     }
                     break;
@@ -1514,11 +2076,11 @@ class Game {
         this.enteringInitials = false;
         this.currentInitials = '';
         this.newHighScoreIndex = -1;
-        
-        // Reset to level 1
-        this.currentLevel = 1;
         this.wonGame = false;
-        
+
+        // Reset to level 1 (world is set in constructor)
+        this.currentLevel = 1;
+
         // Reset player
         this.player.health = 10;
         this.player.x = 100;
@@ -1541,8 +2103,11 @@ class Game {
         this.sandbags = [];
         this.platforms = [];
         this.barbedWire = [];
+        this.woodenCrates = [];
+        this.warehouseCrates = [];
+        this.destructibleCrates = [];
+        this.bunkers = [];
         this.lastEnemySpawn = 0;
-        this.lastPowerupSpawn = 0;
         this.camera = { x: 0, y: 0 };
         
         // Start level 1
@@ -2677,8 +3242,14 @@ class Game {
     
     playGameplayTrack() {
         if (!this.audioContext || !this.gameplayMusicPlaying) return;
-        
-        // Epic battle melody in A minor (natural minor scale)
+
+        // Choose music based on current world
+        if (this.currentWorld === 2) {
+            this.playUndergroundTrack();
+            return;
+        }
+
+        // Epic battle melody in A minor (natural minor scale) - World 1
         const melody = [
             // Phrase 1 - driving and heroic
             {note: 440, duration: 0.25}, // A4
@@ -2863,7 +3434,318 @@ class Game {
             }
         }, 4000);
     }
-    
+
+    playUndergroundTrack() {
+        if (!this.audioContext || !this.gameplayMusicPlaying) return;
+
+        // Extended upbeat EDM underground track in E minor (energetic and driving)
+        const edm_melody = [
+            // Section 1 - Main synth lead (8 bars)
+            {note: 330, duration: 0.25}, // E4
+            {note: 392, duration: 0.25}, // G4
+            {note: 494, duration: 0.25}, // B4
+            {note: 659, duration: 0.25}, // E5
+            {note: 494, duration: 0.25}, // B4
+            {note: 392, duration: 0.25}, // G4
+            {note: 330, duration: 0.25}, // E4
+            {note: 294, duration: 0.25}, // D4
+
+            // Build up phrase
+            {note: 330, duration: 0.125}, // E4
+            {note: 392, duration: 0.125}, // G4
+            {note: 494, duration: 0.125}, // B4
+            {note: 659, duration: 0.125}, // E5
+            {note: 784, duration: 0.25}, // G5
+            {note: 659, duration: 0.25}, // E5
+            {note: 494, duration: 0.25}, // B4
+            {note: 392, duration: 0.25}, // G4
+
+            // Section 2 - Variation with higher octave (8 bars)
+            {note: 659, duration: 0.25}, // E5
+            {note: 784, duration: 0.25}, // G5
+            {note: 988, duration: 0.25}, // B5
+            {note: 1319, duration: 0.25}, // E6
+            {note: 988, duration: 0.25}, // B5
+            {note: 784, duration: 0.25}, // G5
+            {note: 659, duration: 0.25}, // E5
+            {note: 587, duration: 0.25}, // D5
+
+            // Extended buildup
+            {note: 659, duration: 0.125}, // E5
+            {note: 784, duration: 0.125}, // G5
+            {note: 988, duration: 0.125}, // B5
+            {note: 1319, duration: 0.125}, // E6
+            {note: 1175, duration: 0.25}, // D6
+            {note: 1047, duration: 0.25}, // C6
+            {note: 988, duration: 0.25}, // B5
+            {note: 880, duration: 0.25}, // A5
+
+            // Section 3 - Breakdown/Bridge (8 bars)
+            {note: 165, duration: 0.5}, // E3 - lower octave
+            {note: 196, duration: 0.5}, // G3
+            {note: 247, duration: 0.5}, // B3
+            {note: 294, duration: 0.5}, // D4
+            {note: 330, duration: 0.25}, // E4
+            {note: 392, duration: 0.25}, // G4
+            {note: 494, duration: 0.25}, // B4
+            {note: 587, duration: 0.25}, // D5
+
+            // Section 4 - Final climax (8 bars)
+            {note: 659, duration: 0.125}, // E5
+            {note: 659, duration: 0.125}, // E5
+            {note: 784, duration: 0.125}, // G5
+            {note: 784, duration: 0.125}, // G5
+            {note: 988, duration: 0.125}, // B5
+            {note: 988, duration: 0.125}, // B5
+            {note: 1319, duration: 0.125}, // E6
+            {note: 1319, duration: 0.125}, // E6
+
+            {note: 1175, duration: 0.25}, // D6
+            {note: 1047, duration: 0.25}, // C6
+            {note: 988, duration: 0.25}, // B5
+            {note: 880, duration: 0.25}, // A5
+            {note: 784, duration: 0.25}, // G5
+            {note: 659, duration: 0.25}, // E5
+            {note: 494, duration: 0.25}, // B4
+            {note: 330, duration: 0.25}  // E4
+        ];
+
+        // Extended bass synth pattern - driving 4/4 beat throughout all sections
+        const bass_pattern = [
+            // Section 1 & 2 - Standard driving bass
+            {note: 82.4, duration: 0.25, delay: 0},    // E2
+            {note: 0, duration: 0.25, delay: 0.25},    // Rest
+            {note: 98, duration: 0.25, delay: 0.5},    // G2
+            {note: 0, duration: 0.25, delay: 0.75},    // Rest
+            {note: 123.5, duration: 0.25, delay: 1.0}, // B2
+            {note: 0, duration: 0.25, delay: 1.25},    // Rest
+            {note: 147, duration: 0.25, delay: 1.5},   // D3
+            {note: 82.4, duration: 0.25, delay: 1.75}, // E2
+
+            // Repeat for second phrase
+            {note: 82.4, duration: 0.25, delay: 2.0},
+            {note: 0, duration: 0.25, delay: 2.25},
+            {note: 98, duration: 0.25, delay: 2.5},
+            {note: 0, duration: 0.25, delay: 2.75},
+            {note: 123.5, duration: 0.25, delay: 3.0},
+            {note: 0, duration: 0.25, delay: 3.25},
+            {note: 147, duration: 0.25, delay: 3.5},
+            {note: 82.4, duration: 0.25, delay: 3.75},
+
+            // Section 2 continues - Higher energy
+            {note: 82.4, duration: 0.125, delay: 4.0},
+            {note: 82.4, duration: 0.125, delay: 4.125},
+            {note: 98, duration: 0.125, delay: 4.25},
+            {note: 98, duration: 0.125, delay: 4.375},
+            {note: 123.5, duration: 0.125, delay: 4.5},
+            {note: 123.5, duration: 0.125, delay: 4.625},
+            {note: 147, duration: 0.125, delay: 4.75},
+            {note: 147, duration: 0.125, delay: 4.875},
+
+            {note: 82.4, duration: 0.25, delay: 5.0},
+            {note: 98, duration: 0.25, delay: 5.25},
+            {note: 123.5, duration: 0.25, delay: 5.5},
+            {note: 147, duration: 0.25, delay: 5.75},
+
+            // Section 3 - Breakdown (sustained notes)
+            {note: 82.4, duration: 0.5, delay: 6.0},   // E2
+            {note: 98, duration: 0.5, delay: 6.5},     // G2
+            {note: 123.5, duration: 0.5, delay: 7.0},  // B2
+            {note: 147, duration: 0.5, delay: 7.5},    // D3
+
+            // Section 4 - Final climax (intense bass)
+            {note: 82.4, duration: 0.125, delay: 8.0},
+            {note: 0, duration: 0.125, delay: 8.125},
+            {note: 82.4, duration: 0.125, delay: 8.25},
+            {note: 0, duration: 0.125, delay: 8.375},
+            {note: 123.5, duration: 0.125, delay: 8.5},
+            {note: 0, duration: 0.125, delay: 8.625},
+            {note: 123.5, duration: 0.125, delay: 8.75},
+            {note: 0, duration: 0.125, delay: 8.875},
+
+            {note: 147, duration: 0.25, delay: 9.0},
+            {note: 130.8, duration: 0.25, delay: 9.25}, // C3
+            {note: 123.5, duration: 0.25, delay: 9.5},  // B2
+            {note: 110, duration: 0.25, delay: 9.75},   // A2
+            {note: 98, duration: 0.25, delay: 10.0},    // G2
+            {note: 82.4, duration: 0.25, delay: 10.25}, // E2
+            {note: 123.5, duration: 0.25, delay: 10.5}, // B2
+            {note: 82.4, duration: 0.25, delay: 10.75}  // E2
+        ];
+
+        // Play main EDM melody with bright synth sound
+        let currentTime = this.audioContext.currentTime;
+        edm_melody.forEach(note => {
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+            const filter = this.audioContext.createBiquadFilter();
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.audioContext.destination);
+
+            // Bright EDM synth sound
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(note.note, currentTime);
+
+            // High-pass filter for bright EDM sound
+            filter.type = 'highpass';
+            filter.frequency.setValueAtTime(200, currentTime);
+            filter.Q.setValueAtTime(2, currentTime);
+
+            gain.gain.setValueAtTime(0, currentTime);
+            gain.gain.linearRampToValueAtTime(0.12, currentTime + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.02, currentTime + note.duration * 0.8);
+            gain.gain.linearRampToValueAtTime(0, currentTime + note.duration);
+
+            osc.start(currentTime);
+            osc.stop(currentTime + note.duration);
+
+            currentTime += note.duration;
+        });
+
+        // Play driving bass line
+        bass_pattern.forEach(bass => {
+            if (bass.note > 0) { // Skip rests
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+                const filter = this.audioContext.createBiquadFilter();
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.audioContext.destination);
+
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(bass.note, this.audioContext.currentTime + bass.delay);
+
+                // Low-pass filter for punchy bass
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(120, this.audioContext.currentTime + bass.delay);
+                filter.Q.setValueAtTime(3, this.audioContext.currentTime + bass.delay);
+
+                gain.gain.setValueAtTime(0, this.audioContext.currentTime + bass.delay);
+                gain.gain.linearRampToValueAtTime(0.15, this.audioContext.currentTime + bass.delay + 0.01);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + bass.delay + bass.duration);
+
+                osc.start(this.audioContext.currentTime + bass.delay);
+                osc.stop(this.audioContext.currentTime + bass.delay + bass.duration);
+            }
+        });
+
+        // Extended EDM-style drum pattern for full track
+        const drum_pattern = [
+            // Section 1 - Standard 4/4 beat (4 bars)
+            {type: 'kick', time: 0},
+            {type: 'hihat', time: 0.25},
+            {type: 'snare', time: 0.5},
+            {type: 'hihat', time: 0.75},
+            {type: 'kick', time: 1.0},
+            {type: 'hihat', time: 1.25},
+            {type: 'snare', time: 1.5},
+            {type: 'hihat', time: 1.75},
+
+            {type: 'kick', time: 2.0},
+            {type: 'hihat', time: 2.25},
+            {type: 'snare', time: 2.5},
+            {type: 'hihat', time: 2.75},
+            {type: 'kick', time: 3.0},
+            {type: 'hihat', time: 3.25},
+            {type: 'snare', time: 3.5},
+            {type: 'hihat', time: 3.75},
+
+            // Section 2 - More intense (4 bars)
+            {type: 'kick', time: 4.0},
+            {type: 'hihat', time: 4.125},
+            {type: 'hihat', time: 4.25},
+            {type: 'snare', time: 4.5},
+            {type: 'hihat', time: 4.625},
+            {type: 'kick', time: 4.75},
+            {type: 'hihat', time: 4.875},
+
+            {type: 'kick', time: 5.0},
+            {type: 'hihat', time: 5.25},
+            {type: 'snare', time: 5.5},
+            {type: 'hihat', time: 5.75},
+
+            // Section 3 - Breakdown (minimal drums)
+            {type: 'kick', time: 6.0},
+            {type: 'kick', time: 7.0},
+
+            // Section 4 - Final climax (intense)
+            {type: 'kick', time: 8.0},
+            {type: 'hihat', time: 8.125},
+            {type: 'kick', time: 8.25},
+            {type: 'hihat', time: 8.375},
+            {type: 'snare', time: 8.5},
+            {type: 'hihat', time: 8.625},
+            {type: 'snare', time: 8.75},
+            {type: 'hihat', time: 8.875},
+
+            {type: 'kick', time: 9.0},
+            {type: 'snare', time: 9.25},
+            {type: 'kick', time: 9.5},
+            {type: 'snare', time: 9.75},
+            {type: 'kick', time: 10.0},
+            {type: 'snare', time: 10.25},
+            {type: 'kick', time: 10.5},
+            {type: 'crash', time: 10.75}
+        ];
+
+        drum_pattern.forEach(drum => {
+            const noise = this.audioContext.createBufferSource();
+            const buffer = this.audioContext.createBuffer(1, 4096, this.audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            for (let i = 0; i < 4096; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            noise.buffer = buffer;
+
+            const filter = this.audioContext.createBiquadFilter();
+            const gain = this.audioContext.createGain();
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.audioContext.destination);
+
+            const startTime = this.audioContext.currentTime + drum.time;
+
+            switch(drum.type) {
+                case 'kick':
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(60, startTime);
+                    filter.Q.setValueAtTime(2, startTime);
+                    gain.gain.setValueAtTime(0.3, startTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.15);
+                    break;
+                case 'snare':
+                    filter.type = 'highpass';
+                    filter.frequency.setValueAtTime(250, startTime);
+                    filter.Q.setValueAtTime(1, startTime);
+                    gain.gain.setValueAtTime(0.2, startTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.1);
+                    break;
+                case 'hihat':
+                    filter.type = 'highpass';
+                    filter.frequency.setValueAtTime(8000, startTime);
+                    filter.Q.setValueAtTime(0.5, startTime);
+                    gain.gain.setValueAtTime(0.08, startTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.05);
+                    break;
+            }
+
+            noise.start(startTime);
+            noise.stop(startTime + 0.2);
+        });
+
+        // Loop the extended EDM track - 11 second cycle with full progression
+        setTimeout(() => {
+            if (this.gameState === 'playing' && this.gameplayMusicPlaying && this.currentWorld === 2) {
+                this.playUndergroundTrack();
+            }
+        }, 11000);
+    }
+
     startBossMusic() {
         if (!this.audioContext || this.bossMusicPlaying || !this.audioUnlocked) return;
         
@@ -2887,7 +3769,7 @@ class Game {
         this.bossActive = false;
         
         // Resume normal gameplay music ONLY if we're in playing state and no boss is present
-        const bossPresent = this.enemies.some(enemy => enemy.type === 4);
+        const bossPresent = this.enemies.some(enemy => enemy.type === 4 || enemy.type === 5);
         if (this.gameState === 'playing' && !this.gameplayMusicPlaying && !bossPresent) {
             this.startGameplayMusic();
         }
@@ -3024,6 +3906,87 @@ class Game {
                rect1.y < rect2.y + rect2.height &&
                rect1.y + rect1.height > rect2.y;
     }
+
+    // Roll a powerup drop for a killed enemy. Returns one of:
+    //   'heart' | 'rapidfire' | 'shield' | 'golden' | null
+    // World 1 is more generous; world 2+ tightens up.
+    // Then post-processes: if the player is at full HP and a heart was rolled,
+    // convert it to a useful powerup instead of a wasted pickup.
+    rollEnemyDrop(enemy) {
+        const r = Math.random();
+        const w1 = this.currentWorld === 1;
+        let drop = null;
+
+        // Bosses always drop a golden heart.
+        if (enemy.type === 4 || enemy.type === 5) {
+            drop = 'golden';
+        }
+        // Tower: always drops something in W1; usually in later worlds.
+        else if (enemy.type === 6) {
+            if (w1) {
+                if (r < 0.50) drop = 'heart';
+                else if (r < 0.80) drop = 'shield';
+                else drop = 'golden';
+            } else {
+                if (r < 0.35) drop = 'heart';
+                else if (r < 0.60) drop = 'shield';
+                else if (r < 0.70) drop = 'golden';
+            }
+        }
+        // Tank
+        else if (enemy.type === 2) {
+            if (w1) {
+                if (r < 0.40) drop = 'heart';
+                else if (r < 0.55) drop = 'rapidfire';
+                else if (r < 0.65) drop = 'shield';
+            } else {
+                if (r < 0.15) drop = 'heart';
+                else if (r < 0.23) drop = 'rapidfire';
+                else if (r < 0.28) drop = 'shield';
+            }
+        }
+        // Sniper
+        else if (enemy.type === 3) {
+            if (w1) {
+                if (r < 0.35) drop = 'heart';
+                else if (r < 0.55) drop = 'rapidfire';
+            } else {
+                if (r < 0.15) drop = 'heart';
+                else if (r < 0.25) drop = 'rapidfire';
+            }
+        }
+        // Soldiers (type 0, 1) — common, so small per-kill chance.
+        // With ~20 soldiers per level, ~16% drop rate yields ~3 powerups/level.
+        else if (enemy.type === 0 || enemy.type === 1) {
+            if (w1) {
+                if (r < 0.12) drop = 'heart';
+                else if (r < 0.15) drop = 'rapidfire';
+                else if (r < 0.16) drop = 'shield';
+            } else {
+                if (r < 0.04) drop = 'heart';
+                else if (r < 0.05) drop = 'rapidfire';
+            }
+        }
+
+        // Smart hearts: don't waste a heart on a full-HP player —
+        // convert to a useful powerup instead so kills still feel rewarding.
+        if (drop === 'heart' && this.player.health >= this.player.maxHealth) {
+            drop = Math.random() < 0.5 ? 'rapidfire' : 'shield';
+        }
+        return drop;
+    }
+
+    // Spawn a powerup at the enemy's death position.
+    dropPowerup(type, enemy) {
+        if (!type) return;
+        const cx = enemy.x + enemy.width / 2 - 12;
+        // Float drop near the top of the enemy's body, clamped to a sane band
+        const cy = Math.max(140, Math.min(260, enemy.y));
+        if (type === 'heart')      this.powerups.push(new HeartPowerup(cx, cy, this.assets));
+        else if (type === 'rapidfire') this.powerups.push(new RapidFirePowerup(cx, cy, this.assets));
+        else if (type === 'shield')    this.powerups.push(new ShieldPowerup(cx, cy, this.assets));
+        else if (type === 'golden')    this.powerups.push(new GoldenHeartPowerup(cx - 2, cy, this.assets));
+    }
     
     startMusic() {
         if (this.assets.bgMusic) {
@@ -3087,7 +4050,10 @@ class Game {
         
         // Draw ground grass texture
         this.renderGround();
-        
+
+        // Render bunkers (background structures, behind characters)
+        this.bunkers.forEach(bunker => bunker.render(this.ctx));
+
         this.player.render(this.ctx);
         
         // Render bullets
@@ -3105,8 +4071,11 @@ class Game {
         // Render platforms
         this.platforms.forEach(platform => platform.render(this.ctx));
         
-        // Render barbed wire
+        // Render barbed wire and wooden crates
         this.barbedWire.forEach(wire => wire.render(this.ctx));
+        this.woodenCrates.forEach(crate => crate.render(this.ctx));
+        this.warehouseCrates.forEach(crate => crate.render(this.ctx));
+        this.destructibleCrates.forEach(crate => crate.render(this.ctx));
         
         // Render mines
         this.mines.forEach(mine => mine.render(this.ctx));
@@ -3236,8 +4205,8 @@ class Game {
         const ctx = this.ctx;
         
         // Find active boss enemies
-        const bosses = this.enemies.filter(enemy => enemy.type === 4 && enemy.health > 0);
-        
+        const bosses = this.enemies.filter(enemy => (enemy.type === 4 || enemy.type === 5) && enemy.health > 0);
+
         if (bosses.length === 0) return;
         
         const boss = bosses[0]; // Show first boss if multiple exist
@@ -3405,16 +4374,7 @@ class Game {
         this.ctx.strokeText(titleText, this.canvas.width / 2, 100);
         this.ctx.fillText(titleText, this.canvas.width / 2, 100);
         this.ctx.restore();
-        
-        // Subtitle with glow effect
-        this.ctx.save();
-        this.ctx.shadowColor = '#32CD32';
-        this.ctx.shadowBlur = 10;
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.font = 'bold 28px Arial';
-        this.ctx.fillText('Defend the Grassy Plains!', this.canvas.width / 2, 140);
-        this.ctx.restore();
-        
+
         // Animated "Press Start" text
         const time = Date.now() * 0.005;
         const alpha = (Math.sin(time) + 1) / 2 * 0.8 + 0.2;
@@ -4062,6 +5022,9 @@ class Game {
         this.sandbags.forEach(sandbag => sandbag.render(this.ctx));
         this.platforms.forEach(platform => platform.render(this.ctx));
         this.barbedWire.forEach(wire => wire.render(this.ctx));
+        this.woodenCrates.forEach(crate => crate.render(this.ctx));
+        this.warehouseCrates.forEach(crate => crate.render(this.ctx));
+        this.destructibleCrates.forEach(crate => crate.render(this.ctx));
         this.mines.forEach(mine => mine.render(this.ctx));
         this.explosions.forEach(explosion => explosion.render(this.ctx));
         this.tankRemnants.forEach(remnant => remnant.render(this.ctx));
@@ -4381,14 +5344,25 @@ class Game {
         const completedLevel = this.currentLevel;
         this.ctx.fillStyle = '#FFFFFF';
         this.ctx.font = 'bold 24px Arial';
-        this.ctx.fillText(`Level ${completedLevel} Complete`, this.canvas.width / 2, 160);
+        this.ctx.fillText(`World ${this.currentWorld} - Level ${completedLevel} Complete`, this.canvas.width / 2, 160);
         
         // Show next level info or final victory
-        if (this.levelData[this.nextLevel]) {
+        let nextLevelExists = false;
+        let nextLevelText = '';
+
+        if (this.levelData[this.currentWorld][this.nextLevel]) {
+            nextLevelExists = true;
+            nextLevelText = `Next: ${this.levelData[this.currentWorld][this.nextLevel].name}`;
+        } else if (this.levelData[this.currentWorld + 1]) {
+            nextLevelExists = true;
+            nextLevelText = `World ${this.currentWorld + 1} - ${this.levelData[this.currentWorld + 1][1].name}`;
+        }
+
+        if (nextLevelExists) {
             this.ctx.fillStyle = '#FFFF00';
             this.ctx.font = 'bold 20px Arial';
-            this.ctx.fillText(`Next: ${this.levelData[this.nextLevel].name}`, this.canvas.width / 2, 200);
-            
+            this.ctx.fillText(nextLevelText, this.canvas.width / 2, 200);
+
             this.ctx.fillStyle = '#FFFFFF';
             this.ctx.font = '18px Arial';
             this.ctx.fillText('Press SPACE or ENTER to Continue  -  Press ESC for Title', this.canvas.width / 2, 280);
@@ -4412,15 +5386,22 @@ class Game {
     }
     
     proceedToNextLevel() {
-        if (this.levelData[this.nextLevel]) {
-            // Go to next level
+        // Check if there's a next level in the current world
+        if (this.levelData[this.currentWorld][this.nextLevel]) {
+            // Go to next level in current world
             this.startLevel(this.nextLevel);
             this.gameState = 'playing';
+        } else if (this.levelData[this.currentWorld + 1]) {
+            // Move to next world, level 1
+            this.currentWorld++;
+            this.currentLevel = 1;
+            this.startLevel(1);
+            this.gameState = 'playing';
         } else {
-            // All levels complete - check for high score first
+            // All worlds and levels complete - check for high score first
             this.stopGameplayMusic();
             this.stopBossMusic();
-            
+
             const highScorePosition = this.checkHighScore(this.score);
             if (highScorePosition !== -1) {
                 this.enteringInitials = true;
@@ -4444,7 +5425,7 @@ class Game {
         
         this.ctx.fillStyle = '#FFFFFF';
         this.ctx.font = 'bold 16px Arial';
-        this.ctx.fillText(`Level ${this.currentLevel}`, this.canvas.width - 190, 30);
+        this.ctx.fillText(`World ${this.currentWorld} - Level ${this.currentLevel}`, this.canvas.width - 190, 30);
         
         this.ctx.font = '14px Arial';
         this.ctx.fillStyle = '#FFFF00';
@@ -4825,8 +5806,11 @@ class Game {
         this.sandbags = [];
         this.platforms = [];
         this.barbedWire = [];
+        this.woodenCrates = [];
+        this.warehouseCrates = [];
+        this.destructibleCrates = [];
+        this.bunkers = [];
         this.lastEnemySpawn = 0;
-        this.lastPowerupSpawn = 0;
         this.camera = { x: 0, y: 0 };
         
         // Start custom level
@@ -4921,29 +5905,72 @@ class Game {
     }
     
     renderBackground() {
-        // Sky gradient - light blue to horizon
-        const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height * 0.7);
-        gradient.addColorStop(0, '#87CEEB'); // Sky blue
-        gradient.addColorStop(0.6, '#B0E0E6'); // Powder blue
-        gradient.addColorStop(1, '#98FB98'); // Pale green (horizon)
-        
-        this.ctx.fillStyle = gradient;
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height * 0.7);
-        
-        // Distant hills
-        this.ctx.fillStyle = '#90EE90'; // Light green
-        this.ctx.beginPath();
-        this.ctx.moveTo(0, this.canvas.height * 0.6);
-        for (let x = 0; x <= this.canvas.width; x += 50) {
-            const hillHeight = Math.sin((x + this.camera.x * 0.1) * 0.01) * 20 + this.canvas.height * 0.65;
-            this.ctx.lineTo(x, hillHeight);
+        if (this.currentWorld === 2) {
+            // Underground bunker background
+            const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+            gradient.addColorStop(0, '#1a1a1a'); // Very dark gray ceiling
+            gradient.addColorStop(0.3, '#2d2d2d'); // Dark gray
+            gradient.addColorStop(0.7, '#3a3a3a'); // Medium dark gray
+            gradient.addColorStop(1, '#4a4a4a'); // Slightly lighter for floor area
+
+            this.ctx.fillStyle = gradient;
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+            // Bunker ceiling with concrete texture
+            this.ctx.fillStyle = '#2a2a2a';
+            this.ctx.fillRect(0, 0, this.canvas.width, 60);
+
+            // Ceiling support beams
+            this.ctx.fillStyle = '#404040';
+            for (let x = -100; x < this.canvas.width + 200; x += 120) {
+                this.ctx.fillRect(x - this.camera.x * 0.1, 0, 8, 60);
+            }
+
+            // Distant bunker walls with subtle lighting
+            this.ctx.fillStyle = '#333333';
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, this.canvas.height * 0.15);
+            for (let x = 0; x <= this.canvas.width; x += 80) {
+                const wallDepth = Math.sin((x + this.camera.x * 0.05) * 0.008) * 10 + this.canvas.height * 0.2;
+                this.ctx.lineTo(x, wallDepth);
+            }
+            this.ctx.lineTo(this.canvas.width, this.canvas.height);
+            this.ctx.lineTo(0, this.canvas.height);
+            this.ctx.fill();
+
+            // Emergency lighting strips
+            this.ctx.fillStyle = '#ff4444';
+            this.ctx.globalAlpha = 0.6;
+            for (let x = 50; x < this.canvas.width + 100; x += 200) {
+                this.ctx.fillRect(x - this.camera.x * 0.1, 45, 30, 4);
+            }
+            this.ctx.globalAlpha = 1.0;
+
+        } else {
+            // Original World 1 - Sky gradient - light blue to horizon
+            const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height * 0.7);
+            gradient.addColorStop(0, '#87CEEB'); // Sky blue
+            gradient.addColorStop(0.6, '#B0E0E6'); // Powder blue
+            gradient.addColorStop(1, '#98FB98'); // Pale green (horizon)
+
+            this.ctx.fillStyle = gradient;
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height * 0.7);
+
+            // Distant hills
+            this.ctx.fillStyle = '#90EE90'; // Light green
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, this.canvas.height * 0.6);
+            for (let x = 0; x <= this.canvas.width; x += 50) {
+                const hillHeight = Math.sin((x + this.camera.x * 0.1) * 0.01) * 20 + this.canvas.height * 0.65;
+                this.ctx.lineTo(x, hillHeight);
+            }
+            this.ctx.lineTo(this.canvas.width, this.canvas.height);
+            this.ctx.lineTo(0, this.canvas.height);
+            this.ctx.fill();
+
+            // Clouds
+            this.renderClouds();
         }
-        this.ctx.lineTo(this.canvas.width, this.canvas.height);
-        this.ctx.lineTo(0, this.canvas.height);
-        this.ctx.fill();
-        
-        // Clouds
-        this.renderClouds();
     }
     
     renderClouds() {
@@ -5032,34 +6059,83 @@ class Game {
     
     renderGround() {
         const groundY = 320; // Ground level
-        
-        // Grass texture
-        this.ctx.fillStyle = '#228B22'; // Forest green
-        this.ctx.fillRect(this.camera.x - 100, groundY, this.canvas.width + 200, this.canvas.height - groundY);
-        
-        // Grass blades
-        this.ctx.strokeStyle = '#32CD32'; // Lime green
-        this.ctx.lineWidth = 2;
-        this.ctx.lineCap = 'round';
-        
-        // Draw grass blades across the visible area
-        for (let x = this.camera.x - 50; x < this.camera.x + this.canvas.width + 50; x += 8) {
-            const grassHeight = Math.sin(x * 0.1) * 3 + 15;
-            const grassX = x + Math.sin(x * 0.05) * 2;
-            
-            this.ctx.beginPath();
-            this.ctx.moveTo(grassX, groundY);
-            this.ctx.lineTo(grassX + Math.sin(x * 0.2) * 3, groundY - grassHeight);
-            this.ctx.stroke();
-        }
-        
-        // Dirt patches - fixed positioning
-        this.ctx.fillStyle = '#8B4513'; // Saddle brown
-        const startX = Math.floor((this.camera.x - 100) / 150) * 150;
-        for (let x = startX; x < this.camera.x + this.canvas.width + 100; x += 150) {
-            const patchX = x + Math.sin(x * 0.01) * 20;
-            const patchY = groundY + 5;
-            this.ctx.fillRect(patchX, patchY, 30 + Math.sin(x * 0.02) * 10, 8);
+
+        if (this.currentWorld === 2) {
+            // Underground bunker floor - concrete with metal grating
+            this.ctx.fillStyle = '#3c3c3c'; // Dark concrete
+            this.ctx.fillRect(this.camera.x - 100, groundY, this.canvas.width + 200, this.canvas.height - groundY);
+
+            // Concrete texture with subtle variations
+            this.ctx.fillStyle = '#424242';
+            const startX = Math.floor((this.camera.x - 100) / 60) * 60;
+            for (let x = startX; x < this.camera.x + this.canvas.width + 100; x += 60) {
+                for (let y = groundY; y < this.canvas.height; y += 40) {
+                    if (Math.sin(x * 0.01 + y * 0.01) > 0.3) {
+                        this.ctx.fillRect(x, y, 30, 20);
+                    }
+                }
+            }
+
+            // Metal grating lines
+            this.ctx.strokeStyle = '#555555';
+            this.ctx.lineWidth = 1;
+            for (let x = this.camera.x - 50; x < this.camera.x + this.canvas.width + 50; x += 40) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, groundY);
+                this.ctx.lineTo(x, this.canvas.height);
+                this.ctx.stroke();
+            }
+
+            // Horizontal grating lines
+            for (let y = groundY; y < this.canvas.height; y += 30) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.camera.x - 100, y);
+                this.ctx.lineTo(this.camera.x + this.canvas.width + 100, y);
+                this.ctx.stroke();
+            }
+
+            // Drainage grates
+            this.ctx.fillStyle = '#2a2a2a';
+            const grateStartX = Math.floor((this.camera.x - 100) / 200) * 200;
+            for (let x = grateStartX; x < this.camera.x + this.canvas.width + 100; x += 200) {
+                this.ctx.fillRect(x + 50, groundY + 10, 60, 8);
+                // Grate slots
+                this.ctx.fillStyle = '#1a1a1a';
+                for (let i = 0; i < 6; i++) {
+                    this.ctx.fillRect(x + 55 + i * 8, groundY + 12, 4, 4);
+                }
+                this.ctx.fillStyle = '#2a2a2a';
+            }
+
+        } else {
+            // Original World 1 - Grass texture
+            this.ctx.fillStyle = '#228B22'; // Forest green
+            this.ctx.fillRect(this.camera.x - 100, groundY, this.canvas.width + 200, this.canvas.height - groundY);
+
+            // Grass blades
+            this.ctx.strokeStyle = '#32CD32'; // Lime green
+            this.ctx.lineWidth = 2;
+            this.ctx.lineCap = 'round';
+
+            // Draw grass blades across the visible area
+            for (let x = this.camera.x - 50; x < this.camera.x + this.canvas.width + 50; x += 8) {
+                const grassHeight = Math.sin(x * 0.1) * 3 + 15;
+                const grassX = x + Math.sin(x * 0.05) * 2;
+
+                this.ctx.beginPath();
+                this.ctx.moveTo(grassX, groundY);
+                this.ctx.lineTo(grassX + Math.sin(x * 0.2) * 3, groundY - grassHeight);
+                this.ctx.stroke();
+            }
+
+            // Dirt patches - fixed positioning
+            this.ctx.fillStyle = '#8B4513'; // Saddle brown
+            const startX = Math.floor((this.camera.x - 100) / 150) * 150;
+            for (let x = startX; x < this.camera.x + this.canvas.width + 100; x += 150) {
+                const patchX = x + Math.sin(x * 0.01) * 20;
+                const patchY = groundY + 5;
+                this.ctx.fillRect(patchX, patchY, 30 + Math.sin(x * 0.02) * 10, 8);
+            }
         }
     }
     
@@ -5105,7 +6181,11 @@ class Player {
         this.health = 10;
         this.maxHealth = 10;
         this.lastDamageTime = 0;
-        
+
+        // Shield system
+        this.shielded = false;
+        this.shieldEndTime = 0;
+
         // Rapid-fire powerup properties
         this.hasRapidFire = false;
         this.rapidFireEndTime = 0;
@@ -5122,6 +6202,11 @@ class Player {
         if (this.hasRapidFire && Date.now() > this.rapidFireEndTime) {
             this.hasRapidFire = false;
             this.shootCooldown = this.normalShootCooldown;
+        }
+
+        // Check shield timeout
+        if (this.shielded && Date.now() > this.shieldEndTime) {
+            this.shielded = false;
         }
         
         if (keys['ArrowLeft'] || keys['a']) {
@@ -5181,8 +6266,31 @@ class Player {
         }
         
         this.renderBodyParts(ctx);
-        
+
         ctx.restore();
+
+        // Render shield effect if active
+        if (this.shielded) {
+            const shieldRadius = Math.max(this.width, this.height) * 0.8;
+            const centerX = this.x + this.width / 2;
+            const centerY = this.y + this.height / 2;
+
+            ctx.save();
+            ctx.globalAlpha = 0.3;
+            ctx.strokeStyle = '#00FFFF';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, shieldRadius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Add pulsing glow effect
+            const pulse = Math.sin(Date.now() * 0.01) * 0.2 + 0.8;
+            ctx.globalAlpha = 0.1 * pulse;
+            ctx.fillStyle = '#00FFFF';
+            ctx.fill();
+            ctx.restore();
+        }
     }
     
     renderBodyParts(ctx) {
@@ -5290,6 +6398,11 @@ class Player {
     }
     
     takeDamage(amount) {
+        // Shield blocks all damage
+        if (this.shielded) {
+            return; // No damage taken while shielded
+        }
+
         this.health -= amount;
         if (this.health < 0) this.health = 0;
     }
@@ -5303,6 +6416,11 @@ class Player {
         this.hasRapidFire = true;
         this.rapidFireEndTime = Date.now() + 10000; // 10 seconds of rapid fire
         this.shootCooldown = this.rapidFireCooldown;
+    }
+
+    activateShield() {
+        this.shielded = true;
+        this.shieldEndTime = Date.now() + 5000; // 5 seconds of invincibility
     }
 }
 
@@ -5334,12 +6452,27 @@ class Enemy {
     constructor(x, y, type, assets) {
         this.x = x;
         this.y = y;
-        this.type = type; // 0 = soldier1, 1 = soldier2, 2 = tank, 3 = sniper, 4 = boss1
+        this.type = type; // 0 = soldier1, 1 = soldier2, 2 = tank, 3 = sniper, 4 = boss1, 5 = mech, 6 = tower
         this.assets = assets;
-        
-        if (type === 4) { // boss1 - powerful tank boss, 25% bigger
+
+        if (type === 6) { // tower - stationary structure; soldiers are separate Enemy instances mounted on top
+            this.width = 110;
+            this.height = 170;
+            this.speed = 0;
+            this.sprite = null;
+            this.maxHealth = 10;
+        } else if (type === 5) { // mech - underground world boss, animated
+            this.width = 280;  // Larger than boss1
+            this.height = 210;
+            this.speed = 0.25;  // Slower than boss1
+            this.sprite = assets.mechSprite;
+            this.maxHealth = 35; // Easier to beat than boss1
+            this.machineGunMode = false;
+            this.machineGunCooldown = 0;
+            this.machineGunBurstCount = 0;
+        } else if (type === 4) { // boss1 - powerful tank boss, 25% bigger
             this.width = 250;  // 200 * 1.25 = 250
-            this.height = 188;  // 150 * 1.25 = 188 
+            this.height = 188;  // 150 * 1.25 = 188
             this.speed = 0.3;
             this.sprite = assets.boss1Sprite;
             this.maxHealth = 50; // Boss has lots of health
@@ -5377,8 +6510,12 @@ class Enemy {
             this.groundY = 208;
         } else if (type === 3) { // sniper
             this.groundY = 229;
-        } else { // boss1
+        } else if (type === 4) { // boss1
             this.groundY = 150; // Boss tank higher on ground
+        } else if (type === 6) { // tower - pinned so base sits on ground (top ~y=180, bottom ~y=350)
+            this.groundY = 180;
+        } else { // mech boss
+            this.groundY = 140; // Mech boss slightly higher
         }
         this.velocityY = 0;
         this.gravity = 0.5;
@@ -5388,13 +6525,13 @@ class Enemy {
         
         // Sound properties
         this.lastEngineSound = 0;
-        this.engineSound = (type === 2 || type === 4); // Tanks and boss1 make engine sounds
+        this.engineSound = (type === 2 || type === 4 || type === 5); // Tanks and bosses make engine sounds
         
         // Health system
-        if (type === 4) { // boss1 - already set above but make sure
+        if (type === 4 || type === 5) { // boss1 or mech - already set above but make sure
             if (!this.maxHealth) {
-                this.health = 50;
-                this.maxHealth = 50;
+                this.health = type === 5 ? 35 : 50;
+                this.maxHealth = type === 5 ? 35 : 50;
             } else {
                 this.health = this.maxHealth;
             }
@@ -5404,6 +6541,9 @@ class Enemy {
         } else if (type === 3) { // sniper - tougher than regular soldiers
             this.health = 2;
             this.maxHealth = 2;
+        } else if (type === 6) { // tower - many hits to destroy
+            this.health = 10;
+            this.maxHealth = 10;
         } else { // soldiers
             this.health = 1;
             this.maxHealth = 1;
@@ -5416,20 +6556,79 @@ class Enemy {
         if (type === 0) { // soldier 1 (tall)
             this.pointValue = 5;
         } else if (type === 1) { // soldier 2 (small)
-            this.pointValue = 10;  
+            this.pointValue = 10;
         } else if (type === 2) { // tank
             this.pointValue = 100;
         } else if (type === 3) { // sniper
             this.pointValue = 150;
-        } else { // boss1
+        } else if (type === 4) { // boss1
             this.pointValue = 1000;
+        } else if (type === 6) { // tower
+            this.pointValue = 250;
+        } else { // mech boss
+            this.pointValue = 1500;
         }
     }
     
     update(player, enemyBullets, game) {
         const distanceToPlayer = Math.abs(player.x - this.x);
-        
-        if (this.type === 4) { // Boss1 AI - aggressive tank with machine gun
+
+        // Mounted soldiers ride the tower until it's destroyed
+        if (this.mountedTower) {
+            const tower = this.mountedTower;
+            if (game && game.enemies.indexOf(tower) !== -1 && tower.health > 0) {
+                // Sit on top of the tower platform. Soldier sprites have ~30px
+                // transparent space below their visible feet, so add that offset
+                // to land the feet on the platform rather than floating above it.
+                this.x = tower.x + tower.width / 2 - this.width / 2 + (this.mountOffsetX || 0);
+                this.y = tower.y + 45 - this.height;
+                this.velocityY = 0;
+                this.onGround = true;
+                this.facingLeft = player.x < this.x + this.width / 2;
+                const shootChance = distanceToPlayer < 700 ? 0.008 : 0.003;
+                if (Math.random() < shootChance) {
+                    this.shoot(player, enemyBullets, game);
+                }
+                return;
+            }
+            // Tower gone — detach and fall normally from here
+            this.mountedTower = null;
+            this.velocityY = -1; // tiny upward nudge for visible fall arc
+        }
+
+        if (this.type === 6) { // Tower - stationary structure, no AI
+            return;
+        }
+
+        if (this.type === 5) { // Mech AI - underground boss, less aggressive for easier gameplay
+            const optimalRange = 400; // Mech prefers longer range
+            const tooClose = 250; // Retreat earlier
+
+            // Machine gun burst mode logic
+            if (this.machineGunCooldown > 0) {
+                this.machineGunCooldown--;
+            }
+
+            if (distanceToPlayer < tooClose) {
+                // Retreat when too close
+                if (player.x < this.x) {
+                    this.x += this.speed * 1.2;
+                    this.facingLeft = true;
+                } else {
+                    this.x -= this.speed * 1.2;
+                    this.facingLeft = false;
+                }
+            } else if (distanceToPlayer > optimalRange) {
+                // Approach slowly to optimal range
+                if (player.x < this.x) {
+                    this.x -= this.speed * 0.5;
+                    this.facingLeft = true;
+                } else {
+                    this.x += this.speed * 0.5;
+                    this.facingLeft = false;
+                }
+            }
+        } else if (this.type === 4) { // Boss1 AI - aggressive tank with machine gun
             const optimalRange = 400; // Boss wants longer range
             const tooClose = 250; // If player gets too close, retreat more aggressively
             
@@ -5519,8 +6718,26 @@ class Enemy {
         // Enemy shooting - different rates and patterns for each type
         let shootChance;
         let specialShoot = false;
-        
-        if (this.type === 4) { // Boss1 - machine gun bursts
+
+        if (this.type === 5) { // Mech - easier machine gun bursts
+            if (this.machineGunMode && this.machineGunBurstCount > 0) {
+                shootChance = 0.25; // Lower chance during burst
+                specialShoot = true;
+                this.machineGunBurstCount--;
+                if (this.machineGunBurstCount <= 0) {
+                    this.machineGunMode = false;
+                    this.machineGunCooldown = 150; // Longer cooldown
+                }
+            } else if (this.machineGunCooldown <= 0 && Math.random() < 0.008) {
+                // Start machine gun burst less frequently
+                this.machineGunMode = true;
+                this.machineGunBurstCount = 6; // 6 bullet burst - shorter
+                shootChance = 0.25;
+                specialShoot = true;
+            } else {
+                shootChance = 0.004; // Less frequent regular shots
+            }
+        } else if (this.type === 4) { // Boss1 - machine gun bursts
             if (this.machineGunMode && this.machineGunBurstCount > 0) {
                 shootChance = 0.3; // Very high chance during burst
                 specialShoot = true;
@@ -5611,7 +6828,9 @@ class Enemy {
         
         // Determine bullet type and properties
         let bulletType = 'normal';
-        if (this.type === 4) { // Boss1
+        if (this.type === 5) { // Mech
+            bulletType = specialShoot ? 'machinegun' : 'tank';
+        } else if (this.type === 4) { // Boss1
             bulletType = specialShoot ? 'machinegun' : 'tank';
         } else if (this.type === 3) { // Sniper
             bulletType = 'sniper';
@@ -5643,44 +6862,137 @@ class Enemy {
     }
     
     render(ctx) {
+        if (this.type === 6) {
+            this.renderTower(ctx);
+            if (this.health < this.maxHealth) this.renderHealthBar(ctx);
+            return;
+        }
         if (this.sprite) {
             ctx.save();
-            
+
             // Flip sprite based on facing direction
-            // Boss1 needs special handling - reverse the normal flipping
-            const shouldFlip = this.type === 4 ? !this.facingLeft : this.facingLeft;
-            
+            // Boss1 and Mech need special handling - reverse the normal flipping
+            const shouldFlip = (this.type === 4 || this.type === 5) ? !this.facingLeft : this.facingLeft;
+
             if (shouldFlip) {
                 ctx.translate(this.x + this.width, this.y);
                 ctx.scale(-1, 1);
             } else {
                 ctx.translate(this.x, this.y);
             }
-            
+
             // Flash red when damaged (if not at max health)
             if (this.health < this.maxHealth) {
                 const flashIntensity = Math.sin(Date.now() * 0.02) * 0.3 + 0.7;
                 ctx.globalAlpha = flashIntensity;
                 ctx.filter = 'hue-rotate(0deg) saturate(200%) brightness(1.2)';
             }
-            
-            if (this.facingLeft) {
-                ctx.drawImage(this.sprite, 0, 0, this.width, this.height);
+
+            // Mech boss (type 5) uses frame-based animation with 2x2 grid
+            if (this.type === 5) {
+                // Calculate which frame to show (0-3) based on animationFrame
+                const frameIndex = Math.floor(this.animationFrame / (Math.PI / 2)) % 4;
+
+                // 2x2 grid layout
+                const frameWidth = this.sprite.width / 2;
+                const frameHeight = this.sprite.height / 2;
+                const col = frameIndex % 2;
+                const row = Math.floor(frameIndex / 2);
+
+                ctx.drawImage(
+                    this.sprite,
+                    col * frameWidth, row * frameHeight,  // source x, y
+                    frameWidth, frameHeight,              // source width, height
+                    0, 0,                                 // dest x, y
+                    this.width, this.height               // dest width, height
+                );
             } else {
-                ctx.drawImage(this.sprite, 0, 0, this.width, this.height);
+                // Other enemy types draw the full sprite
+                if (this.facingLeft) {
+                    ctx.drawImage(this.sprite, 0, 0, this.width, this.height);
+                } else {
+                    ctx.drawImage(this.sprite, 0, 0, this.width, this.height);
+                }
             }
-            
+
             ctx.restore();
-            
+
             // Draw health indicator for damaged enemies
             if (this.health < this.maxHealth) {
                 this.renderHealthBar(ctx);
             }
         }
     }
-    
+
+    renderTower(ctx) {
+        const x = this.x;
+        const y = this.y;
+        const w = this.width;
+        const h = this.height;
+
+        ctx.save();
+
+        // Damage flash
+        if (this.health < this.maxHealth) {
+            const flash = Math.sin(Date.now() * 0.02) * 0.25 + 0.75;
+            ctx.globalAlpha = flash;
+        }
+
+        // Tower body (slimmer than full width, centered)
+        const bodyTop = y + 25;
+        const bodyW = w * 0.6;
+        const bodyX = x + (w - bodyW) / 2;
+        ctx.fillStyle = '#6b5a3e';
+        ctx.fillRect(bodyX, bodyTop, bodyW, h - 25);
+        ctx.strokeStyle = '#2e2618';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(bodyX, bodyTop, bodyW, h - 25);
+
+        // Ladder rungs down the body
+        ctx.strokeStyle = '#2e2618';
+        ctx.lineWidth = 1.5;
+        for (let yy = bodyTop + 20; yy < y + h - 5; yy += 18) {
+            ctx.beginPath();
+            ctx.moveTo(bodyX + 8, yy);
+            ctx.lineTo(bodyX + bodyW - 8, yy);
+            ctx.stroke();
+        }
+
+        // Top platform — wider than body so soldiers visibly stand on it
+        const platW = w * 1.6;
+        const platH = 12;
+        const platX = x + (w - platW) / 2;
+        const platY = y + 15;
+        ctx.fillStyle = '#5a4a30';
+        ctx.fillRect(platX, platY, platW, platH);
+        ctx.strokeStyle = '#2e2618';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(platX, platY, platW, platH);
+
+        // Antenna/mast at top center
+        const mastX = x + w / 2;
+        ctx.strokeStyle = '#1a1a1a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(mastX, platY);
+        ctx.lineTo(mastX, y - 30);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(mastX - 8, y - 8);
+        ctx.lineTo(mastX + 8, y - 8);
+        ctx.moveTo(mastX - 5, y - 18);
+        ctx.lineTo(mastX + 5, y - 18);
+        ctx.stroke();
+        ctx.fillStyle = '#1a1a1a';
+        ctx.beginPath();
+        ctx.arc(mastX, y - 32, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+    }
+
     renderHealthBar(ctx) {
-        const isBoss = this.type === 4;
+        const isBoss = this.type === 4 || this.type === 5;
         const barWidth = isBoss ? this.width * 0.9 : this.width * 0.8;
         const barHeight = isBoss ? 8 : 4;
         const barX = this.x + (this.width - barWidth) / 2;
@@ -5843,6 +7155,68 @@ class HeartPowerup {
     }
 }
 
+class GoldenHeartPowerup {
+    constructor(x, y, assets) {
+        this.x = x;
+        this.y = y;
+        this.width = 28;
+        this.height = 28;
+        this.sprite = assets.goldenHeartSprite;
+        this.animationFrame = Math.random() * Math.PI * 2;
+        this.animationSpeed = 0.12;
+        this.floatOffset = 0;
+        this.pulseScale = 1;
+    }
+
+    update() {
+        this.animationFrame += this.animationSpeed;
+        this.floatOffset = Math.sin(this.animationFrame) * 6;
+        this.pulseScale = 1 + Math.sin(this.animationFrame * 2) * 0.08;
+    }
+
+    render(ctx) {
+        const renderY = this.y + this.floatOffset;
+        const cx = this.x + this.width / 2;
+        const cy = renderY + this.height / 2;
+        const w = this.width * this.pulseScale;
+        const h = this.height * this.pulseScale;
+
+        if (this.sprite) {
+            // Outer gold halo
+            ctx.save();
+            ctx.globalAlpha = 0.45;
+            ctx.shadowColor = '#FFD700';
+            ctx.shadowBlur = 22;
+            ctx.drawImage(this.sprite, cx - w / 2, cy - h / 2, w, h);
+            ctx.restore();
+            // Main heart
+            ctx.drawImage(this.sprite, cx - w / 2, cy - h / 2, w, h);
+        } else {
+            // Fallback golden heart
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.scale(this.pulseScale, this.pulseScale);
+            ctx.fillStyle = '#FFD700';
+            ctx.strokeStyle = '#6B4A00';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, -7);
+            ctx.bezierCurveTo(-5, -11, -11, -7, -5, -1);
+            ctx.lineTo(0, 5);
+            ctx.lineTo(5, -1);
+            ctx.bezierCurveTo(11, -7, 5, -11, 0, -7);
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+        }
+    }
+
+    collect(player) {
+        // Full restore
+        player.heal(player.maxHealth);
+    }
+}
+
 class RapidFirePowerup {
     constructor(x, y, assets) {
         this.x = x;
@@ -5901,6 +7275,73 @@ class RapidFirePowerup {
     collect(player) {
         // Activate rapid-fire mode
         player.activateRapidFire();
+    }
+}
+
+class ShieldPowerup {
+    constructor(x, y, assets) {
+        this.x = x;
+        this.y = y;
+        this.width = 24;
+        this.height = 24;
+        this.sprite = assets.shieldSprite;
+        this.animationFrame = 0;
+        this.animationSpeed = 0.1;
+        this.floatOffset = 0;
+    }
+
+    update() {
+        // Gentle floating animation with shield glow
+        this.animationFrame += this.animationSpeed;
+        this.floatOffset = Math.sin(this.animationFrame) * 5;
+    }
+
+    render(ctx) {
+        const renderY = this.y + this.floatOffset;
+
+        if (this.sprite) {
+            ctx.drawImage(this.sprite, this.x, renderY, this.width, this.height);
+
+            // Add shield glow effect
+            ctx.save();
+            ctx.globalAlpha = 0.5;
+            ctx.shadowColor = '#00FFFF';
+            ctx.shadowBlur = 20;
+            ctx.drawImage(this.sprite, this.x, renderY, this.width, this.height);
+            ctx.restore();
+        } else {
+            // Fallback shield icon
+            ctx.save();
+            ctx.fillStyle = '#00FFFF';
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.8;
+
+            const centerX = this.x + this.width / 2;
+            const centerY = renderY + this.height / 2;
+            const radius = this.width * 0.4;
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Shield cross pattern
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(centerX - radius * 0.5, centerY);
+            ctx.lineTo(centerX + radius * 0.5, centerY);
+            ctx.moveTo(centerX, centerY - radius * 0.5);
+            ctx.lineTo(centerX, centerY + radius * 0.5);
+            ctx.stroke();
+            ctx.restore();
+        }
+    }
+
+    collect(player) {
+        // Activate shield mode
+        player.activateShield();
     }
 }
 
@@ -6332,6 +7773,109 @@ class TankRemnant {
     }
 }
 
+class Bunker {
+    constructor(x, y, width = 220, height = 130) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+
+    render(ctx) {
+        const x = this.x;
+        const y = this.y;
+        const w = this.width;
+        const h = this.height;
+
+        ctx.save();
+
+        // Main concrete body
+        ctx.fillStyle = '#7b7b6f';
+        ctx.fillRect(x, y, w, h);
+
+        // Lighter top band
+        ctx.fillStyle = '#8d8d80';
+        ctx.fillRect(x, y, w, h * 0.32);
+
+        // Outer border
+        ctx.strokeStyle = '#2e2e26';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x, y, w, h);
+        // band separator
+        ctx.beginPath();
+        ctx.moveTo(x, y + h * 0.32);
+        ctx.lineTo(x + w, y + h * 0.32);
+        ctx.stroke();
+
+        // Slit/window left of center with soldier visible inside
+        const slitW = w * 0.32;
+        const slitH = h * 0.26;
+        const slitX = x + w * 0.10;
+        const slitY = y + h * 0.46;
+        ctx.fillStyle = '#15140f';
+        ctx.fillRect(slitX, slitY, slitW, slitH);
+        ctx.strokeStyle = '#2e2e26';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(slitX, slitY, slitW, slitH);
+
+        // Soldier inside slit
+        const sCenterX = slitX + slitW * 0.45;
+        const sBaseY = slitY + slitH * 0.95;
+        // body in shadow
+        ctx.fillStyle = '#3a4a2a';
+        ctx.fillRect(sCenterX - 9, sBaseY - 20, 18, 20);
+        // face
+        ctx.fillStyle = '#c9a484';
+        ctx.beginPath();
+        ctx.arc(sCenterX, sBaseY - 24, 6, 0, Math.PI * 2);
+        ctx.fill();
+        // helmet
+        ctx.fillStyle = '#2e3a22';
+        ctx.beginPath();
+        ctx.arc(sCenterX, sBaseY - 26, 7, Math.PI, Math.PI * 2);
+        ctx.fill();
+        ctx.fillRect(sCenterX - 7, sBaseY - 27, 14, 2);
+        // eyes
+        ctx.fillStyle = '#000';
+        ctx.fillRect(sCenterX - 3, sBaseY - 24, 2, 2);
+        ctx.fillRect(sCenterX + 1, sBaseY - 24, 2, 2);
+
+        // Right-side entrance opening (gateway to next world)
+        const doorW = w * 0.20;
+        const doorH = h * 0.62;
+        const doorX = x + w - doorW - 4;
+        const doorY = y + h - doorH - 2;
+        ctx.fillStyle = '#0a0a08';
+        ctx.fillRect(doorX, doorY, doorW, doorH);
+        ctx.strokeStyle = '#2e2e26';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(doorX, doorY, doorW, doorH);
+
+        // Antennas / poles on top
+        ctx.strokeStyle = '#1a1a1a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x + w * 0.18, y);
+        ctx.lineTo(x + w * 0.18, y - 34);
+        ctx.moveTo(x + w * 0.38, y);
+        ctx.lineTo(x + w * 0.36, y - 42);
+        ctx.lineTo(x + w * 0.40, y - 38);
+        ctx.stroke();
+
+        // Concrete horizontal seams
+        ctx.strokeStyle = '#5d5d52';
+        ctx.lineWidth = 1;
+        for (let yy = y + h * 0.32 + 14; yy < y + h - 6; yy += 18) {
+            ctx.beginPath();
+            ctx.moveTo(x, yy);
+            ctx.lineTo(x + w, yy);
+            ctx.stroke();
+        }
+
+        ctx.restore();
+    }
+}
+
 class Sandbag {
     constructor(x, y) {
         this.x = x;
@@ -6395,37 +7939,37 @@ class BarbedWire {
         this.width = width;
         this.height = 20;
     }
-    
+
     render(ctx) {
         ctx.save();
-        
+
         // Main wire lines - multiple strands
         ctx.strokeStyle = '#444444'; // Dark gray wire
         ctx.lineWidth = 2;
-        
+
         // Top wire line
         ctx.beginPath();
         ctx.moveTo(this.x, this.y + 3);
         ctx.lineTo(this.x + this.width, this.y + 3);
         ctx.stroke();
-        
+
         // Middle wire line
         ctx.beginPath();
         ctx.moveTo(this.x, this.y + 10);
         ctx.lineTo(this.x + this.width, this.y + 10);
         ctx.stroke();
-        
+
         // Bottom wire line
         ctx.beginPath();
         ctx.moveTo(this.x, this.y + 17);
         ctx.lineTo(this.x + this.width, this.y + 17);
         ctx.stroke();
-        
+
         // Barbs along the wires
         ctx.strokeStyle = '#666666';
         ctx.lineWidth = 1;
         const barbSpacing = 8;
-        
+
         for (let x = this.x; x < this.x + this.width; x += barbSpacing) {
             // Barbs on top wire
             ctx.beginPath();
@@ -6433,13 +7977,13 @@ class BarbedWire {
             ctx.lineTo(x - 3, this.y);
             ctx.moveTo(x, this.y + 3);
             ctx.lineTo(x + 3, this.y);
-            
+
             // Barbs on middle wire
             ctx.moveTo(x + 4, this.y + 10);
             ctx.lineTo(x + 1, this.y + 6);
             ctx.moveTo(x + 4, this.y + 10);
             ctx.lineTo(x + 7, this.y + 14);
-            
+
             // Barbs on bottom wire
             ctx.moveTo(x + 2, this.y + 17);
             ctx.lineTo(x - 1, this.y + 14);
@@ -6447,7 +7991,185 @@ class BarbedWire {
             ctx.lineTo(x + 5, this.y + 20);
             ctx.stroke();
         }
-        
+
+        ctx.restore();
+    }
+}
+
+class WoodenCrate {
+    constructor(x, y, width) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = 40; // Taller than barbed wire
+    }
+
+    collidesWith(object) {
+        return object.x < this.x + this.width &&
+               object.x + object.width > this.x &&
+               object.y < this.y + this.height &&
+               object.y + object.height > this.y;
+    }
+
+    render(ctx) {
+        ctx.save();
+
+        // Main crate body - wood brown
+        ctx.fillStyle = '#8B4513'; // Saddle brown
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+
+        // Wood grain texture
+        ctx.strokeStyle = '#654321'; // Dark brown
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 3; i++) {
+            const grainY = this.y + 8 + i * 12;
+            ctx.beginPath();
+            ctx.moveTo(this.x + 2, grainY);
+            ctx.lineTo(this.x + this.width - 2, grainY);
+            ctx.stroke();
+        }
+
+        // Vertical wood planks
+        for (let x = this.x + 15; x < this.x + this.width - 5; x += 15) {
+            ctx.beginPath();
+            ctx.moveTo(x, this.y + 2);
+            ctx.lineTo(x, this.y + this.height - 2);
+            ctx.stroke();
+        }
+
+        // Metal reinforcement bands
+        ctx.strokeStyle = '#444444'; // Dark gray metal
+        ctx.lineWidth = 3;
+
+        // Top band
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y + 5);
+        ctx.lineTo(this.x + this.width, this.y + 5);
+        ctx.stroke();
+
+        // Bottom band
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y + this.height - 5);
+        ctx.lineTo(this.x + this.width, this.y + this.height - 5);
+        ctx.stroke();
+
+        // Metal corner brackets
+        ctx.fillStyle = '#333333';
+        // Top left bracket
+        ctx.fillRect(this.x - 2, this.y - 2, 8, 8);
+        // Top right bracket
+        ctx.fillRect(this.x + this.width - 6, this.y - 2, 8, 8);
+        // Bottom left bracket
+        ctx.fillRect(this.x - 2, this.y + this.height - 6, 8, 8);
+        // Bottom right bracket
+        ctx.fillRect(this.x + this.width - 6, this.y + this.height - 6, 8, 8);
+
+        // Military stencil text
+        ctx.fillStyle = '#000000';
+        ctx.font = 'bold 8px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('SUPPLY', this.x + this.width/2, this.y + 20);
+        ctx.fillText('MK-47', this.x + this.width/2, this.y + 30);
+
+        ctx.restore();
+    }
+}
+
+class DestructibleCrate {
+    constructor(x, y, width, points) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = 40;
+        this.points = points;
+        this.health = 2; // Takes 2 shots to destroy
+        this.destroyed = false;
+    }
+
+    takeDamage() {
+        this.health--;
+        if (this.health <= 0) {
+            this.destroyed = true;
+            return this.points; // Return points awarded
+        }
+        return 0;
+    }
+
+    checkBulletCollision(bullet) {
+        return !this.destroyed &&
+               bullet.x < this.x + this.width &&
+               bullet.x + bullet.width > this.x &&
+               bullet.y < this.y + this.height &&
+               bullet.y + bullet.height > this.y;
+    }
+
+    render(ctx) {
+        if (this.destroyed) return;
+
+        ctx.save();
+
+        // Main crate body - darker wood if damaged
+        const crateColor = this.health === 1 ? '#654321' : '#8B4513';
+        ctx.fillStyle = crateColor;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+
+        // Wood grain texture
+        ctx.strokeStyle = '#654321';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 3; i++) {
+            const grainY = this.y + 8 + i * 12;
+            ctx.beginPath();
+            ctx.moveTo(this.x + 2, grainY);
+            ctx.lineTo(this.x + this.width - 2, grainY);
+            ctx.stroke();
+        }
+
+        // Vertical wood planks
+        for (let x = this.x + 12; x < this.x + this.width - 5; x += 12) {
+            ctx.beginPath();
+            ctx.moveTo(x, this.y + 2);
+            ctx.lineTo(x, this.y + this.height - 2);
+            ctx.stroke();
+        }
+
+        // Metal reinforcement bands
+        ctx.strokeStyle = '#444444';
+        ctx.lineWidth = 2;
+
+        // Top band
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y + 5);
+        ctx.lineTo(this.x + this.width, this.y + 5);
+        ctx.stroke();
+
+        // Bottom band
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y + this.height - 5);
+        ctx.lineTo(this.x + this.width, this.y + this.height - 5);
+        ctx.stroke();
+
+        // Damage indicators (cracks) if damaged
+        if (this.health === 1) {
+            ctx.strokeStyle = '#333333';
+            ctx.lineWidth = 1;
+            // Diagonal crack
+            ctx.beginPath();
+            ctx.moveTo(this.x + 5, this.y + 8);
+            ctx.lineTo(this.x + this.width - 5, this.y + this.height - 8);
+            ctx.stroke();
+        }
+
+        // Destructible indicator - small "X" mark
+        ctx.fillStyle = '#FF0000';
+        ctx.font = 'bold 10px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('X', this.x + this.width/2, this.y + 12);
+
+        // Point value
+        ctx.fillStyle = '#FFFF00';
+        ctx.font = '8px Arial';
+        ctx.fillText('+' + this.points, this.x + this.width/2, this.y + this.height - 5);
+
         ctx.restore();
     }
 }

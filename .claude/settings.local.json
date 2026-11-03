@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(open index.html)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(node:*)",
+      "Bash(git stash:*)"
     ],
     "deny": [],
     "ask": []
