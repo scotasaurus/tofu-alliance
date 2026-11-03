@@ -1,3 +1,9 @@
+// Enemy types that get boss music, the big health bar and a boss death explosion:
+// 4 = boss tank, 5 = mech, 7 = artillery truck
+function isBossType(type) {
+    return type === 4 || type === 5 || type === 7;
+}
+
 class Game {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
@@ -252,6 +258,7 @@ class Game {
         this.warehouseCrates = [];
         this.destructibleCrates = [];
         this.bunkers = [];
+        this.artilleryShells = [];
         this.lastEnemySpawn = 0;
         this.enemySpawnDelay = 3000;
         this.gameOver = false;
@@ -940,6 +947,231 @@ class Game {
                         { x: 6500, y: 280, width: 40, points: 75 }
                     ]
                 }
+            },
+            3: {
+                // World 3 - Construction City. barbedWire entries become concrete barriers,
+                // warehouseCrates become cinder block pallets, and platforms are drawn as steel girders.
+                // High girders sit at y 195 so the player can walk underneath them.
+                1: {
+                    name: "Hard Hat Zone",
+                    startX: 0,
+                    endX: 7500,
+                    enemies: [
+                        // Site entrance patrol
+                        { type: 0, x: 600, y: 280 },
+                        { type: 1, x: 850, y: 280 },
+                        { type: 0, x: 1100, y: 280 },
+                        { type: 3, x: 1400, y: 280 },  // Sniper
+                        { type: 1, x: 1700, y: 300 },  // Elevated behind cover
+                        // Foundation pit
+                        { type: 0, x: 1950, y: 280 },
+                        { type: 2, x: 2300, y: 280 },  // Tank
+                        { type: 0, x: 2600, y: 280 },
+                        { type: 1, x: 2850, y: 280 },
+                        { type: 3, x: 3150, y: 280 },  // Sniper
+                        { type: 6, x: 3500, y: 180 },  // Scaffold tower
+                        // Steel yard
+                        { type: 0, x: 3950, y: 280 },
+                        { type: 1, x: 4150, y: 280 },
+                        { type: 2, x: 4500, y: 280 },  // Tank
+                        { type: 0, x: 4800, y: 280 },
+                        { type: 3, x: 5100, y: 280 },  // Sniper
+                        { type: 1, x: 5300, y: 300 },  // Elevated
+                        // Site office
+                        { type: 2, x: 5750, y: 280 },  // Tank
+                        { type: 0, x: 6000, y: 280 },
+                        { type: 1, x: 6250, y: 280 },
+                        { type: 6, x: 6800, y: 180 },  // Scaffold tower - guards level end
+                        { type: 0, x: 7150, y: 280 }
+                    ],
+                    sandbags: [
+                        { x: 1600, y: 280 },
+                        { x: 3000, y: 280 },
+                        { x: 4950, y: 280 },
+                        { x: 6100, y: 280 }
+                    ],
+                    platforms: [
+                        { x: 1670, y: 300, width: 80, height: 20 },
+                        { x: 3070, y: 300, width: 80, height: 20 },
+                        { x: 5020, y: 300, width: 80, height: 20 },
+                        { x: 6170, y: 300, width: 80, height: 20 },
+                        // Overhead girders
+                        { x: 2050, y: 195, width: 150, height: 16 },
+                        { x: 4250, y: 195, width: 170, height: 16 },
+                        { x: 5450, y: 195, width: 150, height: 16 }
+                    ],
+                    barbedWire: [
+                        { x: 1250, y: 280, width: 70 },
+                        { x: 2450, y: 280, width: 70 },
+                        { x: 3750, y: 280, width: 70 },
+                        { x: 5250, y: 280, width: 70 },
+                        { x: 6500, y: 280, width: 70 }
+                    ],
+                    warehouseCrates: [
+                        { x: 400, y: 280, width: 50 },
+                        { x: 455, y: 280, width: 45 },
+                        { x: 2700, y: 280, width: 50 },
+                        { x: 4600, y: 280, width: 55 },
+                        { x: 4660, y: 280, width: 45 },
+                        { x: 6350, y: 280, width: 50 }
+                    ],
+                    destructibleCrates: [
+                        { x: 900, y: 280, width: 40, points: 75 },
+                        { x: 2200, y: 280, width: 40, points: 75 },
+                        { x: 3300, y: 280, width: 40, points: 75 },
+                        { x: 4400, y: 280, width: 40, points: 75 },
+                        { x: 5600, y: 280, width: 40, points: 75 },
+                        { x: 6650, y: 280, width: 40, points: 75 }
+                    ]
+                },
+                2: {
+                    name: "Skyscraper Skeleton",
+                    startX: 0,
+                    endX: 9000,
+                    enemies: [
+                        // Ground floor
+                        { type: 1, x: 500, y: 280 },
+                        { type: 3, x: 750, y: 280 },   // Sniper
+                        { type: 0, x: 1000, y: 280 },
+                        { type: 2, x: 1300, y: 280 },  // Tank
+                        { type: 1, x: 1550, y: 300 },  // Elevated
+                        // Girder maze
+                        { type: 0, x: 2000, y: 280 },
+                        { type: 3, x: 2250, y: 280 },  // Sniper
+                        { type: 1, x: 2500, y: 280 },
+                        { type: 2, x: 2800, y: 280 },  // Tank
+                        { type: 6, x: 3300, y: 180 },  // Scaffold tower
+                        { type: 0, x: 3700, y: 280 },
+                        // Elevator shaft
+                        { type: 3, x: 4100, y: 280 },  // Sniper
+                        { type: 2, x: 4400, y: 280 },  // Tank
+                        { type: 1, x: 4650, y: 300 },  // Elevated
+                        { type: 0, x: 4900, y: 280 },
+                        { type: 2, x: 5300, y: 280 },  // Tank
+                        // Upper frame
+                        { type: 3, x: 5700, y: 280 },  // Sniper
+                        { type: 1, x: 5950, y: 280 },
+                        { type: 0, x: 6200, y: 280 },
+                        { type: 6, x: 6600, y: 180 },  // Scaffold tower
+                        { type: 2, x: 7000, y: 280 },  // Tank
+                        { type: 3, x: 7300, y: 280 },  // Sniper
+                        { type: 1, x: 7600, y: 300 },  // Elevated
+                        { type: 0, x: 7900, y: 280 },
+                        { type: 2, x: 8300, y: 280 },  // Tank
+                        { type: 0, x: 8650, y: 280 }
+                    ],
+                    sandbags: [
+                        { x: 1450, y: 280 },
+                        { x: 3900, y: 280 },
+                        { x: 4550, y: 280 },
+                        { x: 7500, y: 280 }
+                    ],
+                    platforms: [
+                        { x: 1520, y: 300, width: 80, height: 20 },
+                        { x: 3970, y: 300, width: 80, height: 20 },
+                        { x: 4620, y: 300, width: 80, height: 20 },
+                        { x: 7570, y: 300, width: 80, height: 20 },
+                        // Skeleton floors - overhead girders to hop across
+                        { x: 1850, y: 195, width: 140, height: 16 },
+                        { x: 2100, y: 195, width: 140, height: 16 },
+                        { x: 2350, y: 195, width: 140, height: 16 },
+                        { x: 5000, y: 195, width: 180, height: 16 },
+                        { x: 5800, y: 195, width: 140, height: 16 },
+                        { x: 6050, y: 195, width: 140, height: 16 },
+                        { x: 8000, y: 195, width: 180, height: 16 }
+                    ],
+                    barbedWire: [
+                        { x: 900, y: 280, width: 70 },
+                        { x: 2650, y: 280, width: 70 },
+                        { x: 3550, y: 280, width: 70 },
+                        { x: 5450, y: 280, width: 70 },
+                        { x: 6850, y: 280, width: 70 },
+                        { x: 8450, y: 280, width: 70 }
+                    ],
+                    warehouseCrates: [
+                        { x: 300, y: 280, width: 55 },
+                        { x: 360, y: 280, width: 50 },
+                        { x: 3050, y: 280, width: 50 },
+                        { x: 3105, y: 280, width: 45 },
+                        { x: 6350, y: 280, width: 55 },
+                        { x: 8150, y: 280, width: 50 }
+                    ],
+                    destructibleCrates: [
+                        { x: 1150, y: 280, width: 40, points: 75 },
+                        { x: 2900, y: 280, width: 40, points: 75 },
+                        { x: 4250, y: 280, width: 40, points: 75 },
+                        { x: 5600, y: 280, width: 40, points: 75 },
+                        { x: 7150, y: 280, width: 40, points: 75 },
+                        { x: 8550, y: 280, width: 40, points: 75 }
+                    ]
+                },
+                3: {
+                    name: "Crane Tower Showdown",
+                    startX: 0,
+                    endX: 11000,
+                    enemies: [
+                        // Lockdown checkpoint
+                        { type: 2, x: 700, y: 280 },   // Tank
+                        { type: 3, x: 900, y: 280 },   // Sniper
+                        { type: 1, x: 1150, y: 300 },  // Elevated
+                        { type: 0, x: 1400, y: 280 },
+                        { type: 2, x: 1700, y: 280 },  // Tank
+                        // Crane yard
+                        { type: 6, x: 2300, y: 180 },  // Scaffold tower
+                        { type: 3, x: 2700, y: 280 },  // Sniper
+                        { type: 2, x: 2950, y: 280 },  // Tank
+                        { type: 1, x: 3200, y: 300 },  // Elevated
+                        { type: 0, x: 3450, y: 280 },
+                        { type: 2, x: 3800, y: 280 },  // Tank
+                        // Last line before the boss
+                        { type: 3, x: 4400, y: 280 },  // Sniper
+                        { type: 1, x: 4650, y: 280 },
+                        { type: 2, x: 5000, y: 280 },  // Tank
+                        { type: 6, x: 5500, y: 180 },  // Scaffold tower
+                        { type: 0, x: 6000, y: 280 },
+                        { type: 3, x: 6300, y: 280 },  // Sniper
+                        { type: 2, x: 6700, y: 280 },  // Tank
+                        // Boss encounter at the foot of the great crane
+                        { type: 7, x: 9600, y: 170 }   // Artillery truck boss
+                    ],
+                    sandbags: [
+                        { x: 1050, y: 280 },
+                        { x: 3100, y: 280 },
+                        { x: 6150, y: 280 },
+                        { x: 8200, y: 280 }
+                    ],
+                    platforms: [
+                        { x: 1120, y: 300, width: 80, height: 20 },
+                        { x: 3170, y: 300, width: 80, height: 20 },
+                        { x: 6220, y: 300, width: 80, height: 20 },
+                        { x: 8270, y: 300, width: 120, height: 20 },
+                        { x: 2000, y: 195, width: 160, height: 16 },
+                        { x: 4100, y: 195, width: 160, height: 16 },
+                        { x: 7400, y: 195, width: 200, height: 16 },
+                        { x: 8700, y: 195, width: 200, height: 16 }
+                    ],
+                    barbedWire: [
+                        { x: 1550, y: 280, width: 70 },
+                        { x: 3600, y: 280, width: 70 },
+                        { x: 5200, y: 280, width: 70 },
+                        { x: 7000, y: 280, width: 100 }
+                    ],
+                    warehouseCrates: [
+                        { x: 450, y: 280, width: 50 },
+                        { x: 505, y: 280, width: 45 },
+                        { x: 2500, y: 280, width: 55 },
+                        { x: 4800, y: 280, width: 50 },
+                        { x: 4855, y: 280, width: 45 },
+                        { x: 6500, y: 280, width: 55 }
+                    ],
+                    destructibleCrates: [
+                        { x: 1300, y: 280, width: 40, points: 100 },
+                        { x: 2850, y: 280, width: 40, points: 100 },
+                        { x: 4300, y: 280, width: 40, points: 100 },
+                        { x: 5800, y: 280, width: 40, points: 100 },
+                        { x: 7800, y: 280, width: 40, points: 100 }
+                    ]
+                }
             }
         };
     }
@@ -980,6 +1212,7 @@ class Game {
         this.warehouseCrates = [];
         this.destructibleCrates = [];
         this.bunkers = [];
+        this.artilleryShells = [];
         
         // Spawn sandbags for this level
         if (this.currentLevelData.sandbags) {
@@ -991,7 +1224,9 @@ class Game {
         // Spawn platforms for this level
         if (this.currentLevelData.platforms) {
             for (const platformData of this.currentLevelData.platforms) {
-                this.platforms.push(new Platform(platformData.x, platformData.y, platformData.width, platformData.height));
+                const platform = new Platform(platformData.x, platformData.y, platformData.width, platformData.height);
+                if (this.currentWorld === 3) platform.style = 'girder';
+                this.platforms.push(platform);
             }
         }
         
@@ -1002,6 +1237,9 @@ class Game {
                     // Use wooden crates instead of barbed wire for World 2
                     // Ground level is 320, crate height is 40, so crate Y should be 280
                     this.woodenCrates.push(new WoodenCrate(wireData.x, 280, wireData.width));
+                } else if (this.currentWorld === 3) {
+                    // Concrete jersey barriers for World 3 (same solid collision as crates)
+                    this.woodenCrates.push(new ConcreteBarrier(wireData.x, 280, wireData.width));
                 } else {
                     // Use barbed wire for World 1
                     this.barbedWire.push(new BarbedWire(wireData.x, wireData.y, wireData.width));
@@ -1013,7 +1251,8 @@ class Game {
         if (this.currentLevelData.warehouseCrates) {
             for (const crateData of this.currentLevelData.warehouseCrates) {
                 // Ground level is 320, crate height is 40, so crate Y should be 280
-                this.warehouseCrates.push(new WoodenCrate(crateData.x, 280, crateData.width));
+                const CrateClass = this.currentWorld === 3 ? CinderBlockPallet : WoodenCrate;
+                this.warehouseCrates.push(new CrateClass(crateData.x, 280, crateData.width));
             }
         }
 
@@ -1066,7 +1305,7 @@ class Game {
             // Only spawn enemies that are ahead of the player and in view range
             if (enemy.x > playerX && enemy.x <= spawnRange) {
                 // Check if this is the boss - trigger cutscene
-                if (enemy.type === 4 && !this.bossCutsceneActive) {
+                if ((enemy.type === 4 || enemy.type === 7) && !this.bossCutsceneActive) {
                     this.triggerBossCutscene();
                     return; // Don't spawn the boss yet, wait for cutscene to finish
                 }
@@ -1109,6 +1348,97 @@ class Game {
         }
     }
     
+    // Force field walls at both ends of the level - right wall sits a little past endX
+    // so the player can still reach the finish line and trigger level completion.
+    // Left wall is inset so it's fully on screen at the level start (camera.x = startX)
+    getForceFieldBounds() {
+        if (!this.currentLevelData) return null;
+        return {
+            left: this.currentLevelData.startX + 30,
+            right: this.currentLevelData.endX + 250
+        };
+    }
+
+    applyForceFields() {
+        const bounds = this.getForceFieldBounds();
+        if (!bounds) return;
+
+        if (this.player.x < bounds.left) {
+            this.player.x = bounds.left;
+            this.player.velocityX = 0;
+            this.forceFieldHit = { side: 'left', time: Date.now() };
+        } else if (this.player.x + this.player.width > bounds.right) {
+            this.player.x = bounds.right - this.player.width;
+            this.player.velocityX = 0;
+            this.forceFieldHit = { side: 'right', time: Date.now() };
+        }
+    }
+
+    renderForceFields() {
+        const bounds = this.getForceFieldBounds();
+        if (!bounds) return;
+
+        const ctx = this.ctx;
+        const t = Date.now();
+        const height = this.canvas.height;
+        const viewLeft = this.camera.x - 100;
+        const viewRight = this.camera.x + this.canvas.width + 100;
+
+        for (const side of ['left', 'right']) {
+            const wallX = bounds[side];
+            if (wallX < viewLeft || wallX > viewRight) continue;
+
+            // Brighter flash for a moment after the player bumps into it
+            const hit = this.forceFieldHit && this.forceFieldHit.side === side ? this.forceFieldHit : null;
+            const flash = hit ? Math.max(0, 1 - (t - hit.time) / 400) : 0;
+            const pulse = 0.5 + 0.5 * Math.sin(t * 0.005);
+            const glowWidth = 60;
+            // Glow extends toward the playable side
+            const dir = side === 'left' ? 1 : -1;
+
+            ctx.save();
+
+            // Soft glow fading into the playfield
+            const grad = ctx.createLinearGradient(wallX, 0, wallX + dir * glowWidth, 0);
+            grad.addColorStop(0, `rgba(80, 200, 255, ${0.5 + 0.2 * pulse + 0.3 * flash})`);
+            grad.addColorStop(1, 'rgba(80, 200, 255, 0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(Math.min(wallX, wallX + dir * glowWidth), 0, glowWidth, height);
+
+            // Hex-ish energy grid scrolling upward
+            ctx.strokeStyle = `rgba(150, 230, 255, ${0.25 + 0.2 * pulse + 0.5 * flash})`;
+            ctx.lineWidth = 1;
+            const cell = 24;
+            const scroll = (t * 0.03) % cell;
+            for (let y = -cell + scroll; y < height + cell; y += cell) {
+                ctx.beginPath();
+                ctx.moveTo(wallX, y);
+                ctx.lineTo(wallX + dir * 12, y + cell / 2);
+                ctx.lineTo(wallX, y + cell);
+                ctx.stroke();
+            }
+
+            // Core beam
+            ctx.shadowColor = 'rgba(80, 200, 255, 1)';
+            ctx.shadowBlur = 15 + 10 * pulse + 20 * flash;
+            ctx.strokeStyle = `rgba(200, 245, 255, ${0.7 + 0.3 * pulse})`;
+            ctx.lineWidth = 4 + 3 * flash;
+            ctx.beginPath();
+            ctx.moveTo(wallX, 0);
+            ctx.lineTo(wallX, height);
+            ctx.stroke();
+
+            // Emitter posts at the base and top
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#334';
+            ctx.fillRect(wallX - 8, 320, 16, 30);
+            ctx.fillStyle = `rgba(120, 220, 255, ${0.8 + 0.2 * pulse})`;
+            ctx.fillRect(wallX - 4, 316, 8, 6);
+
+            ctx.restore();
+        }
+    }
+
     setupEventListeners() {
         window.addEventListener('keydown', (e) => {
             // Handle initial entry mode
@@ -1129,6 +1459,13 @@ class Game {
                     this.gameState = 'levelBuilder';
                     this.initializeLevelBuilder();
                     e.preventDefault();
+                } else if (['1', '2', '3'].includes(e.key) && this.levelData[Number(e.key)]) {
+                    // Shortcut for testing: jump straight into a world's first level, skipping the story
+                    this.unlockAudio();
+                    this.stopTitleMusic();
+                    this.currentWorld = Number(e.key);
+                    this.startGame();
+                    e.preventDefault();
                 } else if (e.key === 't' || e.key === 'T') {
                     // Test sound (for debugging)
                     this.unlockAudio().then(() => {
@@ -1140,6 +1477,11 @@ class Game {
             } else if (this.gameState === 'story') {
                 if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight') {
                     this.nextStorySlide();
+                    e.preventDefault();
+                }
+            } else if (this.gameState === 'heliIntro') {
+                if (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape') {
+                    this.endHeliIntro();
                     e.preventDefault();
                 }
             } else if (this.gameState === 'bossCutscene') {
@@ -1357,6 +1699,8 @@ class Game {
             this.startStory();
         } else if (this.gameState === 'story') {
             this.nextStorySlide();
+        } else if (this.gameState === 'heliIntro') {
+            this.endHeliIntro();
         } else if (this.gameState === 'gameOver' && !this.enteringInitials) {
             this.returnToTitle();
         } else if (this.gameState === 'levelComplete') {
@@ -1483,6 +1827,8 @@ class Game {
             });
         } else if (this.gameState === 'story') {
             this.nextStorySlide();
+        } else if (this.gameState === 'heliIntro') {
+            this.endHeliIntro();
         } else if (this.gameState === 'gameOver' && !this.enteringInitials) {
             this.returnToTitle();
         } else if (this.gameState === 'levelComplete') {
@@ -1604,6 +1950,12 @@ class Game {
             }
         }
         
+        // Keep player inside the level's force field barriers
+        this.applyForceFields();
+
+        // Objective: reach the crashed helicopter
+        this.checkHeliWreck();
+
         // Handle mobile shooting (simulate X key press)
         if (this.keys['x']) {
             if (this.player.shoot(this.bullets)) {
@@ -1796,11 +2148,14 @@ class Game {
         
         // Boss music management - only during gameplay
         if (this.gameState === 'playing') {
-            const bossPresent = this.enemies.some(enemy => enemy.type === 4 || enemy.type === 5);
+            const bossPresent = this.enemies.some(enemy => isBossType(enemy.type));
             if (bossPresent && !this.bossActive) {
                 this.startBossMusic();
             } else if (!bossPresent && this.bossActive) {
                 this.stopBossMusic();
+            } else if (!bossPresent && !this.gameplayMusicPlaying) {
+                // Restart the world music after a cutscene or level transition ended its loop
+                this.startGameplayMusic();
             }
         }
         
@@ -1888,13 +2243,18 @@ class Game {
                         }
                         
                         // Dramatic boss explosion and victory music
-                        if (enemy.type === 4 || enemy.type === 5) {
+                        if (isBossType(enemy.type)) {
                             this.playBossExplosion();
                             this.playVictoryMusic();
                             // Create massive boss explosion
                             this.explosions.push(new BossExplosion(enemy.x + enemy.width/2, enemy.y + enemy.height/2));
                             // Stop boss music
                             this.stopBossMusic();
+                            if (enemy.type === 7) {
+                                // Artillery truck leaves a burnt-out wreck; shells already in the air fizzle
+                                this.tankRemnants.push(new TankRemnant(enemy.x + 20, enemy.y + 40, enemy.width - 40, enemy.height - 40));
+                                this.artilleryShells = [];
+                            }
                         }
 
                         // Tower collapse — mounted soldiers detach next frame and fall via gravity
@@ -1913,6 +2273,9 @@ class Game {
                 }
             }
         }
+        
+        // Artillery truck shells: arc through the air and explode on landing
+        this.updateArtilleryShells();
         
         // Check enemy bullet-player collisions
         for (let i = this.enemyBullets.length - 1; i >= 0; i--) {
@@ -1988,7 +2351,17 @@ class Game {
             // Allow camera to move back only if player goes to far left edge
             this.camera.x = this.player.x - this.canvas.width * 0.2;
         }
-        
+
+        // The artillery truck boss is huge - nudge the camera ahead so the whole truck
+        // stays in view, as long as the player stays on screen too
+        const truckBoss = this.enemies.find(enemy => enemy.type === 7);
+        if (truckBoss) {
+            const fitTruck = truckBoss.x + truckBoss.width + 10 - this.canvas.width;
+            if (fitTruck > this.camera.x && this.player.x - fitTruck > 30) {
+                this.camera.x = fitTruck;
+            }
+        }
+
         // Ensure camera never goes negative
         if (this.camera.x < 0) {
             this.camera.x = 0;
@@ -2107,9 +2480,11 @@ class Game {
         this.warehouseCrates = [];
         this.destructibleCrates = [];
         this.bunkers = [];
+        this.artilleryShells = [];
         this.lastEnemySpawn = 0;
         this.camera = { x: 0, y: 0 };
-        
+        this.heliWreck = null;
+
         // Start level 1
         this.startLevel(1);
     }
@@ -2128,7 +2503,10 @@ class Game {
         if (this.currentStorySlide >= this.storySlides.length) {
             this.stopStoryMusic();
             this.stopPopcornMusic();
+            // A new story run always begins in World 1, even after a world-jump shortcut
+            this.currentWorld = 1;
             this.startGame();
+            this.startHeliIntro();
         } else {
             // Start music for new slide
             if (this.audioUnlocked) {
@@ -2461,6 +2839,7 @@ class Game {
             clearTimeout(this.popcornMusicTimeout);
             this.popcornMusicTimeout = null;
         }
+        this.fadeOutMusicBus('popcorn');
         this.popcornMusicPlaying = false;
     }
     
@@ -2593,7 +2972,7 @@ class Game {
         const bass = this.audioContext.createOscillator();
         const bassGain = this.audioContext.createGain();
         bass.connect(bassGain);
-        bassGain.connect(this.audioContext.destination);
+        bassGain.connect(this.getMusicBus('popcorn'));
         
         // More aggressive villain progression
         const bassNotes = [98.00, 110.00, 123.47, 138.59]; // G2, A2, B2, C#3
@@ -2615,7 +2994,7 @@ class Game {
         const discord = this.audioContext.createOscillator();
         const discordGain = this.audioContext.createGain();
         discord.connect(discordGain);
-        discordGain.connect(this.audioContext.destination);
+        discordGain.connect(this.getMusicBus('popcorn'));
         
         // Dissonant high notes for evil effect
         const discordNotes = [466.16, 523.25, 587.33, 659.25]; // A#4, C5, D5, E5
@@ -2637,7 +3016,7 @@ class Game {
         const pulse = this.audioContext.createOscillator();
         const pulseGain = this.audioContext.createGain();
         pulse.connect(pulseGain);
-        pulseGain.connect(this.audioContext.destination);
+        pulseGain.connect(this.getMusicBus('popcorn'));
         
         pulse.frequency.setValueAtTime(12, now); // 12 Hz evil pulse
         pulseGain.gain.setValueAtTime(0.08, now);
@@ -2658,7 +3037,7 @@ class Game {
             const echo = this.audioContext.createOscillator();
             const echoGain = this.audioContext.createGain();
             echo.connect(echoGain);
-            echoGain.connect(this.audioContext.destination);
+            echoGain.connect(this.getMusicBus('popcorn'));
             
             const delay = 0.15 + (i * 0.1);
             echo.frequency.setValueAtTime(bassNotes[0] * 0.5, now + delay); // Lower octave echo
@@ -2698,7 +3077,7 @@ class Game {
             
             noise.connect(filter);
             filter.connect(gain);
-            gain.connect(this.audioContext.destination);
+            gain.connect(this.getMusicBus('popcorn'));
             
             const startTime = this.audioContext.currentTime + drum.time;
             
@@ -2773,7 +3152,7 @@ class Game {
         convolver.connect(masterGain);
         delay.connect(delayGain);
         delayGain.connect(masterGain);
-        masterGain.connect(this.audioContext.destination);
+        masterGain.connect(this.getMusicBus('popcorn'));
         
         const bassNotes = [98.00, 110.00, 123.47, 138.59]; // G2, A2, B2, C#3
         bassNotes.forEach((freq, i) => {
@@ -3020,7 +3399,24 @@ class Game {
         if (!this.audioContext || this.gameplayMusicPlaying || !this.audioUnlocked) return;
         
         this.gameplayMusicPlaying = true;
+        // New loop id so any older loop still waiting on its timer stops instead of doubling up
+        this.gameplayLoopId = (this.gameplayLoopId || 0) + 1;
         this.playGameplayTrack();
+    }
+    
+    // Queue the next pass of the gameplay track. Goes through playGameplayTrack so the
+    // music follows a world change. If gameplay has paused (cutscene, level complete),
+    // the loop ends and update() starts it again once the player is back in control.
+    scheduleGameplayLoop(delay) {
+        const loopId = this.gameplayLoopId;
+        setTimeout(() => {
+            if (loopId !== this.gameplayLoopId) return;
+            if (this.gameState === 'playing' && this.gameplayMusicPlaying) {
+                this.playGameplayTrack();
+            } else {
+                this.gameplayMusicPlaying = false;
+            }
+        }, delay);
     }
     
     stopGameplayMusic() {
@@ -3074,8 +3470,32 @@ class Game {
             clearTimeout(this.storyMusicTimeout);
             this.storyMusicTimeout = null;
         }
+        this.fadeOutMusicBus('story');
         this.storyMusicPlaying = false;
         this.currentStoryMusicType = null;
+    }
+
+    // Story and villain tracks schedule several seconds of notes up front. Routing them
+    // through a named bus lets a stop fade out every note that is already queued, so
+    // they don't keep playing over the next slide, the gameplay music or the boss music.
+    getMusicBus(name) {
+        this.musicBuses = this.musicBuses || {};
+        if (!this.musicBuses[name]) {
+            const bus = this.audioContext.createGain();
+            bus.connect(this.audioContext.destination);
+            this.musicBuses[name] = bus;
+        }
+        return this.musicBuses[name];
+    }
+    
+    fadeOutMusicBus(name) {
+        const bus = this.musicBuses && this.musicBuses[name];
+        if (!bus) return;
+        const now = this.audioContext.currentTime;
+        bus.gain.setValueAtTime(bus.gain.value, now);
+        bus.gain.linearRampToValueAtTime(0, now + 0.15);
+        setTimeout(() => bus.disconnect(), 250);
+        this.musicBuses[name] = null;
     }
     
     playStoryTrack(musicType) {
@@ -3179,6 +3599,8 @@ class Game {
                 break;
         }
         
+        // All notes go through one bus so stopStoryMusic can silence ones already scheduled
+        const bus = this.getMusicBus('story');
         let currentTime = this.audioContext.currentTime;
         
         console.log('=== STORY TRACK AUDIO NODES ===');
@@ -3198,7 +3620,7 @@ class Game {
             gain.gain.exponentialRampToValueAtTime(0.01, currentTime + note.duration);
             
             osc.connect(gain);
-            gain.connect(this.audioContext.destination);
+            gain.connect(bus);
             
             osc.start(currentTime);
             osc.stop(currentTime + note.duration);
@@ -3223,7 +3645,7 @@ class Game {
             gain.gain.exponentialRampToValueAtTime(0.01, currentTime + note.duration);
             
             osc.connect(gain);
-            gain.connect(this.audioContext.destination);
+            gain.connect(bus);
             
             osc.start(currentTime);
             osc.stop(currentTime + note.duration);
@@ -3246,6 +3668,10 @@ class Game {
         // Choose music based on current world
         if (this.currentWorld === 2) {
             this.playUndergroundTrack();
+            return;
+        }
+        if (this.currentWorld === 3) {
+            this.playConstructionTrack();
             return;
         }
 
@@ -3428,11 +3854,7 @@ class Game {
         });
         
         // Loop the track - 4 second cycle
-        setTimeout(() => {
-            if (this.gameState === 'playing' && this.gameplayMusicPlaying) {
-                this.playGameplayTrack();
-            }
-        }, 4000);
+        this.scheduleGameplayLoop(4000);
     }
 
     playUndergroundTrack() {
@@ -3739,11 +4161,101 @@ class Game {
         });
 
         // Loop the extended EDM track - 11 second cycle with full progression
-        setTimeout(() => {
-            if (this.gameState === 'playing' && this.gameplayMusicPlaying && this.currentWorld === 2) {
-                this.playUndergroundTrack();
+        this.scheduleGameplayLoop(11000);
+    }
+
+    // World 3 - funky construction-site groove in D minor with clanging metal hits
+    playConstructionTrack() {
+        if (!this.audioContext || !this.gameplayMusicPlaying) return;
+        const ac = this.audioContext;
+        const now = ac.currentTime;
+
+        const playTone = (freq, start, duration, type, volume) => {
+            const osc = ac.createOscillator();
+            const gain = ac.createGain();
+            osc.connect(gain);
+            gain.connect(ac.destination);
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, start);
+            gain.gain.setValueAtTime(0, start);
+            gain.gain.linearRampToValueAtTime(volume, start + 0.015);
+            gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+            osc.start(start);
+            osc.stop(start + duration + 0.02);
+        };
+
+        // Syncopated lead riff
+        const melody = [
+            { note: 587, time: 0.0, duration: 0.2 },  // D5
+            { note: 698, time: 0.25, duration: 0.2 }, // F5
+            { note: 784, time: 0.5, duration: 0.15 }, // G5
+            { note: 698, time: 0.75, duration: 0.2 }, // F5
+            { note: 587, time: 1.0, duration: 0.4 },  // D5
+            { note: 523, time: 1.5, duration: 0.2 },  // C5
+            { note: 587, time: 1.75, duration: 0.2 }, // D5
+            { note: 880, time: 2.0, duration: 0.2 },  // A5
+            { note: 784, time: 2.25, duration: 0.2 }, // G5
+            { note: 698, time: 2.5, duration: 0.15 }, // F5
+            { note: 659, time: 2.75, duration: 0.2 }, // E5
+            { note: 587, time: 3.0, duration: 0.5 },  // D5
+            { note: 440, time: 3.5, duration: 0.2 },  // A4
+            { note: 523, time: 3.75, duration: 0.2 }  // C5
+        ];
+        melody.forEach(n => playTone(n.note, now + n.time, n.duration, 'square', 0.06));
+
+        // Bouncing octave bass, like a jackhammer
+        const bassRoots = [147, 147, 175, 131]; // D3, D3, F3, C3 - one per beat pair
+        for (let i = 0; i < 16; i++) {
+            const root = bassRoots[Math.floor(i / 4)];
+            const freq = i % 2 === 0 ? root / 2 : root;
+            playTone(freq, now + i * 0.25, 0.2, 'sawtooth', 0.05);
+        }
+
+        // Metal clang on the off-beats - two detuned high square waves
+        [0.5, 1.5, 2.5, 3.5].forEach(time => {
+            playTone(1760, now + time, 0.12, 'square', 0.025);
+            playTone(2489, now + time, 0.1, 'square', 0.02);
+        });
+
+        // Drums from filtered noise
+        const drums = [];
+        for (let beat = 0; beat < 8; beat++) {
+            drums.push({ type: beat % 2 === 0 ? 'kick' : 'snare', time: beat * 0.5 });
+            drums.push({ type: 'hihat', time: beat * 0.5 + 0.25 });
+        }
+        drums.push({ type: 'kick', time: 3.75 });
+        drums.forEach(drum => {
+            const noise = ac.createBufferSource();
+            const buffer = ac.createBuffer(1, ac.sampleRate * 0.1, ac.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < buffer.length; i++) data[i] = Math.random() * 2 - 1;
+            noise.buffer = buffer;
+            const filter = ac.createBiquadFilter();
+            const gain = ac.createGain();
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(ac.destination);
+            const start = now + drum.time;
+            if (drum.type === 'kick') {
+                filter.frequency.setValueAtTime(90, start);
+                gain.gain.setValueAtTime(0.22, start);
+                gain.gain.exponentialRampToValueAtTime(0.01, start + 0.15);
+            } else if (drum.type === 'snare') {
+                filter.frequency.setValueAtTime(2000, start);
+                gain.gain.setValueAtTime(0.12, start);
+                gain.gain.exponentialRampToValueAtTime(0.01, start + 0.09);
+            } else {
+                filter.type = 'highpass';
+                filter.frequency.setValueAtTime(7000, start);
+                gain.gain.setValueAtTime(0.05, start);
+                gain.gain.exponentialRampToValueAtTime(0.01, start + 0.03);
             }
-        }, 11000);
+            noise.start(start);
+            noise.stop(start + 0.1);
+        });
+
+        // Loop the track - 4 second cycle
+        this.scheduleGameplayLoop(4000);
     }
 
     startBossMusic() {
@@ -3769,7 +4281,7 @@ class Game {
         this.bossActive = false;
         
         // Resume normal gameplay music ONLY if we're in playing state and no boss is present
-        const bossPresent = this.enemies.some(enemy => enemy.type === 4 || enemy.type === 5);
+        const bossPresent = this.enemies.some(enemy => isBossType(enemy.type));
         if (this.gameState === 'playing' && !this.gameplayMusicPlaying && !bossPresent) {
             this.startGameplayMusic();
         }
@@ -3918,7 +4430,7 @@ class Game {
         let drop = null;
 
         // Bosses always drop a golden heart.
-        if (enemy.type === 4 || enemy.type === 5) {
+        if (isBossType(enemy.type)) {
             drop = 'golden';
         }
         // Tower: always drops something in W1; usually in later worlds.
@@ -4017,6 +4529,11 @@ class Game {
             return;
         }
         
+        if (this.gameState === 'heliIntro') {
+            this.renderHeliIntro();
+            return;
+        }
+
         if (this.gameState === 'bossCutscene') {
             // Same music handling as story mode
             if (!this.storyMusicPlaying && this.audioUnlocked) {
@@ -4054,6 +4571,12 @@ class Game {
         // Render bunkers (background structures, behind characters)
         this.bunkers.forEach(bunker => bunker.render(this.ctx));
 
+        // Render force field barriers at level edges
+        this.renderForceFields();
+
+        // Crashed helicopter (World 1 Level 1 objective)
+        this.renderHeliWreck();
+
         this.player.render(this.ctx);
         
         // Render bullets
@@ -4088,6 +4611,7 @@ class Game {
         
         // Render enemy bullets
         this.enemyBullets.forEach(bullet => bullet.render(this.ctx));
+        this.artilleryShells.forEach(shell => shell.render(this.ctx));
         
         this.ctx.restore();
         
@@ -4095,6 +4619,7 @@ class Game {
         this.renderUI();
         this.renderScore();
         this.renderLevelProgress();
+        this.renderHeliObjective();
         this.renderBossHealthUI();
         this.renderTouchControls();
         
@@ -4205,7 +4730,7 @@ class Game {
         const ctx = this.ctx;
         
         // Find active boss enemies
-        const bosses = this.enemies.filter(enemy => (enemy.type === 4 || enemy.type === 5) && enemy.health > 0);
+        const bosses = this.enemies.filter(enemy => isBossType(enemy.type) && enemy.health > 0);
 
         if (bosses.length === 0) return;
         
@@ -4225,7 +4750,7 @@ class Game {
         ctx.lineWidth = 2;
         ctx.font = 'bold 18px Arial';
         ctx.textAlign = 'center';
-        const bossTitle = 'BOSS TANK';
+        const bossTitle = boss.type === 7 ? 'ARTILLERY TRUCK' : 'BOSS TANK';
         ctx.strokeText(bossTitle, this.canvas.width / 2, barY - 8);
         ctx.fillText(bossTitle, this.canvas.width / 2, barY - 8);
         
@@ -4419,6 +4944,10 @@ class Game {
             this.ctx.font = 'bold 14px Arial';
             this.ctx.fillStyle = '#FFFF00';
             this.ctx.fillText('Press L for Level Builder', this.canvas.width / 2, 360);
+            // World-jump shortcut hint, in the corner clear of the high scores box
+            this.ctx.font = 'bold 12px Arial';
+            this.ctx.textAlign = 'left';
+            this.ctx.fillText('Press 1, 2 or 3 to jump to a world', 12, this.canvas.height - 10);
         }
         this.ctx.restore();
         
@@ -4988,6 +5517,1011 @@ class Game {
         }
     }
     
+    // Helicopter drop-off intro: heli flies in, Tofu ropes down, soldiers shoot the heli,
+    // it limps off and crash-lands far away. Finding the wreck is World 1 Level 1's objective.
+    startHeliIntro() {
+        this.gameState = 'heliIntro';
+        this.camera.x = 0;
+        this.heliIntro = {
+            startTime: Date.now(),
+            duration: 13,
+            smoke: [],
+            hitSoundPlayed: false,
+            crashSoundPlayed: false,
+            shotsFired: 0
+        };
+        const level = this.levelData[1][1];
+        const wreckX = level.endX - 200;
+        this.heliWreck = {
+            x: wreckX, world: 1, level: 1,
+            found: false, foundTime: 0,
+            rescued: false, rescuedTime: 0,
+            // Captured pilots stand beside the wreck with two guards holding them at gunpoint
+            pilots: [wreckX + 120, wreckX + 175],
+            guards: [{ x: wreckX + 225, type: 0 }, { x: wreckX + 300, type: 1 }]
+        };
+    }
+
+    endHeliIntro() {
+        this.gameState = 'playing';
+        this.heliIntro = null;
+        this.player.x = this.currentLevelData.startX + 100;
+        this.player.y = 220;
+        this.player.velocityX = 0;
+        this.player.velocityY = 0;
+        this.player.facingRight = true;
+    }
+
+    // Helicopter position/tilt over the course of the intro (world coords, camera at 0)
+    getIntroHeliPose(t) {
+        const bob = Math.sin(t * 3) * 4;
+        if (t < 2.5) {
+            const k = 1 - Math.pow(1 - t / 2.5, 3); // ease out
+            return { x: -250 + 550 * k, y: 105 + bob, angle: 0.15 * (1 - k), damaged: false };
+        }
+        if (t < 5.5) {
+            return { x: 300, y: 105 + bob, angle: 0, damaged: false };
+        }
+        if (t < 7) {
+            const d = t - 5.5;
+            return { x: 300 + d * d * 120, y: 105 - d * 10 + bob, angle: 0.15, damaged: false };
+        }
+        // Hit - wobbling, smoking, losing altitude as it flies off screen
+        const d = t - 7;
+        return {
+            x: 570 + d * 260,
+            y: 90 + d * d * 25,
+            angle: 0.15 + Math.sin(d * 12) * 0.25 + d * 0.3,
+            damaged: true
+        };
+    }
+
+    renderHeliIntro() {
+        const intro = this.heliIntro;
+        const t = (Date.now() - intro.startTime) / 1000;
+        if (t >= intro.duration) {
+            this.endHeliIntro();
+            return;
+        }
+
+        const ctx = this.ctx;
+        const groundY = 320;
+        const heli = this.getIntroHeliPose(t);
+
+        this.renderBackground();
+        ctx.save();
+        ctx.translate(-this.camera.x, 0);
+        this.renderGround();
+        this.renderForceFields();
+
+        // Distant crash on the far horizon, behind everything else
+        if (t >= 9.5) {
+            const k = t - 9.5;
+            const cx = this.canvas.width - 90;
+            const cy = 245;
+            if (k < 0.8) {
+                const flash = ctx.createRadialGradient(cx, cy, 0, cx, cy, 70);
+                flash.addColorStop(0, `rgba(255, 240, 200, ${1 - k / 0.8})`);
+                flash.addColorStop(1, 'rgba(255, 120, 0, 0)');
+                ctx.fillStyle = flash;
+                ctx.fillRect(cx - 70, cy - 70, 140, 140);
+            }
+            for (let i = 0; i < 6; i++) {
+                const rise = (k * 0.6 + i / 6) % 1;
+                ctx.fillStyle = `rgba(60, 60, 60, ${0.5 * (1 - rise)})`;
+                ctx.beginPath();
+                ctx.arc(cx + Math.sin(i * 2 + k) * 5, cy - rise * 110, 5 + rise * 14, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            if (!intro.crashSoundPlayed) {
+                intro.crashSoundPlayed = true;
+                this.playBossExplosion();
+            }
+        }
+
+        // Artillery truck drives in from the right, parks, and fires flak at the helicopter.
+        // First two shells miss, the third one hits at t = 7.
+        if (t >= 4.5) {
+            const truckScale = 1.5;
+            const parkX = 440;
+            const retreatStart = 8.2;
+            let truckX = parkX;
+            let moving = false;
+            const retreating = t >= retreatStart;
+            if (t < 5.5) {
+                const k = 1 - Math.pow(1 - (t - 4.5), 2);
+                truckX = 850 - (850 - parkX) * k;
+                moving = true;
+            } else if (retreating) {
+                // Job done - turn around and speed off to the right
+                const d = t - retreatStart;
+                truckX = parkX + d * d * 260;
+                moving = true;
+            }
+            const pivotX = truckX + 160 * truckScale;
+            const pivotY = groundY - 72 * truckScale;
+            const barrelLength = 95 * truckScale;
+            const aimAt = (time) => {
+                const p = this.getIntroHeliPose(time);
+                return Math.atan2(p.y - pivotY, p.x - pivotX);
+            };
+
+            // Keep tracking the heli until it's out of sight; barrel rests while retreating
+            const barrelAngle = retreating ? -2.6 : aimAt(Math.min(t, 7.6));
+
+            const shots = [
+                { fire: 5.6, miss: { x: -70, y: -45 } },
+                { fire: 6.1, miss: { x: 60, y: -35 } },
+                { fire: 6.6, miss: null }
+            ];
+            const flight = 0.4;
+
+            let recoil = 0;
+            shots.forEach((shot, i) => {
+                const dt = t - shot.fire;
+                if (dt < 0) return;
+                if (dt < 0.25) recoil = 14 * (1 - dt / 0.25);
+                if (intro.shotsFired <= i) {
+                    intro.shotsFired = i + 1;
+                    this.playTankShoot();
+                }
+            });
+
+            // Dust kicked up when it spins around to retreat
+            if (retreating && t - retreatStart < 0.8) {
+                const k = (t - retreatStart) / 0.8;
+                for (let i = 0; i < 4; i++) {
+                    ctx.fillStyle = `rgba(160, 140, 100, ${0.5 * (1 - k)})`;
+                    ctx.beginPath();
+                    ctx.arc(parkX + 30 + i * 90 - k * 40, groundY - 8 - k * 15, 10 + k * 20, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            if (truckX < this.canvas.width + 50) {
+                this.drawArtilleryTruck(ctx, truckX, groundY, {
+                    barrelAngle,
+                    recoil,
+                    wheelRot: moving ? t * 12 : 4.5 * 12,
+                    moving,
+                    facingRight: retreating,
+                    scale: truckScale,
+                    t
+                });
+            }
+
+            shots.forEach(shot => {
+                const dt = t - shot.fire;
+                if (dt < 0) return;
+                const a = aimAt(shot.fire);
+                const mx = pivotX + Math.cos(a) * barrelLength;
+                const my = pivotY + Math.sin(a) * barrelLength;
+
+                // Muzzle flash and smoke puff
+                if (dt < 0.1) {
+                    ctx.fillStyle = '#FFF59D';
+                    ctx.beginPath();
+                    ctx.arc(mx, my, 14, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#FF9800';
+                    ctx.beginPath();
+                    ctx.arc(mx + Math.cos(a) * 12, my + Math.sin(a) * 12, 9, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                if (dt < 0.8) {
+                    ctx.fillStyle = `rgba(120, 120, 120, ${0.5 * (1 - dt / 0.8)})`;
+                    ctx.beginPath();
+                    ctx.arc(mx + dt * 10, my - dt * 30, 8 + dt * 20, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                const target = this.getIntroHeliPose(shot.fire + flight);
+                const tx = target.x + (shot.miss ? shot.miss.x : 0);
+                const ty = target.y + (shot.miss ? shot.miss.y : 0);
+                if (dt < flight) {
+                    // Shell in flight with a glowing tracer tail
+                    const p = dt / flight;
+                    const sx = mx + (tx - mx) * p;
+                    const sy = my + (ty - my) * p;
+                    const tailP = Math.max(0, p - 0.12);
+                    ctx.strokeStyle = 'rgba(255, 213, 79, 0.8)';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(mx + (tx - mx) * tailP, my + (ty - my) * tailP);
+                    ctx.lineTo(sx, sy);
+                    ctx.stroke();
+                    ctx.fillStyle = '#212121';
+                    ctx.beginPath();
+                    ctx.arc(sx, sy, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (shot.miss && dt < flight + 0.6) {
+                    // Flak burst near the helicopter
+                    const b = (dt - flight) / 0.6;
+                    ctx.fillStyle = `rgba(40, 40, 40, ${0.8 * (1 - b)})`;
+                    ctx.beginPath();
+                    ctx.arc(tx, ty, 12 + b * 22, 0, Math.PI * 2);
+                    ctx.fill();
+                    if (b < 0.35) {
+                        ctx.fillStyle = `rgba(255, 152, 0, ${1 - b / 0.35})`;
+                        ctx.beginPath();
+                        ctx.arc(tx, ty, 10, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            });
+        }
+
+        // Smoke trail once damaged
+        if (heli.damaged && heli.x < 900) {
+            intro.smoke.push({ x: heli.x - 80, y: heli.y - 40, born: t });
+        }
+        intro.smoke = intro.smoke.filter(p => t - p.born < 1.6);
+        intro.smoke.forEach(p => {
+            const age = t - p.born;
+            ctx.fillStyle = `rgba(60, 60, 60, ${0.6 * (1 - age / 1.6)})`;
+            ctx.beginPath();
+            ctx.arc(p.x - age * 20, p.y - age * 25, 8 + age * 18, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        // Rope and Tofu sliding down it
+        const ropeTopX = heli.x - 5;
+        const ropeTopY = heli.y + 30;
+        let tofuVisible = false;
+        if (t >= 2.8 && t < 5.5) {
+            const slide = Math.min(1, Math.max(0, (t - 3.0) / 1.6));
+            const ropeBottom = t < 4.8 ? groundY - 10 : groundY - 10 - (t - 4.8) / 0.7 * (groundY - 10 - ropeTopY);
+            ctx.strokeStyle = '#8D6E63';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(ropeTopX, ropeTopY);
+            ctx.lineTo(ropeTopX + Math.sin(t * 4) * 3, ropeBottom);
+            ctx.stroke();
+
+            if (t >= 3.0) {
+                tofuVisible = true;
+                this.player.x = ropeTopX - this.player.width / 2;
+                this.player.y = ropeTopY - 20 + (220 - (ropeTopY - 20)) * slide;
+            }
+        } else if (t >= 5.5) {
+            tofuVisible = true;
+            this.player.x = 300 - 5 - this.player.width / 2;
+            this.player.y = 220;
+        }
+        if (tofuVisible) {
+            this.player.facingRight = true;
+            this.player.isMoving = false;
+            this.player.render(ctx);
+        }
+
+        // Helicopter
+        if (heli.x < 1000) {
+            this.drawHelicopter(ctx, heli.x, heli.y, heli.angle, { damaged: heli.damaged, t });
+        }
+
+        // Impact sparks when the heli is hit
+        if (t >= 7 && t < 7.7) {
+            const k = (t - 7) / 0.7;
+            for (let i = 0; i < 8; i++) {
+                const a = i / 8 * Math.PI * 2;
+                ctx.fillStyle = `rgba(255, ${150 + i * 10}, 0, ${1 - k})`;
+                ctx.beginPath();
+                ctx.arc(heli.x + Math.cos(a) * 40 * k, heli.y + Math.sin(a) * 40 * k, 10 * (1 - k) + 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            if (!intro.hitSoundPlayed) {
+                intro.hitSoundPlayed = true;
+                this.playTankExplosion();
+            }
+        }
+
+        ctx.restore();
+
+        // Cinematic bars and captions
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, this.canvas.width, 36);
+        ctx.fillRect(0, this.canvas.height - 36, this.canvas.width, 36);
+
+        let caption;
+        if (t < 2.5) caption = 'Somewhere behind enemy lines...';
+        else if (t < 5.5) caption = 'DROP ZONE! Go get em, Tofu!';
+        else if (t < 7) caption = 'ENEMY FIRE! Get out of here!';
+        else if (t < 9.5) caption = 'MAYDAY! MAYDAY! We\'re going down!';
+        else caption = 'The helicopter crash-landed far away... FIND IT!';
+
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 20px Arial';
+        ctx.fillStyle = t >= 7 && t < 9.5 ? '#FF5252' : '#FFFFFF';
+        const shake = t >= 7 && t < 9.5 ? Math.sin(t * 50) * 2 : 0;
+        ctx.fillText(caption, this.canvas.width / 2 + shake, 25);
+        ctx.font = '12px Arial';
+        ctx.fillStyle = '#AAAAAA';
+        ctx.textAlign = 'right';
+        ctx.fillText('SPACE / tap to skip', this.canvas.width - 12, this.canvas.height - 14);
+        ctx.restore();
+    }
+
+    // Draws Popcorn's anti-aircraft artillery truck facing left (or right with opts.facingRight). x is the truck's left edge,
+    // groundY is where the wheels touch. Turret pivot is at (x + 160 * scale, groundY - 72 * scale).
+    drawArtilleryTruck(ctx, x, groundY, opts = {}) {
+        const t = opts.t || Date.now() / 1000;
+        const olive = '#6B7B3A';
+        const oliveDark = '#55622D';
+        ctx.save();
+
+        // Mirror around the truck's center to face right, then scale up from its bottom-left corner
+        const scale = opts.scale || 1;
+        if (opts.facingRight) {
+            ctx.translate(x * 2 + 238 * scale, 0);
+            ctx.scale(-1, 1);
+        }
+        ctx.translate(x, groundY);
+        ctx.scale(scale, scale);
+        ctx.translate(-x, -groundY);
+
+        // Exhaust puffs while driving
+        if (opts.moving) {
+            for (let i = 0; i < 3; i++) {
+                const age = (t * 2 + i / 3) % 1;
+                ctx.fillStyle = `rgba(90, 90, 90, ${0.4 * (1 - age)})`;
+                ctx.beginPath();
+                ctx.arc(x + 232 + age * 25, groundY - 30 - age * 20, 4 + age * 8, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Chassis
+        ctx.fillStyle = '#3B3B3B';
+        ctx.fillRect(x + 8, groundY - 40, 222, 12);
+
+        // Cab with slanted windshield
+        ctx.fillStyle = olive;
+        ctx.beginPath();
+        ctx.moveTo(x + 6, groundY - 40);
+        ctx.lineTo(x + 6, groundY - 70);
+        ctx.lineTo(x + 22, groundY - 100);
+        ctx.lineTo(x + 78, groundY - 100);
+        ctx.lineTo(x + 78, groundY - 40);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#3E4721';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Windshield and side window
+        ctx.fillStyle = '#9FD3FF';
+        ctx.beginPath();
+        ctx.moveTo(x + 12, groundY - 72);
+        ctx.lineTo(x + 25, groundY - 94);
+        ctx.lineTo(x + 40, groundY - 94);
+        ctx.lineTo(x + 40, groundY - 72);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillRect(x + 48, groundY - 94, 22, 20);
+
+        // Headlight, bumper and grille
+        ctx.fillStyle = '#FFF59D';
+        ctx.fillRect(x + 2, groundY - 62, 6, 8);
+        ctx.fillStyle = '#2B2B2B';
+        ctx.fillRect(x, groundY - 46, 14, 8);
+        for (let i = 0; i < 3; i++) {
+            ctx.fillRect(x + 8, groundY - 66 + i * 6, 6, 3);
+        }
+
+        // Flatbed with camo spots
+        ctx.fillStyle = oliveDark;
+        ctx.fillRect(x + 80, groundY - 62, 150, 22);
+        ctx.fillStyle = '#4A5527';
+        ctx.beginPath();
+        ctx.ellipse(x + 105, groundY - 52, 12, 5, 0.3, 0, Math.PI * 2);
+        ctx.ellipse(x + 200, groundY - 50, 14, 5, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Popcorn army emblem on the door
+        ctx.fillStyle = '#C62828';
+        ctx.beginPath();
+        ctx.arc(x + 60, groundY - 56, 9, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FFF8E1';
+        ctx.beginPath();
+        ctx.arc(x + 57, groundY - 58, 3, 0, Math.PI * 2);
+        ctx.arc(x + 63, groundY - 58, 3, 0, Math.PI * 2);
+        ctx.arc(x + 60, groundY - 53, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Ammo crates at the back of the bed
+        ctx.fillStyle = '#8D6E63';
+        ctx.fillRect(x + 196, groundY - 80, 28, 18);
+        ctx.strokeStyle = '#5D4037';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x + 196, groundY - 80, 28, 18);
+
+        // Barrel (drawn before the turret so its base hides under the armor)
+        const px = x + 160;
+        const py = groundY - 72;
+        ctx.save();
+        ctx.translate(px, py);
+        ctx.rotate(opts.barrelAngle !== undefined ? opts.barrelAngle : -2.6);
+        ctx.translate(-(opts.recoil || 0), 0);
+        ctx.fillStyle = '#2E2E2E';
+        ctx.fillRect(0, -5, 95, 10);
+        ctx.fillStyle = '#1A1A1A';
+        ctx.fillRect(82, -8, 14, 16); // muzzle brake
+        ctx.fillRect(30, -7, 8, 14);  // barrel collar
+        ctx.restore();
+
+        // Turret dome and armor shield
+        ctx.fillStyle = '#4A4A4A';
+        ctx.fillRect(px - 30, groundY - 70, 60, 10);
+        ctx.fillStyle = olive;
+        ctx.beginPath();
+        ctx.arc(px, py, 24, Math.PI, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#3E4721';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Wheels with rotating spokes
+        const wheelRot = opts.wheelRot || 0;
+        [40, 150, 198].forEach(wx => {
+            const cx = x + wx;
+            const cy = groundY - 17;
+            ctx.fillStyle = '#1E1E1E';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 17, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#757575';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#424242';
+            ctx.lineWidth = 2;
+            for (let s = 0; s < 3; s++) {
+                const a = -wheelRot + s * Math.PI / 3;
+                ctx.beginPath();
+                ctx.moveTo(cx - Math.cos(a) * 8, cy - Math.sin(a) * 8);
+                ctx.lineTo(cx + Math.cos(a) * 8, cy + Math.sin(a) * 8);
+                ctx.stroke();
+            }
+        });
+
+        ctx.restore();
+    }
+
+    // Draws a Chinook-style tandem-rotor helicopter facing right, centered on (x, y).
+    // Fuselage spans roughly x -105..100, y -24..24; wheels reach y +38.
+    drawHelicopter(ctx, x, y, angle, opts = {}) {
+        const t = opts.t || Date.now() / 1000;
+        const olive = opts.damaged ? '#4A5530' : '#556B2F';
+        const oliveDark = '#3E4D22';
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        
+        // Landing gear - two wheels front, two back
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(60, 20); ctx.lineTo(62, 32);
+        ctx.moveTo(-62, 20); ctx.lineTo(-64, 32);
+        ctx.stroke();
+        ctx.fillStyle = '#1E1E1E';
+        [62, 48, -64, -78].forEach(wx => {
+            ctx.beginPath();
+            ctx.arc(wx, 33, 6, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        
+        // Rear pylon - tall fin holding the back rotor
+        ctx.fillStyle = olive;
+        ctx.beginPath();
+        ctx.moveTo(-105, -18);
+        ctx.lineTo(-98, -46);
+        ctx.lineTo(-62, -46);
+        ctx.lineTo(-50, -20);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = oliveDark;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Long boxy fuselage with a rounded nose and a sloped rear ramp
+        ctx.fillStyle = olive;
+        ctx.beginPath();
+        ctx.moveTo(-105, -20);
+        ctx.lineTo(70, -24);
+        ctx.quadraticCurveTo(98, -22, 102, 2);
+        ctx.quadraticCurveTo(100, 22, 80, 24);
+        ctx.lineTo(-80, 24);
+        ctx.lineTo(-110, 6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = oliveDark;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Front rotor hump over the cockpit
+        ctx.fillStyle = olive;
+        ctx.beginPath();
+        ctx.moveTo(52, -23);
+        ctx.lineTo(60, -34);
+        ctx.lineTo(84, -34);
+        ctx.lineTo(90, -22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        
+        // Side fuel pods along the bottom
+        ctx.fillStyle = oliveDark;
+        ctx.beginPath();
+        ctx.ellipse(-15, 18, 55, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Cockpit glass
+        ctx.fillStyle = opts.wrecked ? '#5C6B73' : '#9FD3FF';
+        ctx.beginPath();
+        ctx.moveTo(74, -20);
+        ctx.quadraticCurveTo(94, -18, 98, -2);
+        ctx.lineTo(78, -2);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Row of round cabin windows
+        ctx.fillStyle = opts.wrecked ? '#5C6B73' : '#B3E0FF';
+        for (let i = 0; i < 6; i++) {
+            if (i === 3) continue; // gap for the door
+            ctx.beginPath();
+            ctx.arc(-78 + i * 24, -8, 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        // Open side door that Tofu ropes down from
+        ctx.fillStyle = '#1E2412';
+        ctx.fillRect(-14, -16, 22, 30);
+        
+        // Tofu Alliance emblem
+        ctx.fillStyle = '#FFF8E1';
+        ctx.beginPath();
+        ctx.arc(38, 6, 7, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Rotor masts
+        ctx.fillStyle = '#333';
+        ctx.fillRect(69, -40, 6, 7);
+        ctx.fillRect(-83, -52, 6, 7);
+        
+        // Tandem rotors - front and back spin opposite ways
+        const rotors = [{ hx: 72, hy: -41, dir: 1 }, { hx: -80, hy: -53, dir: -1 }];
+        rotors.forEach(r => {
+            if (opts.wrecked) {
+                ctx.strokeStyle = '#222';
+                ctx.lineWidth = 5;
+                ctx.beginPath();
+                ctx.moveTo(r.hx, r.hy);
+                ctx.lineTo(r.hx + 40 * r.dir, r.hy - 10);
+                ctx.lineTo(r.hx + 60 * r.dir, r.hy + 12);
+                ctx.moveTo(r.hx, r.hy);
+                ctx.lineTo(r.hx - 30 * r.dir, r.hy + 4);
+                ctx.stroke();
+            } else {
+                ctx.fillStyle = 'rgba(40, 40, 40, 0.22)';
+                ctx.beginPath();
+                ctx.ellipse(r.hx, r.hy, 85, 5, 0, 0, Math.PI * 2);
+                ctx.fill();
+                const blade = Math.cos(t * 40 * r.dir) * 85;
+                ctx.strokeStyle = '#222';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(r.hx - blade, r.hy);
+                ctx.lineTo(r.hx + blade, r.hy);
+                ctx.stroke();
+            }
+        });
+        
+        // Fire on the rear pylon of a damaged heli
+        if (opts.damaged) {
+            for (let i = 0; i < 3; i++) {
+                const fy = Math.sin(t * 20 + i) * 4;
+                ctx.fillStyle = i === 0 ? '#FF6F00' : i === 1 ? '#FFA000' : '#FFEB3B';
+                ctx.beginPath();
+                ctx.arc(-78 + i * 7, -36 + fy - i * 4, 10 - i * 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        ctx.restore();
+    }
+    
+    // Crashed helicopter sitting on the ground, still smoking, with the captured
+    // pilots surrendering to Popcorn's guards next to it
+    renderHeliWreck() {
+        const wreck = this.heliWreck;
+        if (!wreck || this.currentWorld !== wreck.world || this.currentLevel !== wreck.level) return;
+        const viewLeft = this.camera.x - 300;
+        const viewRight = this.camera.x + this.canvas.width + 500;
+        if (wreck.x < viewLeft || wreck.x > viewRight) return;
+
+        const ctx = this.ctx;
+        const t = Date.now() / 1000;
+
+        // Scorch mark
+        ctx.fillStyle = 'rgba(30, 20, 10, 0.5)';
+        ctx.beginPath();
+        ctx.ellipse(wreck.x, 322, 150, 10, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        this.drawHelicopter(ctx, wreck.x, 287, 0.1, { wrecked: true, damaged: true, t });
+
+        // Rising smoke
+        for (let i = 0; i < 6; i++) {
+            const rise = (t * 0.4 + i / 6) % 1;
+            ctx.fillStyle = `rgba(70, 70, 70, ${0.5 * (1 - rise)})`;
+            ctx.beginPath();
+            ctx.arc(wreck.x - 80 + Math.sin(i * 2 + t) * 10, 245 - rise * 200, 10 + rise * 25, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Pulsing marker until found
+        if (!wreck.found) {
+            const bounce = Math.sin(t * 4) * 6;
+            ctx.fillStyle = '#FFD600';
+            ctx.beginPath();
+            ctx.moveTo(wreck.x - 12, 150 + bounce);
+            ctx.lineTo(wreck.x + 12, 150 + bounce);
+            ctx.lineTo(wreck.x, 170 + bounce);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Guards stand frozen with rifles on the pilots until Tofu gets close
+        wreck.guards.forEach(guard => {
+            if (guard.enemy) return; // now a live enemy, drawn with the others
+            const sprite = guard.type === 0 ? this.assets.soldier1Sprite : this.assets.soldier2Sprite;
+            if (!sprite) return;
+            const size = guard.type === 0 ? { w: 140, h: 150, y: 200 } : { w: 120, h: 140, y: 207 };
+            ctx.save();
+            ctx.translate(guard.x + size.w, size.y);
+            ctx.scale(-1, 1); // face left, toward the pilots
+            ctx.drawImage(sprite, 0, 0, size.w, size.h);
+            ctx.restore();
+        });
+
+        // Pilots - hands up while guarded, cheering once rescued
+        wreck.pilots.forEach((pilotX, i) => {
+            this.drawTofuPilot(ctx, pilotX, 320, { rescued: wreck.rescued, t, seed: i });
+        });
+
+        // Speech bubble over the first pilot
+        const bubble = wreck.rescued ? 'Thanks, Tofu!' : (Math.sin(t * 1.5) > -0.3 ? "Don't shoot!" : '');
+        if (bubble) {
+            const bx = wreck.pilots[0] + 25;
+            const by = 196;
+            ctx.save();
+            ctx.font = 'bold 12px Arial';
+            const w = ctx.measureText(bubble).width + 14;
+            ctx.fillStyle = '#FFFFFF';
+            ctx.strokeStyle = '#2A241C';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.rect(bx - w / 2, by - 18, w, 20);
+            ctx.moveTo(bx - 5, by + 2);
+            ctx.lineTo(bx, by + 9);
+            ctx.lineTo(bx + 5, by + 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#2A241C';
+            ctx.textAlign = 'center';
+            ctx.fillText(bubble, bx, by - 4);
+            ctx.restore();
+        }
+    }
+
+    // A tofu fighter-jet pilot drawn to match the main Tofu sprite: cream block with a dark
+    // outline, in a gray jet helmet with the visor raised, a dangling oxygen mask, a
+    // sage-green flight suit and torso harness. x is the left edge, groundY is where the feet touch.
+    drawTofuPilot(ctx, x, groundY, opts = {}) {
+        const t = opts.t || Date.now() / 1000;
+        const seed = opts.seed || 0;
+        const outline = '#2A241C';
+        const bodyW = 46;
+        const bodyH = 56;
+        const legH = 20;
+        // Rescued pilots hop for joy; captured ones tremble
+        const hop = opts.rescued ? Math.abs(Math.sin(t * 6 + seed)) * 10 : 0;
+        const shake = opts.rescued ? 0 : Math.sin(t * 40 + seed * 2) * 0.8;
+        const left = x + shake;
+        const bottom = groundY - legH - hop;
+        const top = bottom - bodyH;
+        const cx = left + bodyW / 2;
+
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        // Legs
+        ctx.strokeStyle = outline;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(cx - 9, bottom); ctx.lineTo(cx - 10, groundY - hop);
+        ctx.moveTo(cx + 9, bottom); ctx.lineTo(cx + 10, groundY - hop);
+        ctx.stroke();
+
+        // Arms up - straight up and trembling, or waving when rescued
+        const wave = opts.rescued ? Math.sin(t * 10 + seed) * 0.5 : 0;
+        [-1, 1].forEach(side => {
+            // Arms spread wide enough to clear the helmet so the "hands up" reads clearly
+            const shoulderX = cx + side * (bodyW / 2 - 2);
+            const shoulderY = top + 24;
+            const elbowX = shoulderX + side * (16 + wave * 6);
+            const elbowY = top + 6;
+            const handX = shoulderX + side * (14 + wave * 14);
+            const handY = top - 22 + (opts.rescued ? -wave * 4 : 0);
+            ctx.strokeStyle = outline;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(shoulderX, shoulderY);
+            ctx.lineTo(elbowX, elbowY);
+            ctx.lineTo(handX, handY);
+            ctx.stroke();
+            ctx.fillStyle = outline;
+            ctx.beginPath();
+            ctx.arc(handX, handY - 2, 4, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        // Tofu body
+        ctx.fillStyle = '#EFE3C2';
+        ctx.strokeStyle = outline;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(left, top, bodyW, bodyH, 6);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#D9C9A0';
+        [[8, 24], [36, 30], [12, 40], [30, 18]].forEach(([dx, dy]) => {
+            ctx.beginPath();
+            ctx.arc(left + dx, top + dy, 1.3, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        // Sage-green flight suit from the chest down, zipped up the middle
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(left, top, bodyW, bodyH, 6);
+        ctx.clip();
+        ctx.fillStyle = '#7A8566';
+        ctx.fillRect(left, top + 32, bodyW, bodyH - 32);
+        ctx.restore();
+        ctx.strokeStyle = outline;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(left, top + 32); ctx.lineTo(left + bodyW, top + 32);
+        ctx.stroke();
+        ctx.strokeStyle = '#B0B7A0';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cx, top + 33); ctx.lineTo(cx, bottom - 1);
+        ctx.stroke();
+
+        // Black torso harness: shoulder straps down to a chest buckle, plus a lap belt
+        ctx.strokeStyle = '#1C1C1C';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(left + 8, top + 32); ctx.lineTo(cx - 3, top + 44);
+        ctx.moveTo(left + bodyW - 8, top + 32); ctx.lineTo(cx + 3, top + 44);
+        ctx.moveTo(left + 2, bottom - 6); ctx.lineTo(left + bodyW - 2, bottom - 6);
+        ctx.stroke();
+        ctx.fillStyle = '#B0BEC5';
+        ctx.fillRect(cx - 4, top + 42, 8, 5);
+        ctx.fillRect(cx - 3, bottom - 8, 6, 4);
+
+        // Squadron patch and leather name tag
+        ctx.fillStyle = '#C62828';
+        ctx.beginPath();
+        ctx.arc(left + 10, top + 39, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FFD54F';
+        ctx.beginPath();
+        ctx.arc(left + 10, top + 39, 1.6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#5D4037';
+        ctx.fillRect(left + bodyW - 15, top + 36, 11, 5);
+
+        // Face - worried eyes and an "o" mouth (big smile once rescued)
+        ctx.fillStyle = outline;
+        ctx.beginPath();
+        ctx.ellipse(cx - 8, top + 20, 2.5, 3.5, 0, 0, Math.PI * 2);
+        ctx.ellipse(cx + 8, top + 20, 2.5, 3.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        if (opts.rescued) {
+            ctx.arc(cx, top + 25, 5, 0.15 * Math.PI, 0.85 * Math.PI);
+        } else {
+            ctx.moveTo(cx - 12, top + 15); ctx.lineTo(cx - 5, top + 12);  // worried brows, raised in the middle
+            ctx.moveTo(cx + 12, top + 15); ctx.lineTo(cx + 5, top + 12);
+            ctx.moveTo(cx + 2.5, top + 29);
+            ctx.arc(cx, top + 29, 2.5, 0, Math.PI * 2);
+        }
+        ctx.stroke();
+        if (!opts.rescued) {
+            // Nervous sweat drop
+            ctx.fillStyle = '#81D4FA';
+            ctx.beginPath();
+            ctx.moveTo(left + bodyW - 4, top + 10);
+            ctx.quadraticCurveTo(left + bodyW + 1, top + 17, left + bodyW - 4, top + 19);
+            ctx.quadraticCurveTo(left + bodyW - 9, top + 17, left + bodyW - 4, top + 10);
+            ctx.fill();
+        }
+
+        // Gunmetal-gray jet helmet that wraps down over the ears
+        ctx.fillStyle = '#7B8691';
+        ctx.strokeStyle = outline;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(left - 5, top + 16);
+        ctx.lineTo(left - 5, top + 2);
+        ctx.quadraticCurveTo(left - 5, top - 17, cx, top - 17);
+        ctx.quadraticCurveTo(left + bodyW + 5, top - 17, left + bodyW + 5, top + 2);
+        ctx.lineTo(left + bodyW + 5, top + 16);
+        ctx.lineTo(left + bodyW - 1, top + 16);
+        ctx.lineTo(left + bodyW - 1, top + 6);
+        ctx.lineTo(left + 1, top + 6);
+        ctx.lineTo(left + 1, top + 16);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Dark visor raised on the helmet front, with a glint
+        ctx.fillStyle = '#212A31';
+        ctx.beginPath();
+        ctx.moveTo(left + 1, top + 4);
+        ctx.quadraticCurveTo(cx, top - 6, left + bodyW - 1, top + 4);
+        ctx.lineTo(left + bodyW - 3, top - 4);
+        ctx.quadraticCurveTo(cx, top - 13, left + 3, top - 4);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(cx + 4, top - 6); ctx.lineTo(cx + 12, top - 3);
+        ctx.stroke();
+
+        // Squadron stripe across the crown
+        ctx.fillStyle = '#FFC107';
+        ctx.beginPath();
+        ctx.moveTo(cx - 14, top - 13);
+        ctx.quadraticCurveTo(cx, top - 19, cx + 14, top - 13);
+        ctx.lineTo(cx + 13, top - 10);
+        ctx.quadraticCurveTo(cx, top - 15, cx - 13, top - 10);
+        ctx.closePath();
+        ctx.fill();
+
+        // Oxygen mask unclipped, dangling from one side with its hose down to the chest
+        const maskX = left + bodyW + 3;
+        const maskY = top + 22;
+        ctx.strokeStyle = '#2E3A40';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(left + bodyW + 2, top + 14); ctx.lineTo(maskX, maskY - 5);
+        ctx.stroke();
+        ctx.fillStyle = '#546E7A';
+        ctx.strokeStyle = outline;
+        ctx.beginPath();
+        ctx.moveTo(maskX - 5, maskY - 5);
+        ctx.lineTo(maskX + 5, maskY - 5);
+        ctx.lineTo(maskX + 4, maskY + 5);
+        ctx.lineTo(maskX, maskY + 8);
+        ctx.lineTo(maskX - 4, maskY + 5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.strokeStyle = '#37474F';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(maskX, maskY + 8);
+        ctx.quadraticCurveTo(maskX + 2, maskY + 18, left + bodyW - 8, top + 34);
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    // Crash site objectives: find the wreck, then beat the guards to free the pilots
+    checkHeliWreck() {
+        const wreck = this.heliWreck;
+        if (!wreck || this.currentWorld !== wreck.world || this.currentLevel !== wreck.level) return;
+        if (!wreck.found && this.player.x + this.player.width > wreck.x - 80 && this.player.x < wreck.x + 80) {
+            wreck.found = true;
+            wreck.foundTime = Date.now();
+            this.score += 500;
+        }
+
+        // Guards spring into action together once Tofu is close enough to have seen the scene
+        const spotted = this.player.x > wreck.guards[0].x - 250;
+        wreck.guards.forEach(guard => {
+            if (!guard.enemy && spotted) {
+                guard.enemy = new Enemy(guard.x, guard.type === 0 ? 200 : 207, guard.type, this.assets);
+                guard.enemy.facingLeft = true;
+                this.enemies.push(guard.enemy);
+            }
+        });
+
+        if (!wreck.rescued && wreck.guards.every(guard => guard.enemy && !this.enemies.includes(guard.enemy))) {
+            wreck.rescued = true;
+            wreck.rescuedTime = Date.now();
+            this.score += 250;
+        }
+    }
+
+    // Objective box under the level info, and banners as each step is completed
+    renderHeliObjective() {
+        const wreck = this.heliWreck;
+        if (!wreck || this.currentWorld !== wreck.world || this.currentLevel !== wreck.level) return;
+        const ctx = this.ctx;
+        const now = Date.now();
+        ctx.save();
+
+        let title = null;
+        let detail = null;
+        if (!wreck.found) {
+            const dist = Math.max(0, Math.round((wreck.x - this.player.x) / 10));
+            title = 'Find the helicopter!';
+            detail = `Crash site: ${dist}m →`;
+        } else if (!wreck.rescued) {
+            const guardsLeft = wreck.guards.filter(guard => !guard.enemy || this.enemies.includes(guard.enemy)).length;
+            title = 'Rescue the pilots!';
+            detail = `Guards left: ${guardsLeft}`;
+        }
+        if (title) {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(this.canvas.width - 200, 95, 190, 40);
+            ctx.fillStyle = '#FFD600';
+            ctx.font = 'bold 13px Arial';
+            ctx.fillText(title, this.canvas.width - 192, 112);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '12px Arial';
+            ctx.fillText(detail, this.canvas.width - 192, 128);
+        }
+
+        let banner = null;
+        if (wreck.rescued && now - wreck.rescuedTime < 3500) banner = 'PILOTS RESCUED! +250';
+        else if (wreck.found && now - wreck.foundTime < 3500) banner = 'HELICOPTER FOUND! +500';
+        if (banner) {
+            ctx.textAlign = 'center';
+            ctx.font = 'bold 32px Arial';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 5;
+            ctx.fillStyle = '#FFD600';
+            ctx.strokeText(banner, this.canvas.width / 2, 150);
+            ctx.fillText(banner, this.canvas.width / 2, 150);
+        }
+        ctx.restore();
+    }
+
+    // Move artillery shells; on hitting the ground (or the player) they blow up and
+    // hurt the player if they're inside the blast
+    updateArtilleryShells() {
+        const groundY = 320;
+        for (let i = this.artilleryShells.length - 1; i >= 0; i--) {
+            const shell = this.artilleryShells[i];
+            shell.update();
+            const hitPlayer = this.checkCollision(shell, this.player);
+            if (!hitPlayer && shell.y < groundY - 4) continue;
+
+            const blastX = shell.x;
+            const playerCenter = this.player.x + this.player.width / 2;
+            const playerNearGround = this.player.y + this.player.height > groundY - 50;
+            if (hitPlayer || (Math.abs(playerCenter - blastX) < shell.blastRadius && playerNearGround)) {
+                this.player.takeDamage(shell.damage);
+            }
+            this.explosions.push(new Explosion(blastX, Math.min(shell.y, groundY - 10)));
+            this.playMineExplosion();
+            this.artilleryShells.splice(i, 1);
+        }
+    }
+
     triggerBossCutscene() {
         // ONLY stop gameplay and boss music
         this.stopGameplayMusic();
@@ -5015,6 +6549,7 @@ class Game {
         this.ctx.save();
         this.ctx.translate(-this.camera.x, -this.camera.y);
         this.renderGround();
+        this.renderForceFields();
         this.player.render(this.ctx);
         this.bullets.forEach(bullet => bullet.render(this.ctx));
         this.enemies.forEach(enemy => enemy.render(this.ctx));
@@ -5035,6 +6570,7 @@ class Game {
         this.renderUI();
         this.renderScore();
         this.renderLevelProgress();
+        this.renderHeliObjective();
         this.renderBossHealthUI();
         this.renderTouchControls();
         
@@ -5196,7 +6732,7 @@ class Game {
         this.bossCutsceneActive = false;
         
         // Now spawn the actual boss
-        const bossData = this.currentLevelData.enemies.find(e => e.type === 4);
+        const bossData = this.currentLevelData.enemies.find(e => e.type === 4 || e.type === 7);
         if (bossData && this.levelSpawnIndex < this.currentLevelData.enemies.length) {
             const boss = new Enemy(bossData.x, bossData.y, bossData.type, this.assets);
             this.enemies.push(boss);
@@ -5810,6 +7346,7 @@ class Game {
         this.warehouseCrates = [];
         this.destructibleCrates = [];
         this.bunkers = [];
+        this.artilleryShells = [];
         this.lastEnemySpawn = 0;
         this.camera = { x: 0, y: 0 };
         
@@ -5905,6 +7442,10 @@ class Game {
     }
     
     renderBackground() {
+        if (this.currentWorld === 3) {
+            this.renderConstructionBackground();
+            return;
+        }
         if (this.currentWorld === 2) {
             // Underground bunker background
             const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
@@ -5973,6 +7514,242 @@ class Game {
         }
     }
     
+    // Stable pseudo-random value in [0, 1) for procedural scenery
+    sceneryRand(i, seed) {
+        const v = Math.sin(i * 12.9898 + seed * 78.233) * 43758.5453;
+        return v - Math.floor(v);
+    }
+
+    // World 3 - a city under construction at dusk: half-built skyline, tower cranes
+    // and steel frames, each layer scrolling at its own parallax speed
+    renderConstructionBackground() {
+        const ctx = this.ctx;
+        const W = this.canvas.width;
+        const H = this.canvas.height;
+        const t = Date.now() / 1000;
+
+        // Hazy dusk sky
+        const sky = ctx.createLinearGradient(0, 0, 0, H * 0.8);
+        sky.addColorStop(0, '#4A6585');
+        sky.addColorStop(0.55, '#E9A26A');
+        sky.addColorStop(1, '#F6D9A9');
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, W, H);
+
+        // Low sun
+        const sunX = 620 - (this.camera.x * 0.02) % 200;
+        const sun = ctx.createRadialGradient(sunX, 230, 10, sunX, 230, 90);
+        sun.addColorStop(0, 'rgba(255, 236, 179, 0.95)');
+        sun.addColorStop(0.3, 'rgba(255, 204, 128, 0.6)');
+        sun.addColorStop(1, 'rgba(255, 204, 128, 0)');
+        ctx.fillStyle = sun;
+        ctx.fillRect(sunX - 90, 140, 180, 180);
+
+        // Far skyline - finished towers with lit windows, unfinished ones with bare frames on top
+        const farSpacing = 70;
+        const farOff = this.camera.x * 0.05;
+        const farStart = Math.floor(farOff / farSpacing) - 1;
+        for (let i = farStart; i < farStart + W / farSpacing + 3; i++) {
+            const bx = i * farSpacing - farOff;
+            const bw = 45 + this.sceneryRand(i, 1) * 30;
+            const bh = 70 + this.sceneryRand(i, 2) * 120;
+            const top = 300 - bh;
+            ctx.fillStyle = '#5B6478';
+            ctx.fillRect(bx, top, bw, bh);
+            if (this.sceneryRand(i, 3) > 0.45) {
+                // Lit windows
+                ctx.fillStyle = 'rgba(255, 224, 130, 0.55)';
+                for (let wy = top + 8; wy < 290; wy += 12) {
+                    for (let wx = bx + 5; wx < bx + bw - 6; wx += 10) {
+                        if (this.sceneryRand(wx * 0.37 + wy, 4) > 0.55) ctx.fillRect(wx, wy, 4, 5);
+                    }
+                }
+            } else {
+                // Unfinished top floors - just the steel frame
+                ctx.strokeStyle = '#5B6478';
+                ctx.lineWidth = 2;
+                const frameH = 36;
+                for (let fx = bx; fx <= bx + bw; fx += bw / 3) {
+                    ctx.beginPath();
+                    ctx.moveTo(fx, top);
+                    ctx.lineTo(fx, top - frameH);
+                    ctx.stroke();
+                }
+                for (let fy = top - 12; fy >= top - frameH; fy -= 12) {
+                    ctx.beginPath();
+                    ctx.moveTo(bx, fy);
+                    ctx.lineTo(bx + bw, fy);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Tower cranes
+        const craneSpacing = 520;
+        const craneOff = this.camera.x * 0.15;
+        const craneStart = Math.floor(craneOff / craneSpacing) - 1;
+        for (let i = craneStart; i < craneStart + W / craneSpacing + 3; i++) {
+            const cx = i * craneSpacing - craneOff + this.sceneryRand(i, 5) * 120;
+            const mastTop = 40 + this.sceneryRand(i, 6) * 40;
+            this.drawTowerCrane(ctx, cx, mastTop, 300, i, t);
+        }
+
+        // Near steel skeletons of buildings going up
+        const frameSpacing = 380;
+        const frameOff = this.camera.x * 0.35;
+        const frameStart = Math.floor(frameOff / frameSpacing) - 1;
+        for (let i = frameStart; i < frameStart + W / frameSpacing + 3; i++) {
+            const fx = i * frameSpacing - frameOff + this.sceneryRand(i, 7) * 80;
+            const floors = 3 + Math.floor(this.sceneryRand(i, 8) * 4);
+            const bays = 3 + Math.floor(this.sceneryRand(i, 9) * 2);
+            const bayW = 34;
+            const floorH = 30;
+            const baseY = 322;
+            ctx.strokeStyle = '#7A3E26';
+            ctx.lineWidth = 4;
+            for (let b = 0; b <= bays; b++) {
+                // Columns stop at different heights - still being built
+                const colFloors = b === bays ? floors - 1 : floors;
+                ctx.beginPath();
+                ctx.moveTo(fx + b * bayW, baseY);
+                ctx.lineTo(fx + b * bayW, baseY - colFloors * floorH);
+                ctx.stroke();
+            }
+            ctx.lineWidth = 3;
+            for (let f = 1; f <= floors; f++) {
+                const span = f === floors ? bays - 1 : bays;
+                ctx.beginPath();
+                ctx.moveTo(fx, baseY - f * floorH);
+                ctx.lineTo(fx + span * bayW, baseY - f * floorH);
+                ctx.stroke();
+            }
+            // Concrete poured on the lower floors
+            ctx.fillStyle = 'rgba(150, 140, 130, 0.85)';
+            for (let f = 1; f < Math.min(3, floors); f++) {
+                ctx.fillRect(fx - 2, baseY - f * floorH - 3, bays * bayW + 4, 6);
+            }
+            // Green safety netting on one bay
+            ctx.fillStyle = 'rgba(56, 142, 60, 0.35)';
+            const netBay = Math.floor(this.sceneryRand(i, 10) * bays);
+            ctx.fillRect(fx + netBay * bayW + 2, baseY - floors * floorH + 2, bayW - 4, (floors - 1) * floorH);
+        }
+    }
+
+    drawTowerCrane(ctx, x, top, baseY, seed, t) {
+        ctx.save();
+        ctx.strokeStyle = '#D4A017';
+        ctx.fillStyle = '#D4A017';
+
+        // Lattice mast
+        const mastW = 10;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(x, baseY); ctx.lineTo(x, top);
+        ctx.moveTo(x + mastW, baseY); ctx.lineTo(x + mastW, top);
+        for (let y = baseY; y > top; y -= 12) {
+            ctx.moveTo(x, y); ctx.lineTo(x + mastW, y - 12);
+        }
+        ctx.stroke();
+
+        // Jib reaching out, counter-jib behind
+        const jibLen = 150 + this.sceneryRand(seed, 11) * 60;
+        ctx.fillRect(x - 50, top - 4, jibLen + 50, 5);
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x + mastW / 2, top - 22);
+        ctx.lineTo(x + jibLen, top - 4);
+        ctx.moveTo(x + mastW / 2, top - 22);
+        ctx.lineTo(x - 50, top - 4);
+        ctx.stroke();
+        ctx.fillRect(x + 1, top - 24, mastW - 2, 20);
+
+        // Counterweight and operator cab
+        ctx.fillStyle = '#6E6E6E';
+        ctx.fillRect(x - 48, top, 18, 12);
+        ctx.fillStyle = '#9E9E9E';
+        ctx.fillRect(x + mastW, top + 2, 10, 9);
+
+        // Trolley cable with a slowly swaying hook and load
+        const trolleyX = x + jibLen * (0.45 + this.sceneryRand(seed, 12) * 0.4);
+        const cableLen = 50 + this.sceneryRand(seed, 13) * 70;
+        const sway = Math.sin(t * 0.8 + seed) * 4;
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(trolleyX, top + 1);
+        ctx.lineTo(trolleyX + sway, top + cableLen);
+        ctx.stroke();
+        ctx.fillStyle = '#8E3B1F';
+        ctx.fillRect(trolleyX + sway - 16, top + cableLen, 32, 5);
+
+        // Blinking aviation light
+        if (Math.sin(t * 3 + seed) > 0) {
+            ctx.fillStyle = '#FF1744';
+            ctx.beginPath();
+            ctx.arc(x + mastW / 2, top - 26, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.restore();
+    }
+
+    // World 3 ground - packed dirt and gravel with a hazard-striped curb and traffic cones
+    renderConstructionGround(groundY) {
+        const ctx = this.ctx;
+        const left = this.camera.x - 100;
+        const right = this.camera.x + this.canvas.width + 100;
+
+        // Dirt
+        ctx.fillStyle = '#7B6A55';
+        ctx.fillRect(left, groundY, right - left, this.canvas.height - groundY);
+
+        // Gravel specks
+        const speckStart = Math.floor(left / 18) * 18;
+        for (let x = speckStart; x < right; x += 18) {
+            for (let row = 0; row < 4; row++) {
+                const r = this.sceneryRand(x + row * 7, 14);
+                ctx.fillStyle = r > 0.5 ? '#5E5040' : '#958470';
+                ctx.fillRect(x + r * 12, groundY + 14 + row * 17 + r * 6, 3, 2);
+            }
+        }
+
+        // Hazard stripe curb along the top edge
+        ctx.fillStyle = '#FFC107';
+        ctx.fillRect(left, groundY, right - left, 8);
+        ctx.fillStyle = '#212121';
+        const stripeStart = Math.floor(left / 24) * 24;
+        for (let x = stripeStart; x < right; x += 24) {
+            ctx.beginPath();
+            ctx.moveTo(x, groundY + 8);
+            ctx.lineTo(x + 8, groundY);
+            ctx.lineTo(x + 16, groundY);
+            ctx.lineTo(x + 8, groundY + 8);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Tire tracks
+        ctx.fillStyle = 'rgba(60, 50, 40, 0.35)';
+        ctx.fillRect(left, groundY + 40, right - left, 5);
+        ctx.fillRect(left, groundY + 52, right - left, 5);
+
+        // Traffic cones standing just behind the action
+        const coneStart = Math.floor(left / 430) * 430;
+        for (let x = coneStart; x < right; x += 430) {
+            const cx = x + 60 + this.sceneryRand(x, 15) * 200;
+            ctx.fillStyle = '#FF6D00';
+            ctx.beginPath();
+            ctx.moveTo(cx - 8, groundY);
+            ctx.lineTo(cx, groundY - 24);
+            ctx.lineTo(cx + 8, groundY);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(cx - 4.5, groundY - 14, 9, 4);
+            ctx.fillStyle = '#E65100';
+            ctx.fillRect(cx - 11, groundY - 2, 22, 3);
+        }
+    }
+
     renderClouds() {
         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
         
@@ -6059,6 +7836,11 @@ class Game {
     
     renderGround() {
         const groundY = 320; // Ground level
+
+        if (this.currentWorld === 3) {
+            this.renderConstructionGround(groundY);
+            return;
+        }
 
         if (this.currentWorld === 2) {
             // Underground bunker floor - concrete with metal grating
@@ -6455,7 +8237,21 @@ class Enemy {
         this.type = type; // 0 = soldier1, 1 = soldier2, 2 = tank, 3 = sniper, 4 = boss1, 5 = mech, 6 = tower
         this.assets = assets;
 
-        if (type === 6) { // tower - stationary structure; soldiers are separate Enemy instances mounted on top
+        if (type === 7) { // artillery truck - World 3 boss, drawn by Game.drawArtilleryTruck at 1.5x
+            this.width = 357;
+            this.height = 150;
+            this.speed = 1.0;
+            this.sprite = null;
+            this.maxHealth = 60;
+            this.truckScale = 1.5;
+            this.cannonTimer = 120;   // frames until the next artillery shell
+            this.mgTimer = 200;       // frames until the next machine-gun burst
+            this.mgBurstCount = 0;
+            this.recoil = 0;
+            this.barrelAngle = -2.4;  // world-space angle, pointing up and to the left
+            this.wheelRot = 0;
+            this.moving = false;
+        } else         if (type === 6) { // tower - stationary structure; soldiers are separate Enemy instances mounted on top
             this.width = 110;
             this.height = 170;
             this.speed = 0;
@@ -6512,6 +8308,8 @@ class Enemy {
             this.groundY = 229;
         } else if (type === 4) { // boss1
             this.groundY = 150; // Boss tank higher on ground
+        } else if (type === 7) { // artillery truck - wheels on the ground at y=320
+            this.groundY = 170;
         } else if (type === 6) { // tower - pinned so base sits on ground (top ~y=180, bottom ~y=350)
             this.groundY = 180;
         } else { // mech boss
@@ -6525,10 +8323,10 @@ class Enemy {
         
         // Sound properties
         this.lastEngineSound = 0;
-        this.engineSound = (type === 2 || type === 4 || type === 5); // Tanks and bosses make engine sounds
+        this.engineSound = (type === 2 || type === 4 || type === 5 || type === 7); // Tanks and bosses make engine sounds
         
         // Health system
-        if (type === 4 || type === 5) { // boss1 or mech - already set above but make sure
+        if (isBossType(type)) { // bosses - maxHealth already set above but make sure
             if (!this.maxHealth) {
                 this.health = type === 5 ? 35 : 50;
                 this.maxHealth = type === 5 ? 35 : 50;
@@ -6563,6 +8361,8 @@ class Enemy {
             this.pointValue = 150;
         } else if (type === 4) { // boss1
             this.pointValue = 1000;
+        } else if (type === 7) { // artillery truck boss
+            this.pointValue = 2000;
         } else if (type === 6) { // tower
             this.pointValue = 250;
         } else { // mech boss
@@ -6597,6 +8397,11 @@ class Enemy {
         }
 
         if (this.type === 6) { // Tower - stationary structure, no AI
+            return;
+        }
+
+        if (this.type === 7) { // Artillery truck boss has its own AI
+            this.updateArtilleryTruck(player, enemyBullets, game);
             return;
         }
 
@@ -6822,6 +8627,114 @@ class Enemy {
         this.animationFrame += this.animationSpeed;
     }
     
+    // Turret pivot in world space, matching Game.drawArtilleryTruck's layout
+    getTruckPivot() {
+        const s = this.truckScale;
+        const facingRight = !this.facingLeft;
+        return {
+            x: facingRight ? this.x + (238 - 160) * s : this.x + 160 * s,
+            y: 320 - 72 * s
+        };
+    }
+
+    // Artillery truck boss: keeps its distance, lobs shells that land where the player
+    // is standing, and sprays the machine gun when the player gets close. Below half
+    // health it gets angry - fires three-shell spreads, more often.
+    updateArtilleryTruck(player, enemyBullets, game) {
+        const s = this.truckScale;
+        const enraged = this.health <= this.maxHealth / 2;
+        const playerCenter = player.x + player.width / 2;
+        const truckCenter = this.x + this.width / 2;
+        const distance = Math.abs(playerCenter - truckCenter);
+        this.facingLeft = playerCenter < truckCenter;
+
+        // Drive to stay at artillery range (close enough that the whole truck stays on
+        // screen with the camera following the player), never past the force fields
+        const prevX = this.x;
+        const away = this.facingLeft ? 1 : -1;
+        if (distance < 260) {
+            this.x += away * this.speed * (enraged ? 1.6 : 1.2);
+        } else if (distance > 340) {
+            this.x -= away * this.speed * 0.8;
+        }
+        if (game && game.getForceFieldBounds) {
+            const bounds = game.getForceFieldBounds();
+            if (bounds) this.x = Math.max(bounds.left, Math.min(bounds.right - this.width, this.x));
+        }
+        this.moving = this.x !== prevX;
+        this.wheelRot += (this.x - prevX) * 0.08;
+        this.y = this.groundY;
+        this.velocityY = 0;
+        this.onGround = true;
+
+        // Barrel eases toward a lob angle aimed at the player
+        const pivot = this.getTruckPivot();
+        const aim = this.getShellAngle(pivot, playerCenter);
+        this.barrelAngle += (aim - this.barrelAngle) * 0.08;
+        this.recoil = Math.max(0, this.recoil - 1);
+
+        // Artillery cannon
+        this.cannonTimer--;
+        if (this.cannonTimer <= 0) {
+            const offsets = enraged ? [-130, 0, 130] : [0];
+            offsets.forEach(offset => {
+                const targetX = playerCenter + offset + (Math.random() - 0.5) * 60;
+                this.fireArtilleryShell(pivot, targetX, game);
+            });
+            this.recoil = 14;
+            this.cannonTimer = enraged ? 110 : 160;
+            if (game) game.playTankShoot();
+        }
+
+        // Machine gun from the cab when the player gets close - jump over the bullets
+        this.mgTimer--;
+        if (this.mgBurstCount > 0) {
+            if (this.mgTimer % 6 === 0) {
+                const gunX = this.facingLeft ? this.x + 10 * s : this.x + this.width - 10 * s;
+                enemyBullets.push(new EnemyBullet(gunX, 258, !this.facingLeft, 'machinegun'));
+                if (game) game.playEnemyShoot();
+                this.mgBurstCount--;
+            }
+        } else if (this.mgTimer <= 0) {
+            if (distance < 480) {
+                this.mgBurstCount = enraged ? 10 : 7;
+            }
+            this.mgTimer = enraged ? 150 : 220;
+        }
+
+        // Engine rumble
+        if (this.engineSound && game && Date.now() - this.lastEngineSound > 1000) {
+            game.playTankEngine(this);
+        }
+        this.animationFrame += this.animationSpeed;
+    }
+
+    // Launch direction for a shell from the pivot that lands at targetX
+    getShellAngle(pivot, targetX) {
+        const gravity = 0.25;
+        const flightFrames = 75;
+        const vx = (targetX - pivot.x) / flightFrames;
+        const vy = (320 - pivot.y - 0.5 * gravity * flightFrames * flightFrames) / flightFrames;
+        return Math.atan2(vy, vx);
+    }
+
+    // Launch a shell on a ballistic arc that comes down at targetX
+    fireArtilleryShell(pivot, targetX, game) {
+        if (!game) return;
+        const gravity = 0.25;
+        const flightFrames = 75;
+        const barrelLength = 95 * this.truckScale;
+        // Aim from the pivot first, then launch from the muzzle along that line
+        const angle = this.getShellAngle(pivot, targetX);
+        this.barrelAngle = angle;
+        const mx = pivot.x + Math.cos(angle) * barrelLength;
+        const my = pivot.y + Math.sin(angle) * barrelLength;
+        const vx = (targetX - mx) / flightFrames;
+        const vy = (320 - my - 0.5 * gravity * flightFrames * flightFrames) / flightFrames;
+        game.artilleryShells.push(new ArtilleryShell(mx, my, vx, vy, gravity, targetX));
+        game.explosions.push(new Explosion(mx, my)); // muzzle flash
+    }
+
     shoot(player, enemyBullets, game, specialShoot = false) {
         const bulletX = this.x;
         const bulletY = this.y + this.height * 0.5;
@@ -6854,6 +8767,7 @@ class Enemy {
     
     takeDamage(amount) {
         this.health -= amount;
+        this.lastHitTime = Date.now();
         if (this.health <= 0) {
             this.health = 0;
             return true; // Enemy is destroyed
@@ -6865,6 +8779,10 @@ class Enemy {
         if (this.type === 6) {
             this.renderTower(ctx);
             if (this.health < this.maxHealth) this.renderHealthBar(ctx);
+            return;
+        }
+        if (this.type === 7) {
+            this.renderArtilleryTruck(ctx);
             return;
         }
         if (this.sprite) {
@@ -6991,8 +8909,48 @@ class Enemy {
         ctx.restore();
     }
 
+    renderArtilleryTruck(ctx) {
+        if (typeof game === 'undefined') return;
+        const t = Date.now() / 1000;
+        const facingRight = !this.facingLeft;
+        ctx.save();
+        // Flash bright for a moment when hit
+        if (this.lastHitTime && Date.now() - this.lastHitTime < 90) {
+            ctx.filter = 'brightness(1.8)';
+        }
+        game.drawArtilleryTruck(ctx, this.x, 320, {
+            scale: this.truckScale,
+            facingRight,
+            // drawArtilleryTruck takes the barrel angle in the truck's own (unmirrored) frame
+            barrelAngle: facingRight ? Math.PI - this.barrelAngle : this.barrelAngle,
+            recoil: this.recoil,
+            wheelRot: this.wheelRot,
+            moving: this.moving,
+            t
+        });
+        ctx.restore();
+
+        // Smoke and fire pouring off the engine once it's badly damaged
+        if (this.health <= this.maxHealth / 2) {
+            const cabX = facingRight ? this.x + this.width - 60 : this.x + 60;
+            for (let i = 0; i < 5; i++) {
+                const rise = (t * 0.7 + i / 5) % 1;
+                ctx.fillStyle = `rgba(50, 50, 50, ${0.55 * (1 - rise)})`;
+                ctx.beginPath();
+                ctx.arc(cabX + Math.sin(i * 3 + t * 2) * 8, 175 - rise * 90, 8 + rise * 16, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.fillStyle = Math.sin(t * 25) > 0 ? '#FF6F00' : '#FFA000';
+            ctx.beginPath();
+            ctx.arc(cabX, 178, 7 + Math.sin(t * 18) * 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        this.renderHealthBar(ctx);
+    }
+
     renderHealthBar(ctx) {
-        const isBoss = this.type === 4 || this.type === 5;
+        const isBoss = isBossType(this.type);
         const barWidth = isBoss ? this.width * 0.9 : this.width * 0.8;
         const barHeight = isBoss ? 8 : 4;
         const barX = this.x + (this.width - barWidth) / 2;
@@ -7027,6 +8985,65 @@ class Enemy {
             ctx.fillText(healthText, textX, textY);
             ctx.restore();
         }
+    }
+}
+
+// Shell lobbed by the artillery truck boss. Flies on a gravity arc; Game.updateArtilleryShells
+// blows it up when it lands. A red marker on the ground shows where it will come down.
+class ArtilleryShell {
+    constructor(x, y, vx, vy, gravity, targetX) {
+        this.x = x;
+        this.y = y;
+        this.vx = vx;
+        this.vy = vy;
+        this.gravity = gravity;
+        this.targetX = targetX;
+        this.width = 10;
+        this.height = 10;
+        this.damage = 3;
+        this.blastRadius = 70;
+        this.trail = [];
+    }
+
+    update() {
+        this.trail.push({ x: this.x, y: this.y });
+        if (this.trail.length > 8) this.trail.shift();
+        this.vy += this.gravity;
+        this.x += this.vx;
+        this.y += this.vy;
+    }
+
+    render(ctx) {
+        ctx.save();
+
+        // Landing marker - grows more urgent as the shell drops
+        const urgency = Math.min(1, Math.max(0, this.y / 320));
+        const pulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.02);
+        ctx.strokeStyle = `rgba(255, 23, 68, ${0.4 + 0.5 * urgency * pulse})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(this.targetX, 322, this.blastRadius * (0.5 + 0.5 * urgency), 6, 0, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Smoke trail
+        this.trail.forEach((p, i) => {
+            ctx.fillStyle = `rgba(90, 90, 90, ${0.05 * i})`;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 3 + i * 0.6, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        // Shell body pointing along its flight path
+        ctx.translate(this.x, this.y);
+        ctx.rotate(Math.atan2(this.vy, this.vx));
+        ctx.fillStyle = '#37474F';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 9, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FFB300';
+        ctx.fillRect(-9, -2, 4, 4);
+
+        ctx.restore();
     }
 }
 
@@ -8174,6 +10191,99 @@ class DestructibleCrate {
     }
 }
 
+// World 3 concrete jersey barrier - solid obstacle with the same collision as a crate
+class ConcreteBarrier extends WoodenCrate {
+    render(ctx) {
+        ctx.save();
+        const x = this.x, y = this.y, w = this.width, h = this.height;
+
+        // Tapered jersey barrier profile
+        ctx.fillStyle = '#B8B2A7';
+        ctx.beginPath();
+        ctx.moveTo(x, y + h);
+        ctx.lineTo(x + 6, y + h - 14);
+        ctx.lineTo(x + 14, y + 4);
+        ctx.lineTo(x + w - 14, y + 4);
+        ctx.lineTo(x + w - 6, y + h - 14);
+        ctx.lineTo(x + w, y + h);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#8A857C';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Orange and white reflective stripes
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x + 10, y + 12, w - 20, 9);
+        ctx.clip();
+        for (let sx = x - 10; sx < x + w; sx += 16) {
+            ctx.fillStyle = '#FF6D00';
+            ctx.beginPath();
+            ctx.moveTo(sx, y + 21);
+            ctx.lineTo(sx + 8, y + 12);
+            ctx.lineTo(sx + 16, y + 12);
+            ctx.lineTo(sx + 8, y + 21);
+            ctx.closePath();
+            ctx.fill();
+        }
+        ctx.restore();
+
+        // Concrete specks
+        ctx.fillStyle = 'rgba(90, 85, 78, 0.5)';
+        for (let i = 0; i < 5; i++) {
+            ctx.fillRect(x + 12 + ((i * 37) % (w - 24)), y + 26 + (i % 3) * 4, 2, 2);
+        }
+
+        ctx.restore();
+    }
+}
+
+// World 3 pallet of stacked cinder blocks
+class CinderBlockPallet extends WoodenCrate {
+    render(ctx) {
+        ctx.save();
+        const x = this.x, y = this.y, w = this.width, h = this.height;
+
+        // Wooden pallet base
+        ctx.fillStyle = '#A1887F';
+        ctx.fillRect(x, y + h - 7, w, 7);
+        ctx.fillStyle = '#6D4C41';
+        ctx.fillRect(x + 4, y + h - 4, 6, 4);
+        ctx.fillRect(x + w / 2 - 3, y + h - 4, 6, 4);
+        ctx.fillRect(x + w - 10, y + h - 4, 6, 4);
+
+        // Three rows of blocks, staggered like brickwork
+        const rows = 3;
+        const rowH = (h - 7) / rows;
+        for (let r = 0; r < rows; r++) {
+            const by = y + r * rowH;
+            const offset = r % 2 === 0 ? 0 : -10;
+            for (let bx = x + offset; bx < x + w; bx += 20) {
+                const left = Math.max(x, bx);
+                const right = Math.min(x + w, bx + 20);
+                ctx.fillStyle = '#9E9E9E';
+                ctx.fillRect(left, by, right - left, rowH);
+                ctx.strokeStyle = '#6E6E6E';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(left + 0.5, by + 0.5, right - left - 1, rowH - 1);
+                // Hollow cores
+                ctx.fillStyle = '#757575';
+                if (right - left > 12) {
+                    ctx.fillRect(left + 4, by + 3, 4, rowH - 6);
+                    ctx.fillRect(right - 8, by + 3, 4, rowH - 6);
+                }
+            }
+        }
+
+        // Strap holding the stack together
+        ctx.fillStyle = '#1565C0';
+        ctx.fillRect(x + w / 2 - 2, y, 4, h - 7);
+
+        ctx.restore();
+    }
+}
+
 class Platform {
     constructor(x, y, width, height) {
         this.x = x;
@@ -8184,8 +10294,12 @@ class Platform {
     }
     
     render(ctx) {
+        if (this.style === 'girder') {
+            this.renderGirder(ctx);
+            return;
+        }
         ctx.save();
-        
+
         // Platform surface - concrete gray
         ctx.fillStyle = '#808080'; // Gray
         ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -8210,6 +10324,46 @@ class Platform {
         ctx.restore();
     }
     
+    // World 3 steel I-beam: orange-red flanges, darker web with rivets
+    renderGirder(ctx) {
+        ctx.save();
+        const flange = Math.max(4, Math.round(this.height * 0.28));
+
+        // Web
+        ctx.fillStyle = '#8E3B1F';
+        ctx.fillRect(this.x + 3, this.y + flange, this.width - 6, this.height - flange * 2);
+
+        // Top and bottom flanges
+        ctx.fillStyle = '#C8532B';
+        ctx.fillRect(this.x, this.y, this.width, flange);
+        ctx.fillRect(this.x, this.y + this.height - flange, this.width, flange);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+        ctx.fillRect(this.x, this.y, this.width, 1.5);
+
+        // Rivets
+        ctx.fillStyle = '#5A2412';
+        for (let rx = this.x + 8; rx < this.x + this.width - 4; rx += 14) {
+            ctx.beginPath();
+            ctx.arc(rx, this.y + this.height / 2, 1.8, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Overhead girders hang from crane cables
+        if (this.y < 250) {
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(this.x + 12, this.y);
+            ctx.lineTo(this.x + this.width / 2, this.y - 40);
+            ctx.lineTo(this.x + this.width - 12, this.y);
+            ctx.moveTo(this.x + this.width / 2, this.y - 40);
+            ctx.lineTo(this.x + this.width / 2, 0);
+            ctx.stroke();
+        }
+
+        ctx.restore();
+    }
+
     // Check if something is standing on top of platform
     isOnTop(obj) {
         return obj.x + obj.width > this.x &&
