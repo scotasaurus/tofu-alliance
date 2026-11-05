@@ -1453,13 +1453,6 @@ class Game {
                     this.unlockAudio();
                     this.startStory();
                     e.preventDefault();
-                } else if (['1', '2', '3'].includes(e.key) && this.levelData[Number(e.key)]) {
-                    // Shortcut for testing: jump straight into a world's first level, skipping the story
-                    this.unlockAudio();
-                    this.stopTitleMusic();
-                    this.currentWorld = Number(e.key);
-                    this.startGame();
-                    e.preventDefault();
                 } else if (e.key === 't' || e.key === 'T') {
                     // Test sound (for debugging)
                     this.unlockAudio().then(() => {
@@ -4933,12 +4926,6 @@ class Game {
             this.ctx.font = 'bold 12px Arial';
             this.ctx.fillStyle = '#FFFFFF';
             this.ctx.fillText('Arrow keys to move | X to shoot | Space to jump', this.canvas.width / 2, 220);
-            
-            // World-jump shortcut hint, in the corner clear of the high scores box
-            this.ctx.fillStyle = '#FFFF00';
-            this.ctx.font = 'bold 12px Arial';
-            this.ctx.textAlign = 'left';
-            this.ctx.fillText('Press 1, 2 or 3 to jump to a world', 12, this.canvas.height - 10);
         }
         this.ctx.restore();
         
