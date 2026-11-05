@@ -4,6 +4,14 @@ function isBossType(type) {
     return type === 4 || type === 5 || type === 7;
 }
 
+// True when the game is opened from this computer (index.html as a file, or a local
+// server) rather than the live website. Testing shortcuts are only enabled locally.
+function isLocalPlay() {
+    const host = window.location.hostname;
+    return window.location.protocol === 'file:' ||
+           host === 'localhost' || host === '127.0.0.1' || host === '[::1]';
+}
+
 class Game {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
@@ -1172,12 +1180,204 @@ class Game {
                         { x: 7800, y: 280, width: 40, points: 100 }
                     ]
                 }
+            },
+            4: {
+                // World 4 - The Mountain Range. barbedWire entries become boulders,
+                // warehouseCrates become log piles, and platforms are drawn as rocky ledges.
+                1: {
+                    name: "Foothills",
+                    startX: 0,
+                    endX: 7500,
+                    enemies: [
+                        // Trailhead patrol (past the monorail wreck camp)
+                        { type: 0, x: 1000, y: 280 },
+                        { type: 1, x: 1400, y: 280 },
+                        { type: 3, x: 1250, y: 280 },  // Sniper on the ridge
+                        { type: 0, x: 1550, y: 280 },
+                        { type: 1, x: 1800, y: 300 },  // Elevated
+                        // Pine forest
+                        { type: 2, x: 2300, y: 280 },  // Tank
+                        { type: 0, x: 2650, y: 280 },
+                        { type: 3, x: 2950, y: 280 },  // Sniper
+                        { type: 6, x: 3400, y: 180 },  // Watchtower
+                        { type: 1, x: 3850, y: 280 },
+                        // River crossing
+                        { type: 2, x: 4300, y: 280 },  // Tank
+                        { type: 0, x: 4650, y: 280 },
+                        { type: 1, x: 4900, y: 300 },  // Elevated
+                        { type: 3, x: 5250, y: 280 },  // Sniper
+                        // Base camp
+                        { type: 2, x: 5700, y: 280 },  // Tank
+                        { type: 0, x: 6000, y: 280 },
+                        { type: 6, x: 6600, y: 180 },  // Watchtower - guards level end
+                        { type: 1, x: 7100, y: 280 }
+                    ],
+                    sandbags: [
+                        { x: 1700, y: 280 },
+                        { x: 3200, y: 280 },
+                        { x: 4800, y: 280 },
+                        { x: 6100, y: 280 }
+                    ],
+                    platforms: [
+                        { x: 1770, y: 300, width: 80, height: 20 },
+                        { x: 3270, y: 300, width: 80, height: 20 },
+                        { x: 4870, y: 300, width: 80, height: 20 },
+                        { x: 6170, y: 300, width: 80, height: 20 }
+                    ],
+                    barbedWire: [
+                        { x: 1100, y: 280, width: 60 },
+                        { x: 2500, y: 280, width: 70 },
+                        { x: 3700, y: 280, width: 60 },
+                        { x: 5450, y: 280, width: 70 },
+                        { x: 6400, y: 280, width: 60 }
+                    ],
+                    warehouseCrates: [
+                        { x: 450, y: 280, width: 60 },
+                        { x: 2800, y: 280, width: 55 },
+                        { x: 4500, y: 280, width: 60 },
+                        { x: 6900, y: 280, width: 55 }
+                    ],
+                    destructibleCrates: [
+                        { x: 800, y: 280, width: 40, points: 100 },
+                        { x: 2100, y: 280, width: 40, points: 100 },
+                        { x: 3550, y: 280, width: 40, points: 100 },
+                        { x: 5100, y: 280, width: 40, points: 100 },
+                        { x: 6300, y: 280, width: 40, points: 100 }
+                    ]
+                },
+                2: {
+                    name: "Snowy Pass",
+                    startX: 0,
+                    endX: 9000,
+                    enemies: [
+                        // Avalanche gate
+                        { type: 1, x: 550, y: 280 },
+                        { type: 3, x: 800, y: 280 },   // Sniper
+                        { type: 2, x: 1150, y: 280 },  // Tank
+                        { type: 0, x: 1450, y: 280 },
+                        { type: 1, x: 1700, y: 300 },  // Elevated
+                        // Frozen switchbacks
+                        { type: 3, x: 2200, y: 280 },  // Sniper
+                        { type: 2, x: 2550, y: 280 },  // Tank
+                        { type: 0, x: 2850, y: 280 },
+                        { type: 6, x: 3300, y: 180 },  // Watchtower
+                        { type: 1, x: 3750, y: 280 },
+                        { type: 2, x: 4150, y: 280 },  // Tank
+                        // Ice caves
+                        { type: 3, x: 4600, y: 280 },  // Sniper
+                        { type: 0, x: 4900, y: 280 },
+                        { type: 1, x: 5150, y: 300 },  // Elevated
+                        { type: 2, x: 5550, y: 280 },  // Tank
+                        { type: 6, x: 6100, y: 180 },  // Watchtower
+                        // High pass
+                        { type: 3, x: 6700, y: 280 },  // Sniper
+                        { type: 2, x: 7100, y: 280 },  // Tank
+                        { type: 0, x: 7450, y: 280 },
+                        { type: 1, x: 7800, y: 300 },  // Elevated
+                        { type: 2, x: 8250, y: 280 },  // Tank
+                        { type: 0, x: 8650, y: 280 }
+                    ],
+                    sandbags: [
+                        { x: 1600, y: 280 },
+                        { x: 3600, y: 280 },
+                        { x: 5050, y: 280 },
+                        { x: 7700, y: 280 }
+                    ],
+                    platforms: [
+                        { x: 1670, y: 300, width: 80, height: 20 },
+                        { x: 3670, y: 300, width: 80, height: 20 },
+                        { x: 5120, y: 300, width: 80, height: 20 },
+                        { x: 7770, y: 300, width: 80, height: 20 }
+                    ],
+                    barbedWire: [
+                        { x: 1000, y: 280, width: 70 },
+                        { x: 2400, y: 280, width: 60 },
+                        { x: 4000, y: 280, width: 70 },
+                        { x: 5800, y: 280, width: 60 },
+                        { x: 6950, y: 280, width: 70 },
+                        { x: 8450, y: 280, width: 60 }
+                    ],
+                    warehouseCrates: [
+                        { x: 300, y: 280, width: 60 },
+                        { x: 3050, y: 280, width: 55 },
+                        { x: 6400, y: 280, width: 60 },
+                        { x: 8050, y: 280, width: 55 }
+                    ],
+                    destructibleCrates: [
+                        { x: 1300, y: 280, width: 40, points: 100 },
+                        { x: 2700, y: 280, width: 40, points: 100 },
+                        { x: 4400, y: 280, width: 40, points: 100 },
+                        { x: 5950, y: 280, width: 40, points: 100 },
+                        { x: 7300, y: 280, width: 40, points: 100 },
+                        { x: 8600, y: 280, width: 40, points: 100 }
+                    ]
+                },
+                3: {
+                    name: "The Summit",
+                    startX: 0,
+                    endX: 11000,
+                    enemies: [
+                        // Climb to the summit
+                        { type: 2, x: 700, y: 280 },   // Tank
+                        { type: 3, x: 950, y: 280 },   // Sniper
+                        { type: 1, x: 1200, y: 300 },  // Elevated
+                        { type: 0, x: 1450, y: 280 },
+                        { type: 2, x: 1800, y: 280 },  // Tank
+                        { type: 6, x: 2400, y: 180 },  // Watchtower
+                        { type: 3, x: 2850, y: 280 },  // Sniper
+                        { type: 2, x: 3150, y: 280 },  // Tank
+                        { type: 1, x: 3450, y: 300 },  // Elevated
+                        { type: 0, x: 3750, y: 280 },
+                        // Summit fortress
+                        { type: 2, x: 4300, y: 280 },  // Tank
+                        { type: 3, x: 4600, y: 280 },  // Sniper
+                        { type: 6, x: 5200, y: 180 },  // Watchtower
+                        { type: 1, x: 5700, y: 280 },
+                        { type: 2, x: 6100, y: 280 },  // Tank
+                        { type: 3, x: 6500, y: 280 },  // Sniper
+                        { type: 0, x: 6900, y: 280 },
+                        // Boss on the mountaintop
+                        { type: 4, x: 9600, y: 280 }   // Boss tank
+                    ],
+                    sandbags: [
+                        { x: 1100, y: 280 },
+                        { x: 3350, y: 280 },
+                        { x: 6400, y: 280 },
+                        { x: 8200, y: 280 }
+                    ],
+                    platforms: [
+                        { x: 1170, y: 300, width: 80, height: 20 },
+                        { x: 3420, y: 300, width: 80, height: 20 },
+                        { x: 6470, y: 300, width: 80, height: 20 },
+                        { x: 8270, y: 300, width: 120, height: 20 }
+                    ],
+                    barbedWire: [
+                        { x: 1600, y: 280, width: 70 },
+                        { x: 3600, y: 280, width: 60 },
+                        { x: 5450, y: 280, width: 70 },
+                        { x: 7200, y: 280, width: 90 }
+                    ],
+                    warehouseCrates: [
+                        { x: 450, y: 280, width: 60 },
+                        { x: 2600, y: 280, width: 55 },
+                        { x: 4900, y: 280, width: 60 },
+                        { x: 6700, y: 280, width: 55 }
+                    ],
+                    destructibleCrates: [
+                        { x: 1350, y: 280, width: 40, points: 125 },
+                        { x: 3000, y: 280, width: 40, points: 125 },
+                        { x: 4450, y: 280, width: 40, points: 125 },
+                        { x: 5950, y: 280, width: 40, points: 125 },
+                        { x: 7600, y: 280, width: 40, points: 125 }
+                    ]
+                }
             }
         };
     }
     
     startLevel(levelNumber) {
         this.currentLevel = levelNumber;
+        this.monorailCrew = null;
         this.currentLevelData = this.levelData[this.currentWorld][levelNumber];
         this.levelSpawnIndex = 0;
         this.levelComplete = false;
@@ -1226,6 +1426,7 @@ class Game {
             for (const platformData of this.currentLevelData.platforms) {
                 const platform = new Platform(platformData.x, platformData.y, platformData.width, platformData.height);
                 if (this.currentWorld === 3) platform.style = 'girder';
+                if (this.currentWorld === 4) platform.style = 'rock';
                 this.platforms.push(platform);
             }
         }
@@ -1240,6 +1441,9 @@ class Game {
                 } else if (this.currentWorld === 3) {
                     // Concrete jersey barriers for World 3 (same solid collision as crates)
                     this.woodenCrates.push(new ConcreteBarrier(wireData.x, 280, wireData.width));
+                } else if (this.currentWorld === 4) {
+                    // Mountain boulders for World 4
+                    this.woodenCrates.push(new Boulder(wireData.x, 280, wireData.width));
                 } else {
                     // Use barbed wire for World 1
                     this.barbedWire.push(new BarbedWire(wireData.x, wireData.y, wireData.width));
@@ -1251,7 +1455,7 @@ class Game {
         if (this.currentLevelData.warehouseCrates) {
             for (const crateData of this.currentLevelData.warehouseCrates) {
                 // Ground level is 320, crate height is 40, so crate Y should be 280
-                const CrateClass = this.currentWorld === 3 ? CinderBlockPallet : WoodenCrate;
+                const CrateClass = this.currentWorld === 3 ? CinderBlockPallet : this.currentWorld === 4 ? LogPile : WoodenCrate;
                 this.warehouseCrates.push(new CrateClass(crateData.x, 280, crateData.width));
             }
         }
@@ -1305,8 +1509,8 @@ class Game {
             // Only spawn enemies that are ahead of the player and in view range
             if (enemy.x > playerX && enemy.x <= spawnRange) {
                 // Check if this is the boss - trigger cutscene
-                if ((enemy.type === 4 || enemy.type === 7) && !this.bossCutsceneActive) {
-                    this.triggerBossCutscene();
+                if (isBossType(enemy.type) && !this.bossCutsceneActive) {
+                    this.triggerBossCutscene(enemy.type);
                     return; // Don't spawn the boss yet, wait for cutscene to finish
                 }
                 
@@ -1440,6 +1644,15 @@ class Game {
     }
 
     setupEventListeners() {
+        // Go quiet when the tab is hidden, so a game left open in another tab never plays over this one.
+        // The music watchdogs in update()/render() start the right track again once the tab is visible.
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) return;
+            this.stopBossMusic();
+            this.stopGameplayMusic();
+            this.stopTitleMusic();
+        });
+
         window.addEventListener('keydown', (e) => {
             // Handle initial entry mode
             if (this.enteringInitials) {
@@ -1449,9 +1662,32 @@ class Game {
             
             // Handle different game states
             if (this.gameState === 'title') {
+                // Browsers keep the page silent until the first key or click, so on desktop the
+                // first press just turns the sound on and starts the title tune
+                const worldJump = isLocalPlay() && ['1', '2', '3', '4', 't', 'T'].includes(e.key);
+                if (!this.audioUnlocked && !worldJump && !this.isMobileDevice()) {
+                    this.unlockAudio().then(() => this.startTitleMusic()).catch(() => {});
+                    e.preventDefault();
+                    return;
+                }
                 if (e.key === ' ' || e.key === 'Enter') {
                     this.unlockAudio();
                     this.startStory();
+                    e.preventDefault();
+                } else if (isLocalPlay() && ['1', '2', '3', '4'].includes(e.key) && this.levelData[Number(e.key)]) {
+                    // Local testing shortcut: jump straight into a world's first level, skipping the story
+                    this.unlockAudio();
+                    this.stopTitleMusic();
+                    this.currentWorld = Number(e.key);
+                    this.startGame();
+                    e.preventDefault();
+                } else if (isLocalPlay() && (e.key === 't' || e.key === 'T')) {
+                    // Local testing shortcut: jump straight to the World 3 -> 4 train escape scene
+                    this.unlockAudio();
+                    this.stopTitleMusic();
+                    this.currentWorld = 4;
+                    this.startGame();
+                    this.startTrainIntro();
                     e.preventDefault();
                 } else if (e.key === 't' || e.key === 'T') {
                     // Test sound (for debugging)
@@ -1469,6 +1705,16 @@ class Game {
             } else if (this.gameState === 'heliIntro') {
                 if (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape') {
                     this.endHeliIntro();
+                    e.preventDefault();
+                }
+            } else if (this.gameState === 'bunkerIntro') {
+                if (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape') {
+                    this.skipBunkerIntro();
+                    e.preventDefault();
+                }
+            } else if (this.gameState === 'trainIntro') {
+                if (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape') {
+                    this.skipTrainIntro();
                     e.preventDefault();
                 }
             } else if (this.gameState === 'bossCutscene') {
@@ -1688,6 +1934,10 @@ class Game {
             this.nextStorySlide();
         } else if (this.gameState === 'heliIntro') {
             this.endHeliIntro();
+        } else if (this.gameState === 'bunkerIntro') {
+            this.skipBunkerIntro();
+        } else if (this.gameState === 'trainIntro') {
+            this.skipTrainIntro();
         } else if (this.gameState === 'gameOver' && !this.enteringInitials) {
             this.returnToTitle();
         } else if (this.gameState === 'levelComplete') {
@@ -1806,6 +2056,12 @@ class Game {
                 }
             }
             
+            // First click on desktop only turns the sound on (the browser blocks it until then)
+            if (!isMobile && !this.audioUnlocked) {
+                this.unlockAudio().then(() => this.startTitleMusic()).catch(() => {});
+                return;
+            }
+            
             // Regular click - start story
             this.unlockAudio().then(() => {
                 this.startStory();
@@ -1816,6 +2072,10 @@ class Game {
             this.nextStorySlide();
         } else if (this.gameState === 'heliIntro') {
             this.endHeliIntro();
+        } else if (this.gameState === 'bunkerIntro') {
+            this.skipBunkerIntro();
+        } else if (this.gameState === 'trainIntro') {
+            this.skipTrainIntro();
         } else if (this.gameState === 'gameOver' && !this.enteringInitials) {
             this.returnToTitle();
         } else if (this.gameState === 'levelComplete') {
@@ -1943,6 +2203,9 @@ class Game {
         // Objective: reach the crashed helicopter
         this.checkHeliWreck();
 
+        // Tofu's friends at the World 4 monorail wreck fire on nearby enemies
+        this.updateMonorailCrew();
+
         // Handle mobile shooting (simulate X key press)
         if (this.keys['x']) {
             if (this.player.shoot(this.bullets)) {
@@ -1953,9 +2216,10 @@ class Game {
         // Check for game over
         if (this.player.health <= 0) {
             if (this.gameState === 'playing') {
+                // Switch state first so stopBossMusic does not restart the world music
+                this.gameState = 'gameOver';
                 this.stopGameplayMusic();
                 this.stopBossMusic();
-                this.gameState = 'gameOver';
                 this.gameOver = true;
                 // Check if this is a high score
                 const highScorePosition = this.checkHighScore(this.score);
@@ -3317,6 +3581,10 @@ class Game {
         });
     }
     
+    isMobileDevice() {
+        return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+    
     startTitleMusic() {
         if (!this.audioContext || this.titleMusicPlaying || !this.audioUnlocked) {
             // Silently fail if audio not unlocked yet - user doesn't need to know
@@ -3324,7 +3592,9 @@ class Game {
         }
         
         this.titleMusicPlaying = true;
-        this.playTitleMelody();
+        // New loop id so an old loop still waiting on its timer stops instead of doubling up
+        this.titleLoopId = (this.titleLoopId || 0) + 1;
+        this.playTitleMelody(this.titleLoopId);
     }
     
     stopTitleMusic() {
@@ -3338,8 +3608,8 @@ class Game {
         this.titleMusicPlaying = false;
     }
     
-    playTitleMelody() {
-        if (!this.audioContext || !this.titleMusicPlaying) return;
+    playTitleMelody(loopId) {
+        if (!this.audioContext || !this.titleMusicPlaying || loopId !== this.titleLoopId) return;
         
         // Simple, clean melody
         const melody = [
@@ -3377,7 +3647,7 @@ class Game {
         // Schedule next loop - simple 4 second repeat
         setTimeout(() => {
             if (this.gameState === 'title' && this.titleMusicPlaying) {
-                this.playTitleMelody();
+                this.playTitleMelody(loopId);
             }
         }, 4000);
     }
@@ -3415,6 +3685,8 @@ class Game {
             this.gameplayMusicGain = null;
         }
         this.gameplayMusicPlaying = false;
+        // Cut off any notes already queued (World 4 schedules a whole loop ahead)
+        if (this.audioContext) this.fadeOutMusicBus('gameplay');
     }
     
     startStoryMusic(slideIndex) {
@@ -3659,6 +3931,10 @@ class Game {
         }
         if (this.currentWorld === 3) {
             this.playConstructionTrack();
+            return;
+        }
+        if (this.currentWorld === 4) {
+            this.playMountainTrack();
             return;
         }
 
@@ -4151,6 +4427,78 @@ class Game {
         this.scheduleGameplayLoop(11000);
     }
 
+    // World 4 - bold, open mountain anthem in G major: triangle lead over a marching bass
+    playMountainTrack() {
+        if (!this.audioContext || !this.gameplayMusicPlaying) return;
+        const ac = this.audioContext;
+        const now = ac.currentTime;
+
+        const playTone = (freq, start, duration, type, volume) => {
+            const osc = ac.createOscillator();
+            const gain = ac.createGain();
+            osc.connect(gain);
+            gain.connect(this.getMusicBus('gameplay'));
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, start);
+            gain.gain.setValueAtTime(0, start);
+            gain.gain.linearRampToValueAtTime(volume, start + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+            osc.start(start);
+            osc.stop(start + duration + 0.02);
+        };
+
+        // Soaring lead - fits inside the 4 second loop
+        const melody = [
+            { note: 392, time: 0.0, duration: 0.45 },  // G4
+            { note: 494, time: 0.5, duration: 0.45 },  // B4
+            { note: 587, time: 1.0, duration: 0.7 },   // D5
+            { note: 659, time: 1.75, duration: 0.25 }, // E5
+            { note: 587, time: 2.0, duration: 0.45 },  // D5
+            { note: 494, time: 2.5, duration: 0.45 },  // B4
+            { note: 523, time: 3.0, duration: 0.45 },  // C5
+            { note: 440, time: 3.5, duration: 0.45 }   // A4
+        ];
+        melody.forEach(n => playTone(n.note, now + n.time, n.duration, 'triangle', 0.12));
+        // Echo an octave down for a big open sound
+        melody.forEach(n => playTone(n.note / 2, now + n.time + 0.02, n.duration, 'square', 0.03));
+
+        // Marching bass, one root per beat pair: G, G, C, D
+        const roots = [98, 98, 131, 147];
+        for (let i = 0; i < 8; i++) {
+            playTone(roots[Math.floor(i / 2)], now + i * 0.5, 0.4, 'sawtooth', 0.05);
+        }
+
+        // Tom-style drums from filtered noise: kick on 1 and 3, snare roll at the end
+        const drums = [0, 1, 2, 3].map(beat => ({ type: 'kick', time: beat }));
+        [0.5, 1.5, 2.5, 3.5, 3.75].forEach(time => drums.push({ type: 'snare', time }));
+        drums.forEach(drum => {
+            const noise = ac.createBufferSource();
+            const buffer = ac.createBuffer(1, ac.sampleRate * 0.1, ac.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < buffer.length; i++) data[i] = Math.random() * 2 - 1;
+            noise.buffer = buffer;
+            const filter = ac.createBiquadFilter();
+            const gain = ac.createGain();
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.getMusicBus('gameplay'));
+            const start = now + drum.time;
+            if (drum.type === 'kick') {
+                filter.frequency.setValueAtTime(100, start);
+                gain.gain.setValueAtTime(0.22, start);
+                gain.gain.exponentialRampToValueAtTime(0.01, start + 0.15);
+            } else {
+                filter.frequency.setValueAtTime(1500, start);
+                gain.gain.setValueAtTime(0.1, start);
+                gain.gain.exponentialRampToValueAtTime(0.01, start + 0.09);
+            }
+            noise.start(start);
+            noise.stop(start + 0.1);
+        });
+
+        this.scheduleGameplayLoop(4000);
+    }
+
     // World 3 - funky construction-site groove in D minor with clanging metal hits
     playConstructionTrack() {
         if (!this.audioContext || !this.gameplayMusicPlaying) return;
@@ -4500,6 +4848,8 @@ class Game {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
         if (this.gameState === 'title') {
+            // The home screen only ever plays the title tune
+            if (this.gameplayMusicPlaying) this.stopGameplayMusic();
             if (!this.titleMusicPlaying && this.audioUnlocked) {
                 this.startTitleMusic();
             }
@@ -4518,6 +4868,16 @@ class Game {
         
         if (this.gameState === 'heliIntro') {
             this.renderHeliIntro();
+            return;
+        }
+
+        if (this.gameState === 'bunkerIntro') {
+            this.renderBunkerIntro();
+            return;
+        }
+
+        if (this.gameState === 'trainIntro') {
+            this.renderTrainIntro();
             return;
         }
 
@@ -4563,6 +4923,9 @@ class Game {
 
         // Crashed helicopter (World 1 Level 1 objective)
         this.renderHeliWreck();
+
+        // Wrecked monorail and the waiting crew (World 4 Level 1 start)
+        this.renderMonorailCamp();
 
         this.player.render(this.ctx);
         
@@ -4926,6 +5289,30 @@ class Game {
             this.ctx.font = 'bold 12px Arial';
             this.ctx.fillStyle = '#FFFFFF';
             this.ctx.fillText('Arrow keys to move | X to shoot | Space to jump', this.canvas.width / 2, 220);
+            
+            if (!this.audioUnlocked) {
+                // Blink a reminder until the first key/click turns the sound on
+                if (Math.floor(Date.now() / 600) % 2 === 0) {
+                    const hint = '\u266A Press any key or click to turn on the music \u266A';
+                    this.ctx.save();
+                    this.ctx.globalAlpha = 1;
+                    this.ctx.font = 'bold 18px Arial';
+                    this.ctx.lineWidth = 4;
+                    this.ctx.strokeStyle = '#3A2200';
+                    this.ctx.strokeText(hint, this.canvas.width / 2, 152);
+                    this.ctx.fillStyle = '#FFD24A';
+                    this.ctx.fillText(hint, this.canvas.width / 2, 152);
+                    this.ctx.restore();
+                }
+            }
+            
+            // World-jump shortcut hint (local play only), in the corner clear of the high scores box
+            if (isLocalPlay()) {
+                this.ctx.fillStyle = '#FFFF00';
+                this.ctx.font = 'bold 12px Arial';
+                this.ctx.textAlign = 'left';
+                this.ctx.fillText('Press 1-4 to jump to a world | T for the train scene', 12, this.canvas.height - 10);
+            }
         }
         this.ctx.restore();
         
@@ -5528,6 +5915,1167 @@ class Game {
         this.player.velocityX = 0;
         this.player.velocityY = 0;
         this.player.facingRight = true;
+    }
+
+    // World 1 -> World 2 transition: Tofu finds a hatch, slides down a rope into a deep
+    // shaft, runs out of rope, and drops into the secret bunker
+    startBunkerIntro() {
+        this.gameState = 'bunkerIntro';
+        this.camera.x = 0;
+        this.bunkerIntro = {
+            startTime: Date.now(),
+            duration: 9,
+            landed: false
+        };
+    }
+
+    // Ignore skips for a moment so the key or tap that left the level-complete screen
+    // doesn't skip the animation straight away
+    skipBunkerIntro() {
+        if (this.bunkerIntro && Date.now() - this.bunkerIntro.startTime > 500) {
+            this.endBunkerIntro();
+        }
+    }
+    
+    endBunkerIntro() {
+        this.gameState = 'playing';
+        this.bunkerIntro = null;
+        this.camera.x = this.currentLevelData.startX;
+        this.player.x = this.currentLevelData.startX + 100;
+        this.player.y = 220;
+        this.player.velocityX = 0;
+        this.player.velocityY = 0;
+        this.player.facingRight = true;
+        this.player.isMoving = false;
+    }
+
+    renderBunkerIntro() {
+        const intro = this.bunkerIntro;
+        const t = (Date.now() - intro.startTime) / 1000;
+        if (t >= intro.duration) {
+            this.endBunkerIntro();
+            return;
+        }
+
+        const ctx = this.ctx;
+        const W = this.canvas.width;
+        const H = this.canvas.height;
+        const groundY = 320;
+        const hatchX = 460;
+        const player = this.player;
+        player.facingRight = true;
+
+        // Draws Tofu with an optional spin around its center
+        const drawTofu = (x, y, spin = 0) => {
+            player.x = x;
+            player.y = y;
+            ctx.save();
+            if (spin) {
+                ctx.translate(x + player.width / 2, y + player.height / 2);
+                ctx.rotate(spin);
+                ctx.translate(-(x + player.width / 2), -(y + player.height / 2));
+            }
+            player.render(ctx);
+            ctx.restore();
+        };
+
+        let caption = '';
+        let shake = 0;
+
+        if (t < 3.0) {
+            // --- Surface: walk up to the hatch and climb down the rope ---
+            const savedWorld = this.currentWorld;
+            this.currentWorld = 1; // still on the World 1 surface
+            this.renderBackground();
+            ctx.save();
+            this.renderGround();
+            this.currentWorld = savedWorld;
+
+            // Open hatch: dark hole, metal rim, lid flipped back, rope tied to a post
+            ctx.fillStyle = '#111';
+            ctx.beginPath();
+            ctx.ellipse(hatchX, groundY + 4, 48, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#7D7D7D';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            ctx.fillStyle = '#5F6B4A';
+            ctx.beginPath();
+            ctx.moveTo(hatchX + 40, groundY + 2);
+            ctx.lineTo(hatchX + 62, groundY - 44);
+            ctx.lineTo(hatchX + 76, groundY - 40);
+            ctx.lineTo(hatchX + 56, groundY + 4);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#FFC107';
+            ctx.fillRect(hatchX - 56, groundY - 2, 10, 6);
+            ctx.fillStyle = '#6D4C41';
+            ctx.fillRect(hatchX - 70, groundY - 34, 8, 36);
+
+            // Rope from the post, over the rim and down the hole
+            const ropeSway = Math.sin(t * 3) * 2;
+            ctx.strokeStyle = '#A1887F';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(hatchX - 66, groundY - 30);
+            ctx.quadraticCurveTo(hatchX - 30, groundY - 12, hatchX + ropeSway, groundY + 2);
+            ctx.stroke();
+
+            if (t < 1.8) {
+                // Walk in from the left
+                const k = t / 1.8;
+                player.isMoving = true;
+                player.onGround = true;
+                player.animationFrame = t * 10;
+                drawTofu(-60 + (hatchX - 40 - -60) * k, 220);
+                caption = 'Tofu found a secret hatch...';
+            } else {
+                // Grab the rope and slide down - clip everything below the ground line
+                player.isMoving = false;
+                const k = Math.min(1, (t - 1.8) / 1.2);
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(0, 0, W, groundY + 4);
+                ctx.clip();
+                drawTofu(hatchX - 40, 220 + k * k * 130);
+                ctx.restore();
+                caption = 'Grab the rope!';
+            }
+            ctx.restore();
+        } else if (t < 5.6) {
+            // --- Shaft: concrete walls rush past as Tofu slides, then the rope runs out ---
+            const shaftT = t - 3.0;
+            const falling = shaftT > 1.8;
+            const speed = falling ? 900 + (shaftT - 1.8) * 900 : 350;
+            const scroll = falling
+                ? 350 * 1.8 + 900 * (shaftT - 1.8) + 450 * Math.pow(shaftT - 1.8, 2)
+                : 350 * shaftT;
+
+            const grad = ctx.createLinearGradient(0, 0, W, 0);
+            grad.addColorStop(0, '#1b1b1b');
+            grad.addColorStop(0.5, '#2c2c2c');
+            grad.addColorStop(1, '#1b1b1b');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, W, H);
+
+            // Shaft walls with seams and warning lights scrolling upward
+            const wallW = 230;
+            ctx.fillStyle = '#3d3d3d';
+            ctx.fillRect(0, 0, wallW, H);
+            ctx.fillRect(W - wallW, 0, wallW, H);
+            ctx.strokeStyle = '#2a2a2a';
+            ctx.lineWidth = 3;
+            const seamGap = 80;
+            for (let y = -(scroll % seamGap); y < H; y += seamGap) {
+                ctx.beginPath();
+                ctx.moveTo(0, y); ctx.lineTo(wallW, y);
+                ctx.moveTo(W - wallW, y); ctx.lineTo(W, y);
+                ctx.stroke();
+            }
+            const lightGap = 260;
+            for (let y = -(scroll % lightGap); y < H; y += lightGap) {
+                ctx.fillStyle = '#FF3D00';
+                ctx.fillRect(wallW - 14, y + 30, 10, 18);
+                ctx.fillRect(W - wallW + 4, y + 150, 10, 18);
+            }
+            // Speed streaks once falling
+            if (falling) {
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+                ctx.lineWidth = 2;
+                for (let i = 0; i < 8; i++) {
+                    const sx = wallW + 20 + ((i * 97) % (W - 2 * wallW - 40));
+                    const sy = (i * 61 + scroll * 0.6) % H;
+                    ctx.beginPath();
+                    ctx.moveTo(sx, sy);
+                    ctx.lineTo(sx, sy + 40 + speed * 0.03);
+                    ctx.stroke();
+                }
+            }
+
+            const tofuX = W / 2 - player.width / 2;
+            const ropeX = W / 2 + 4;
+            if (!falling) {
+                // Rope runs the whole height while sliding
+                ctx.strokeStyle = '#A1887F';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(ropeX, 0);
+                ctx.lineTo(ropeX, H);
+                ctx.stroke();
+                drawTofu(tofuX, 140);
+                caption = 'Down, down, down...';
+            } else {
+                // Frayed rope end shoots up out of view; Tofu tumbles
+                const ropeEnd = 120 - (scroll - 350 * 1.8);
+                if (ropeEnd > -20) {
+                    ctx.strokeStyle = '#A1887F';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(ropeX, 0);
+                    ctx.lineTo(ropeX, ropeEnd);
+                    ctx.stroke();
+                }
+                const fall = Math.min(1, (shaftT - 1.8) / 2);
+                drawTofu(tofuX + Math.sin(shaftT * 9) * 6, 140 + fall * 60, (shaftT - 1.8) * 5);
+                caption = 'The rope ran out! AAAAAH!';
+            }
+        } else {
+            // --- Bunker: drop through the ceiling hatch and crash-land on the floor ---
+            this.renderBackground();
+            ctx.save();
+            const landT = 6.2;
+            const landedFor = t - landT;
+            if (landedFor >= 0 && landedFor < 0.4) {
+                shake = (1 - landedFor / 0.4) * 8;
+            }
+            ctx.translate(Math.sin(t * 60) * shake, Math.cos(t * 50) * shake);
+            this.renderGround();
+
+            // Ceiling hatch with the end of the rope dangling out
+            const holeX = 140;
+            ctx.fillStyle = '#0d0d0d';
+            ctx.beginPath();
+            ctx.ellipse(holeX, 58, 44, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#6b6b6b';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            const startX = holeX - player.width / 2;
+            if (t < landT) {
+                // Falling in from the ceiling
+                const k = (t - 5.6) / (landT - 5.6);
+                drawTofu(startX, -100 + k * k * 320, (1 - k) * 1.5);
+                caption = 'AAAAAH!';
+            } else {
+                if (!intro.landed) {
+                    intro.landed = true;
+                    this.playMineExplosion();
+                }
+                // Squash on impact, then stand back up
+                const squash = landedFor < 0.3 ? 1 - landedFor / 0.3 : 0;
+                ctx.save();
+                ctx.translate(startX + player.width / 2, 320);
+                ctx.scale(1 + squash * 0.25, 1 - squash * 0.3);
+                ctx.translate(-(startX + player.width / 2), -320);
+                drawTofu(startX, 220);
+                ctx.restore();
+
+                // Dust cloud from the landing
+                if (landedFor < 1.2) {
+                    const k = landedFor / 1.2;
+                    for (let i = 0; i < 6; i++) {
+                        const dir = i < 3 ? -1 : 1;
+                        ctx.fillStyle = `rgba(150, 150, 150, ${0.6 * (1 - k)})`;
+                        ctx.beginPath();
+                        ctx.arc(holeX + dir * (20 + (i % 3) * 22 + k * 50), 312 - (i % 3) * 6 - k * 10, 10 + k * 16, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+                caption = 'Welcome to the SECRET BUNKER!';
+            }
+            ctx.restore();
+        }
+
+        // Cinematic bars, caption and skip hint
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, W, 36);
+        ctx.fillRect(0, H - 36, W, 36);
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 20px Arial';
+        ctx.fillStyle = caption.includes('AAAA') ? '#FF5252' : '#FFFFFF';
+        ctx.fillText(caption, W / 2, 25);
+        ctx.font = '12px Arial';
+        ctx.fillStyle = '#AAAAAA';
+        ctx.textAlign = 'right';
+        ctx.fillText('SPACE / tap to skip', W - 12, H - 14);
+        ctx.restore();
+    }
+
+    // World 3 -> World 4 transition: Tofu hops onto his friends' train, it races out of the
+    // city into the mountains, Popcorn's Apache blows up the bridge and the train plunges
+    // into the mountain range below
+    startTrainIntro() {
+        this.gameState = 'trainIntro';
+        this.camera.x = 0;
+        this.trainIntro = {
+            startTime: Date.now(),
+            missileSoundPlayed: false,
+            blastSoundPlayed: false,
+            crashSoundPlayed: false
+        };
+    }
+
+    skipTrainIntro() {
+        if (this.trainIntro && Date.now() - this.trainIntro.startTime > 500) {
+            this.endTrainIntro();
+        }
+    }
+
+    endTrainIntro() {
+        this.gameState = 'playing';
+        this.trainIntro = null;
+        this.camera.x = this.currentLevelData.startX;
+        this.player.x = this.currentLevelData.startX + 100;
+        this.player.y = 220;
+        this.player.velocityX = 0;
+        this.player.velocityY = 0;
+        this.player.facingRight = true;
+        this.player.isMoving = false;
+    }
+
+    // How far the train has travelled (px) at time t: wait, speed up, cruise, then slam on the
+    // brakes once the Apache shows up and creep toward the broken bridge
+    getTrainDistance(t) {
+        if (t < 2.6) return 0;
+        if (t < 5) return 62.5 * Math.pow(t - 2.6, 2);
+        if (t < 8.5) return 360 + 300 * (t - 5);
+        if (t < 9) {
+            const dt = t - 8.5;
+            return 1410 + 300 * dt - 280 * dt * dt;
+        }
+        const dt = Math.min(t - 9, 2.5);
+        return 1490 + 20 * dt - 4 * dt * dt;
+    }
+
+    renderTrainIntro() {
+        const intro = this.trainIntro;
+        const t = (Date.now() - intro.startTime) / 1000;
+        const ctx = this.ctx;
+        const W = this.canvas.width;
+        const H = this.canvas.height;
+        const railY = 305;
+        const trainX = 20;            // left end of the train on screen
+        const trainLength = 664;
+        const trainFront = trainX + trainLength;
+        const bridgeStart = 1400;     // world x where solid ground gives way to the bridge
+        const gapLeft = 1490 + 700;   // world x of the hole the missiles blow in the bridge
+        const gapWidth = 100;
+        // The front of the train creeps the last 16px to the hole: solve 20dt - 4dt^2 = 16
+        const fallStart = 9 + (20 - Math.sqrt(20 * 20 - 4 * 4 * 16)) / 8;
+        const valleyStart = fallStart + 1.6;
+        const duration = valleyStart + 3.6;
+        if (t >= duration) {
+            this.endTrainIntro();
+            return;
+        }
+
+        let caption = '';
+        let captionAlert = false;
+
+        if (t < valleyStart) {
+            const d = this.getTrainDistance(Math.min(t, fallStart));
+            this.camera.x = d; // drives the background parallax
+
+            // Background: the city fades into the mountain range
+            const fade = Math.max(0, Math.min(1, (t - 4.5) / 2));
+            if (fade < 1) this.renderConstructionBackground();
+            if (fade > 0) {
+                ctx.save();
+                ctx.globalAlpha = fade;
+                this.renderMountainBackground();
+                ctx.restore();
+            }
+
+            // Solid ground (city, then mountain) up to the edge of the gorge
+            const cliffScreen = bridgeStart - d;
+            if (cliffScreen > 0) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(0, 0, cliffScreen, H);
+                ctx.clip();
+                ctx.translate(-d, 0);
+                if (fade < 1) this.renderConstructionGround(320);
+                if (fade > 0) {
+                    ctx.globalAlpha = fade;
+                    this.renderMountainGround(320);
+                }
+                ctx.restore();
+                // Rocky cliff face where the ground ends
+                if (cliffScreen < W + 20) {
+                    ctx.fillStyle = '#5A4A3A';
+                    ctx.beginPath();
+                    ctx.moveTo(cliffScreen, 320);
+                    ctx.lineTo(cliffScreen - 10, 350);
+                    ctx.lineTo(cliffScreen + 6, 375);
+                    ctx.lineTo(cliffScreen - 14, H);
+                    ctx.lineTo(cliffScreen - 40, H);
+                    ctx.lineTo(cliffScreen - 40, 320);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            }
+
+            // Gorge below the bridge: misty depths and a river far below
+            const gorgeLeft = Math.max(0, cliffScreen);
+            if (gorgeLeft < W) {
+                const depth = ctx.createLinearGradient(0, 320, 0, H);
+                depth.addColorStop(0, 'rgba(70, 90, 115, 0.9)');
+                depth.addColorStop(1, 'rgba(25, 35, 50, 1)');
+                ctx.fillStyle = depth;
+                ctx.fillRect(gorgeLeft, 318, W - gorgeLeft, H - 318);
+                ctx.strokeStyle = 'rgba(140, 200, 240, 0.6)';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                for (let x = gorgeLeft; x <= W; x += 20) {
+                    const y = 388 + Math.sin((x + d) * 0.03) * 3;
+                    if (x === gorgeLeft) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+
+            // Track: a single concrete monorail beam on pylons - short ones on solid ground, tall
+            // ones down into the gorge - and after the missile strike a smoking hole in the beam
+            const bridgeBroken = t >= 9;
+            const inGap = worldX => bridgeBroken && worldX > gapLeft && worldX < gapLeft + gapWidth;
+            const beamTop = railY + 12;
+            const beamH = 16;
+            const pylonStart = Math.floor((d - 160) / 160) * 160;
+            for (let wx = pylonStart; wx < d + W + 160; wx += 160) {
+                if (inGap(wx)) continue;
+                const sx = wx - d;
+                const overGorge = wx >= bridgeStart;
+                const bottom = overGorge ? H : 320;
+                ctx.fillStyle = '#90A4AE';
+                ctx.beginPath();
+                ctx.moveTo(sx - 7, beamTop + beamH);
+                ctx.lineTo(sx + 7, beamTop + beamH);
+                ctx.lineTo(sx + (overGorge ? 13 : 9), bottom);
+                ctx.lineTo(sx - (overGorge ? 13 : 9), bottom);
+                ctx.closePath();
+                ctx.fill();
+                ctx.fillStyle = '#B0BEC5';
+                ctx.fillRect(sx - 16, beamTop + beamH, 32, 5); // pylon cap
+                if (overGorge) {
+                    ctx.fillStyle = 'rgba(0, 229, 255, 0.5)';
+                    ctx.fillRect(sx - 2, beamTop + beamH + 10, 4, bottom - beamTop - beamH - 10);
+                }
+            }
+            const drawBeam = (fromX, toX) => {
+                if (toX <= fromX) return;
+                ctx.fillStyle = '#B0BEC5';
+                ctx.fillRect(fromX, beamTop, toX - fromX, beamH);
+                ctx.fillStyle = '#ECEFF1';
+                ctx.fillRect(fromX, beamTop, toX - fromX, 3);
+                ctx.fillStyle = '#78909C';
+                ctx.fillRect(fromX, beamTop + beamH - 3, toX - fromX, 3);
+                // Glowing guide strip down the side of the beam
+                ctx.fillStyle = 'rgba(0, 229, 255, 0.55)';
+                ctx.fillRect(fromX, beamTop + 7, toX - fromX, 2);
+                // Panel joints
+                ctx.fillStyle = 'rgba(69, 90, 100, 0.6)';
+                const jointStart = Math.floor((fromX + d) / 80) * 80;
+                for (let wx = jointStart; wx < toX + d; wx += 80) {
+                    const sx = wx - d;
+                    if (sx >= fromX && sx <= toX) ctx.fillRect(sx, beamTop + 3, 2, beamH - 6);
+                }
+            };
+            if (bridgeBroken) {
+                const gapScreenL = gapLeft - d;
+                const gapScreenR = gapLeft + gapWidth - d;
+                drawBeam(0, Math.min(W, gapScreenL));
+                drawBeam(Math.max(0, gapScreenR), W);
+                // Jagged broken concrete with bent rebar sticking out
+                [[gapScreenL, 1], [gapScreenR, -1]].forEach(([ex, dir]) => {
+                    ctx.fillStyle = '#B0BEC5';
+                    ctx.beginPath();
+                    ctx.moveTo(ex, beamTop);
+                    ctx.lineTo(ex + dir * 8, beamTop + 5);
+                    ctx.lineTo(ex + dir * 3, beamTop + 10);
+                    ctx.lineTo(ex + dir * 10, beamTop + beamH);
+                    ctx.lineTo(ex, beamTop + beamH);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.strokeStyle = '#6D4C41';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(ex, beamTop + 4); ctx.lineTo(ex + dir * 18, beamTop + 16);
+                    ctx.moveTo(ex, beamTop + 11); ctx.lineTo(ex + dir * 14, beamTop + 28);
+                    ctx.stroke();
+                });
+            } else {
+                drawBeam(0, W);
+            }
+
+            // Tofu runs in and hops aboard the last car
+            const player = this.player;
+            const tofuSeat = { x: trainX + 228, y: railY - 118 };
+            let tofuAboard = false;
+            if (t < 1.4) {
+                player.facingRight = true;
+                player.isMoving = true;
+                player.onGround = true;
+                player.animationFrame = t * 10;
+                player.x = -80 + (tofuSeat.x - 40 - -80) * (t / 1.4);
+                player.y = 220;
+                player.render(ctx);
+                caption = "Tofu's friends have a train waiting!";
+            } else if (t < 2.3) {
+                const k = (t - 1.4) / 0.9;
+                player.isMoving = false;
+                player.x = tofuSeat.x - 40 + 40 * k;
+                player.y = 220 + (tofuSeat.y - 220) * k - Math.sin(k * Math.PI) * 90;
+                player.render(ctx);
+                caption = 'All aboard!';
+            } else {
+                tofuAboard = true;
+            }
+
+            // The train - pivots over the edge of the hole and plunges once it gets there
+            const wheelRot = d * 0.08;
+            ctx.save();
+            if (t >= fallStart) {
+                const ft = t - fallStart;
+                const pivotX = trainFront;
+                ctx.translate(pivotX, railY + 260 * ft * ft);
+                ctx.rotate(Math.min(1.2, 2 * ft * ft));
+                ctx.translate(-pivotX, -railY);
+            }
+            this.drawTofuTrain(ctx, trainX, railY, {
+                t, wheelRot, tofuAboard, moving: t > 2.6 && t < fallStart
+            });
+            ctx.restore();
+
+            // Apache swoops in ahead of the train, fires, then peels away
+            if (t >= 7.3 && t < 11.5) {
+                let ax, ay;
+                if (t < 8.2) {
+                    const k = 1 - Math.pow(1 - (t - 7.3) / 0.9, 3);
+                    ax = W + 150 - (W + 150 - 640) * k;
+                    ay = 60 + 30 * k;
+                } else if (t < 10.2) {
+                    ax = 640 + Math.sin(t * 2) * 6;
+                    ay = 90 + Math.sin(t * 3) * 5;
+                } else {
+                    const k = t - 10.2;
+                    ax = 640 + k * 300;
+                    ay = 90 - k * 120;
+                }
+                // Missiles from the wing pods down onto the bridge
+                if (t >= 8.6 && t < 9) {
+                    if (!intro.missileSoundPlayed) {
+                        intro.missileSoundPlayed = true;
+                        this.playTankShoot();
+                    }
+                    const k = (t - 8.6) / 0.4;
+                    const targetX = gapLeft + gapWidth / 2 - this.getTrainDistance(9);
+                    [-12, 12].forEach((offset, i) => {
+                        const sx = ax - 10 + offset;
+                        const sy = ay + 18;
+                        const mx = sx + (targetX + offset - sx) * k;
+                        const my = sy + (railY - sy) * k;
+                        ctx.strokeStyle = 'rgba(200, 200, 200, 0.6)';
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.moveTo(sx, sy);
+                        ctx.lineTo(mx, my);
+                        ctx.stroke();
+                        ctx.fillStyle = '#37474F';
+                        ctx.beginPath();
+                        ctx.arc(mx, my, 4, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = '#FFB300';
+                        ctx.beginPath();
+                        ctx.arc(mx + (sx - mx) * 0.05, my + (sy - my) * 0.05, 3 + (i % 2), 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+                }
+                this.drawApache(ctx, ax, ay, t);
+            }
+
+            // Bridge explosion, burning debris and smoke
+            if (t >= 9) {
+                const bt = t - 9;
+                const bx = gapLeft + gapWidth / 2 - d;
+                if (!intro.blastSoundPlayed) {
+                    intro.blastSoundPlayed = true;
+                    this.playBossExplosion();
+                }
+                if (bt < 1.2) {
+                    const k = bt / 1.2;
+                    for (let i = 0; i < 9; i++) {
+                        const a = (i / 9) * Math.PI * 2;
+                        ctx.fillStyle = i % 3 === 0 ? `rgba(255, 235, 59, ${1 - k})` : `rgba(255, 112, 0, ${1 - k})`;
+                        ctx.beginPath();
+                        ctx.arc(bx + Math.cos(a) * 60 * k, railY + Math.sin(a) * 40 * k - 10, 20 * (1 - k) + 6, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+                for (let i = 0; i < 6; i++) {
+                    // Chunks of the concrete beam tumbling into the gorge
+                    const px = bx - 50 + i * 20 + Math.sin(i * 7) * 10;
+                    const py = railY + bt * bt * 220 + i * 6;
+                    if (py > H) continue;
+                    ctx.save();
+                    ctx.translate(px, py);
+                    ctx.rotate(bt * (i % 2 ? 4 : -3));
+                    ctx.fillStyle = i % 2 ? '#90A4AE' : '#B0BEC5';
+                    ctx.fillRect(-9, -5, 18, 10);
+                    ctx.restore();
+                }
+                for (let i = 0; i < 5; i++) {
+                    const rise = (bt * 0.6 + i / 5) % 1;
+                    ctx.fillStyle = `rgba(55, 55, 55, ${0.55 * (1 - rise)})`;
+                    ctx.beginPath();
+                    ctx.arc(bx + Math.sin(i * 2 + bt) * 12, railY - 10 - rise * 140, 10 + rise * 26, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            if (t >= 2.3 && t < 4.5) caption = 'Full speed ahead!';
+            else if (t >= 4.5 && t < 7.3) caption = 'Leaving the city for the mountains...';
+            else if (t >= 7.3 && t < 8.6) { caption = "INCOMING! It's Popcorn's Apache!"; captionAlert = true; }
+            else if (t >= 8.6 && t < 9) { caption = 'MISSILES!'; captionAlert = true; }
+            else if (t >= 9 && t < fallStart) { caption = 'The bridge is gone! BRAKES!!'; captionAlert = true; }
+            else if (t >= fallStart) { caption = 'WHOAAAAAA!'; captionAlert = true; }
+        } else {
+            // --- The valley floor of World 4: the train crashes down, Tofu tumbles out ---
+            const vt = t - valleyStart;
+            this.camera.x = 0;
+            this.renderBackground();
+            ctx.save();
+            const crashT = 0.6;
+            if (vt >= crashT && vt < crashT + 0.5) {
+                const s = (1 - (vt - crashT) / 0.5) * 10;
+                ctx.translate(Math.sin(t * 60) * s, Math.cos(t * 47) * s);
+            }
+            this.renderGround();
+
+            const wreckX = 240;
+            const groundRail = 322;
+            ctx.save();
+            if (vt < crashT) {
+                // Falling in from above, nose first
+                const k = vt / crashT;
+                ctx.translate(wreckX + 400, groundRail - 320 * (1 - k * k));
+                ctx.rotate(0.45 * (1 - k) + 0.08);
+                ctx.translate(-(wreckX + 400), -groundRail);
+            } else {
+                // Crumpled where it landed, slightly nose-down
+                ctx.translate(wreckX + 400, groundRail);
+                ctx.rotate(0.08);
+                ctx.translate(-(wreckX + 400), -groundRail);
+            }
+            this.drawTofuTrain(ctx, wreckX, groundRail, { t, wheelRot: 0, tofuAboard: vt < crashT, moving: false, wrecked: vt >= crashT });
+            ctx.restore();
+
+            if (vt >= crashT) {
+                if (!intro.crashSoundPlayed) {
+                    intro.crashSoundPlayed = true;
+                    this.playBossExplosion();
+                }
+                const ct = vt - crashT;
+                // Crash dust and fire
+                if (ct < 1.3) {
+                    const k = ct / 1.3;
+                    for (let i = 0; i < 10; i++) {
+                        ctx.fillStyle = `rgba(150, 140, 125, ${0.6 * (1 - k)})`;
+                        ctx.beginPath();
+                        ctx.arc(wreckX + 20 + i * 70, 312 - (i % 3) * 8 - k * 20, 14 + k * 26, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+                for (let i = 0; i < 6; i++) {
+                    const rise = (ct * 0.5 + i / 6) % 1;
+                    ctx.fillStyle = `rgba(60, 60, 60, ${0.5 * (1 - rise)})`;
+                    ctx.beginPath();
+                    ctx.arc(wreckX + 600 + Math.sin(i * 2 + ct) * 10, 230 - rise * 180, 10 + rise * 24, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                // Tofu is thrown clear and lands where World 4 begins
+                const player = this.player;
+                player.facingRight = true;
+                player.isMoving = false;
+                const flyT = Math.min(1, ct / 0.8);
+                const seatX = wreckX + 228;
+                player.x = seatX + (100 - seatX) * flyT;
+                player.y = 220 - 160 * Math.sin(flyT * Math.PI) - (1 - flyT) * 100;
+                ctx.save();
+                if (flyT < 1) {
+                    const cx = player.x + player.width / 2;
+                    const cy = player.y + player.height / 2;
+                    ctx.translate(cx, cy);
+                    ctx.rotate(-flyT * Math.PI * 2);
+                    ctx.translate(-cx, -cy);
+                }
+                player.render(ctx);
+                ctx.restore();
+                caption = ct < 0.9 ? 'CRASH!' : 'WORLD 4: THE MOUNTAIN RANGE';
+                captionAlert = ct < 0.9;
+            } else {
+                caption = 'WHOAAAAAA!';
+                captionAlert = true;
+            }
+            ctx.restore();
+        }
+
+        // Cinematic bars, caption and skip hint
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, W, 36);
+        ctx.fillRect(0, H - 36, W, 36);
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 20px Arial';
+        ctx.fillStyle = captionAlert ? '#FF5252' : '#FFFFFF';
+        const shake = captionAlert ? Math.sin(t * 50) * 2 : 0;
+        ctx.fillText(caption, W / 2 + shake, 25);
+        ctx.font = '12px Arial';
+        ctx.fillStyle = '#AAAAAA';
+        ctx.textAlign = 'right';
+        ctx.fillText('SPACE / tap to skip', W - 12, H - 14);
+        ctx.restore();
+    }
+
+    // The Tofu Alliance monorail, facing right and riding on top of a single beam whose top is at
+    // railY. Every car is fully enclosed, with big windows looking into a lit interior. From the
+    // back: the passenger car with four soldier tofus (and Tofu once aboard), the captain's
+    // command car, and the bullet-nosed lead car with the two pilots at the controls.
+    drawTofuTrain(ctx, x, railY, opts = {}) {
+        const t = opts.t || Date.now() / 1000;
+        const sprite = this.assets.tofuSprite;
+        const wrecked = !!opts.wrecked;
+        const hull = wrecked ? '#8E989E' : '#EEF3F6';
+        const hullShade = wrecked ? '#6B757B' : '#C5D0D6';
+        const trim = '#263238';
+        const glow = wrecked ? '#37474F' : '#00E5FF';
+        const accent = wrecked ? '#55643A' : '#7CB342';
+        const hover = opts.moving ? Math.sin(t * 12) * 0.8 : 0;
+        const pulse = 0.55 + 0.45 * Math.sin(t * 10);
+        const roofY = railY - 122;
+        const winTop = railY - 106;
+        const winBottom = railY - 48;
+        const glassEdge = wrecked ? 'rgba(60, 70, 75, 0.9)' : 'rgba(190, 245, 255, 0.95)';
+
+        // A crew member built on the pilot design, standing or sitting inside with feet on the floor
+        const drawCrew = (cx, role, seed, scale = 0.55) => {
+            if (opts.empty) return;
+            ctx.save();
+            ctx.translate(cx, winBottom);
+            ctx.scale(scale, scale);
+            this.drawTofuPilot(ctx, -23, 0, { rescued: true, pose: 'seated', role, t, seed });
+            ctx.restore();
+        };
+        // Bogie fairings that straddle the beam, with a glowing maglev strip underneath
+        const drawBogies = (left, width) => {
+            [left + 14, left + width - 64].forEach(bx => {
+                ctx.fillStyle = trim;
+                ctx.beginPath();
+                ctx.roundRect(bx, railY - 16, 50, 30, 6);
+                ctx.fill();
+                ctx.fillStyle = '#455A64';
+                ctx.fillRect(bx + 6, railY - 10, 38, 4);
+                if (!wrecked) {
+                    ctx.fillStyle = `rgba(0, 229, 255, ${0.35 + 0.4 * pulse})`;
+                    ctx.fillRect(bx + 4, railY + 10, 42, 3);
+                }
+            });
+        };
+        const windowPath = wins => {
+            wins.forEach(w => ctx.roundRect(w.x, winTop, w.w, winBottom - winTop, 8));
+        };
+        // The lit cabin seen through the windows: back wall, ceiling light, floor, then whatever
+        // drawContents puts inside, then tinted glass with a reflection on top
+        const drawInterior = (left, width, wins, drawContents) => {
+            ctx.save();
+            ctx.beginPath();
+            windowPath(wins);
+            ctx.clip();
+            const wall = ctx.createLinearGradient(0, winTop, 0, winBottom);
+            wall.addColorStop(0, wrecked ? '#4E5B61' : '#F5F9FB');
+            wall.addColorStop(1, wrecked ? '#3B464B' : '#B8C7CF');
+            ctx.fillStyle = wall;
+            ctx.fillRect(left, winTop, width, winBottom - winTop);
+            if (!wrecked) {
+                ctx.fillStyle = 'rgba(0, 229, 255, 0.85)';
+                ctx.fillRect(left, winTop + 2, width, 3);       // ceiling light strip
+                ctx.fillStyle = 'rgba(0, 229, 255, 0.12)';
+                ctx.fillRect(left, winTop + 5, width, 14);      // its glow
+            }
+            ctx.fillStyle = '#78909C';
+            ctx.fillRect(left, winBottom - 4, width, 4);        // floor
+            drawContents();
+            ctx.fillStyle = wrecked ? 'rgba(90, 110, 120, 0.4)' : 'rgba(120, 220, 255, 0.16)';
+            ctx.fillRect(left, winTop, width, winBottom - winTop);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+            ctx.lineWidth = 6;
+            wins.forEach(w => {
+                ctx.beginPath();
+                ctx.moveTo(w.x + w.w * 0.55, winTop);
+                ctx.lineTo(w.x + w.w * 0.35, winBottom);
+                ctx.stroke();
+            });
+            if (wrecked) {
+                // Cracked glass
+                ctx.strokeStyle = 'rgba(30, 30, 30, 0.7)';
+                ctx.lineWidth = 1.5;
+                wins.forEach(w => {
+                    const kx = w.x + w.w * 0.5;
+                    ctx.beginPath();
+                    ctx.moveTo(kx, winTop + 10); ctx.lineTo(kx + 14, winTop + 28); ctx.lineTo(kx + 6, winTop + 44);
+                    ctx.moveTo(kx + 14, winTop + 28); ctx.lineTo(kx + 32, winTop + 22);
+                    ctx.stroke();
+                });
+            }
+            ctx.restore();
+        };
+        // A padded seat back sitting behind a crew member
+        const drawSeat = cx => {
+            ctx.fillStyle = '#37474F';
+            ctx.beginPath();
+            ctx.roundRect(cx - 18, winBottom - 40, 36, 36, 5);
+            ctx.fill();
+            ctx.fillStyle = wrecked ? '#455A64' : '#00ACC1';
+            ctx.fillRect(cx - 14, winBottom - 38, 28, 4);
+        };
+        // Enclosed car shell with the windows cut out, plus glow and accent stripes
+        const drawShell = (left, width, wins) => {
+            const grad = ctx.createLinearGradient(0, roofY, 0, railY - 12);
+            grad.addColorStop(0, hull);
+            grad.addColorStop(1, hullShade);
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.roundRect(left, roofY, width, railY - 12 - roofY, 18);
+            windowPath(wins);
+            ctx.fill('evenodd');
+            ctx.strokeStyle = trim;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.strokeStyle = glassEdge;
+            ctx.beginPath();
+            windowPath(wins);
+            ctx.stroke();
+            // Roof fairing
+            ctx.fillStyle = hullShade;
+            ctx.beginPath();
+            ctx.roundRect(left + 30, roofY - 5, width - 60, 7, 3);
+            ctx.fill();
+            ctx.fillStyle = glow;
+            ctx.fillRect(left + 4, railY - 26, width - 8, 3);
+            ctx.fillStyle = accent;
+            ctx.fillRect(left + 4, railY - 21, width - 8, 4);
+        };
+        const drawLink = left => {
+            ctx.fillStyle = trim;
+            ctx.fillRect(left - 2, railY - 96, 16, 80);
+            ctx.fillStyle = glow;
+            ctx.fillRect(left - 2, railY - 30, 16, 3);
+        };
+
+        ctx.save();
+        ctx.translate(0, hover);
+
+        // Speed streaks trailing behind while it zips along
+        if (opts.moving) {
+            ctx.strokeStyle = 'rgba(0, 229, 255, 0.45)';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 5; i++) {
+                const len = 30 + ((t * 7 + i * 0.37) % 1) * 60;
+                const sy = railY - 100 + i * 18;
+                ctx.beginPath();
+                ctx.moveTo(x - 6, sy);
+                ctx.lineTo(x - 6 - len, sy);
+                ctx.stroke();
+            }
+        }
+
+        // --- Passenger car (back): four soldiers in their seats, and Tofu once aboard ---
+        const carA = x;
+        const carAW = 290;
+        const winsA = [{ x: carA + 12, w: 130 }, { x: carA + 150, w: 128 }];
+        drawBogies(carA, carAW);
+        drawInterior(carA, carAW, winsA, () => {
+            const soldierSeats = [carA + 34, carA + 76, carA + 118, carA + 172];
+            soldierSeats.forEach(drawSeat);
+            drawSeat(carA + 236);
+            soldierSeats.forEach((cx, i) => drawCrew(cx, 'soldier', i));
+            if (opts.tofuAboard && sprite) ctx.drawImage(sprite, carA + 214, winBottom - 55, 44, 55);
+        });
+        drawShell(carA, carAW, winsA);
+        ctx.fillStyle = trim;
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('TOFU ALLIANCE', carA + carAW / 2, railY - 32);
+        drawLink(carA + carAW);
+
+        // --- Captain's command car: the captain at a holographic map table ---
+        const carB = carA + carAW + 12;
+        const carBW = 150;
+        const winsB = [{ x: carB + 12, w: 126 }];
+        drawBogies(carB, carBW);
+        drawInterior(carB, carBW, winsB, () => {
+            // Wall screen with the route through the mountains and the train's position
+            const sx = carB + 84, sy = winTop + 10;
+            ctx.fillStyle = wrecked ? '#263238' : '#0D2B3E';
+            ctx.fillRect(sx, sy, 46, 28);
+            if (!wrecked) {
+                ctx.strokeStyle = '#00E5FF';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(sx, sy, 46, 28);
+                ctx.beginPath();
+                ctx.moveTo(sx + 3, sy + 22);
+                ctx.lineTo(sx + 12, sy + 10); ctx.lineTo(sx + 20, sy + 18);
+                ctx.lineTo(sx + 30, sy + 6); ctx.lineTo(sx + 43, sy + 20);
+                ctx.stroke();
+                if (Math.sin(t * 8) > 0) {
+                    ctx.fillStyle = '#FF5252';
+                    ctx.beginPath();
+                    ctx.arc(sx + 14, sy + 22, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            drawCrew(carB + 52, 'captain', 0, 0.6);
+            // Map console in front of him
+            ctx.fillStyle = '#455A64';
+            ctx.fillRect(carB + 84, winBottom - 20, 46, 16);
+            if (!wrecked) {
+                ctx.fillStyle = 'rgba(0, 229, 255, 0.5)';
+                ctx.fillRect(carB + 86, winBottom - 22, 42, 3);
+            }
+        });
+        drawShell(carB, carBW, winsB);
+        // Antenna mast on the roof with the captain's flag and a blinking beacon
+        ctx.strokeStyle = '#90A4AE';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(carB + 120, roofY - 4);
+        ctx.lineTo(carB + 120, roofY - 56);
+        ctx.stroke();
+        const wave = Math.sin(t * 8) * 3;
+        ctx.fillStyle = '#FFF8E1';
+        ctx.beginPath();
+        ctx.moveTo(carB + 120, roofY - 54);
+        ctx.quadraticCurveTo(carB + 135, roofY - 52 + wave, carB + 148, roofY - 48);
+        ctx.lineTo(carB + 120, roofY - 36);
+        ctx.closePath();
+        ctx.fill();
+        if (!wrecked && Math.sin(t * 6) > 0) {
+            ctx.fillStyle = '#FF5252';
+            ctx.beginPath();
+            ctx.arc(carB + 120, roofY - 58, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.fillStyle = trim;
+        ctx.font = 'bold 10px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('COMMAND', carB + carBW / 2, railY - 32);
+        drawLink(carB + carBW);
+
+        // --- Bullet-nosed lead car ---
+        const loco = carB + carBW + 12;
+        const locoW = 200;
+        drawBogies(loco, locoW);
+        // Pilots behind a wraparound windscreen
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(loco + 10, railY - 82);
+        ctx.lineTo(loco + 10, railY - 104);
+        ctx.quadraticCurveTo(loco + 14, railY - 112, loco + 26, railY - 112);
+        ctx.lineTo(loco + 92, railY - 112);
+        ctx.quadraticCurveTo(loco + 112, railY - 104, loco + 122, railY - 82);
+        ctx.closePath();
+        ctx.clip();
+        ctx.fillStyle = wrecked ? '#56656C' : '#0D2B3E';
+        ctx.fillRect(loco, railY - 120, 130, 40);
+        if (!opts.empty) [loco + 14, loco + 56].forEach((px, i) => {
+            ctx.save();
+            ctx.translate(px, railY - 52);
+            ctx.scale(0.55, 0.55);
+            this.drawTofuPilot(ctx, 0, 0, { rescued: true, pose: 'seated', t, seed: i });
+            ctx.restore();
+        });
+        // Control panel glow
+        if (!wrecked) {
+            ctx.fillStyle = 'rgba(0, 229, 255, 0.6)';
+            ctx.fillRect(loco + 10, railY - 86, 112, 4);
+        }
+        ctx.fillStyle = wrecked ? 'rgba(90, 110, 120, 0.4)' : 'rgba(120, 220, 255, 0.25)';
+        ctx.fillRect(loco, railY - 120, 130, 40);
+        ctx.restore();
+        // Body: a long streamlined nose, with the windscreen cut out so the pilots show
+        const grad = ctx.createLinearGradient(0, railY - 122, 0, railY - 12);
+        grad.addColorStop(0, hull);
+        grad.addColorStop(1, hullShade);
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(loco, railY - 12);
+        ctx.lineTo(loco, railY - 106);
+        ctx.quadraticCurveTo(loco, railY - 122, loco + 18, railY - 122);
+        ctx.lineTo(loco + 90, railY - 122);
+        ctx.bezierCurveTo(loco + 160, railY - 120, loco + locoW + 10, railY - 70, loco + locoW + 14, railY - 32);
+        ctx.quadraticCurveTo(loco + locoW + 14, railY - 12, loco + locoW - 10, railY - 12);
+        ctx.closePath();
+        ctx.moveTo(loco + 10, railY - 82);
+        ctx.lineTo(loco + 122, railY - 82);
+        ctx.quadraticCurveTo(loco + 112, railY - 104, loco + 92, railY - 112);
+        ctx.lineTo(loco + 26, railY - 112);
+        ctx.quadraticCurveTo(loco + 14, railY - 112, loco + 10, railY - 104);
+        ctx.closePath();
+        ctx.fill('evenodd');
+        ctx.strokeStyle = trim;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        // Windscreen frame
+        ctx.strokeStyle = glassEdge;
+        ctx.beginPath();
+        ctx.moveTo(loco + 10, railY - 82);
+        ctx.lineTo(loco + 10, railY - 104);
+        ctx.quadraticCurveTo(loco + 14, railY - 112, loco + 26, railY - 112);
+        ctx.lineTo(loco + 92, railY - 112);
+        ctx.quadraticCurveTo(loco + 112, railY - 104, loco + 122, railY - 82);
+        ctx.stroke();
+        // Glow and accent stripes sweeping up into the nose
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = glow;
+        ctx.beginPath();
+        ctx.moveTo(loco + 4, railY - 26);
+        ctx.lineTo(loco + 150, railY - 26);
+        ctx.quadraticCurveTo(loco + 190, railY - 28, loco + locoW + 8, railY - 44);
+        ctx.stroke();
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = accent;
+        ctx.beginPath();
+        ctx.moveTo(loco + 4, railY - 19);
+        ctx.lineTo(loco + locoW + 4, railY - 19);
+        ctx.stroke();
+        ctx.fillStyle = trim;
+        ctx.font = 'bold 11px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('TOFU EXPRESS', loco + 70, railY - 40);
+        // LED headlight strip at the tip of the nose
+        if (!wrecked) {
+            ctx.fillStyle = '#E0F7FA';
+            ctx.beginPath();
+            ctx.ellipse(loco + locoW + 4, railY - 40, 8, 3, -0.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = 'rgba(0, 229, 255, 0.35)';
+            ctx.beginPath();
+            ctx.moveTo(loco + locoW + 8, railY - 42);
+            ctx.lineTo(loco + locoW + 70, railY - 62);
+            ctx.lineTo(loco + locoW + 70, railY - 22);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Once wrecked: sparks and black smoke pouring out of the lead car
+        if (wrecked) {
+            for (let i = 0; i < 4; i++) {
+                const age = (t * 1.5 + i / 4) % 1;
+                ctx.fillStyle = `rgba(40, 40, 40, ${0.5 * (1 - age)})`;
+                ctx.beginPath();
+                ctx.arc(loco + 110 - age * 60, railY - 110 - age * 40, 6 + age * 12, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            for (let i = 0; i < 6; i++) {
+                const age = (t * 3 + i / 6) % 1;
+                ctx.fillStyle = `rgba(0, 229, 255, ${1 - age})`;
+                ctx.fillRect(loco + 40 + i * 22 + age * 10, railY - 30 - age * 30, 2, 2);
+            }
+        }
+        ctx.restore();
+    }
+
+    // Popcorn's Apache gunship facing left, centered on (x, y), flown by a stickman
+    drawApache(ctx, x, y, t) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(-0.08 + Math.sin(t * 2) * 0.03);
+        const body = '#3B4232';
+
+        // Tail boom, fin and tail rotor
+        ctx.fillStyle = body;
+        ctx.beginPath();
+        ctx.moveTo(30, -10);
+        ctx.lineTo(130, -6);
+        ctx.lineTo(130, 2);
+        ctx.lineTo(30, 8);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(118, -4);
+        ctx.lineTo(132, -30);
+        ctx.lineTo(140, -30);
+        ctx.lineTo(132, 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillRect(112, 0, 24, 4); // horizontal stabilizer
+        const tr = Math.cos(t * 55) * 13;
+        ctx.strokeStyle = '#111';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(136, -18 - tr);
+        ctx.lineTo(136, -18 + tr);
+        ctx.stroke();
+
+        // Slim fuselage with a pointed nose and chin gun
+        ctx.fillStyle = body;
+        ctx.beginPath();
+        ctx.moveTo(-80, 6);
+        ctx.quadraticCurveTo(-72, -12, -40, -16);
+        ctx.lineTo(30, -16);
+        ctx.lineTo(40, 2);
+        ctx.lineTo(30, 14);
+        ctx.lineTo(-50, 16);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#1C2016';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = '#222';
+        ctx.fillRect(-70, 12, 12, 6);
+        ctx.fillRect(-84, 15, 16, 3);
+
+        // Tandem cockpit with a stickman pilot in each seat
+        [-52, -26].forEach(cx => {
+            ctx.fillStyle = 'rgba(150, 190, 210, 0.85)';
+            ctx.beginPath();
+            ctx.ellipse(cx, -18, 13, 10, 0, Math.PI, 0);
+            ctx.fill();
+            ctx.strokeStyle = '#111';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(cx, -22, 3.5, 0, Math.PI * 2);
+            ctx.moveTo(cx, -18.5);
+            ctx.lineTo(cx, -12);
+            ctx.moveTo(cx - 5, -16);
+            ctx.lineTo(cx + 5, -16);
+            ctx.stroke();
+        });
+
+        // Engine hump and Popcorn's red badge
+        ctx.fillStyle = '#2E3427';
+        ctx.fillRect(-8, -24, 34, 9);
+        ctx.fillStyle = '#C62828';
+        ctx.beginPath();
+        ctx.arc(10, 2, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Stub wings with rocket pods
+        ctx.fillStyle = '#2E3427';
+        ctx.fillRect(-12, 6, 34, 5);
+        ctx.fillStyle = '#4E5543';
+        [-14, 10].forEach(px => {
+            ctx.beginPath();
+            ctx.ellipse(px, 15, 9, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        // Main rotor
+        ctx.fillStyle = '#222';
+        ctx.fillRect(-2, -32, 5, 9);
+        ctx.fillStyle = 'rgba(30, 30, 30, 0.25)';
+        ctx.beginPath();
+        ctx.ellipse(0, -33, 95, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        const blade = Math.cos(t * 42) * 95;
+        ctx.strokeStyle = '#111';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(-blade, -33);
+        ctx.lineTo(blade, -33);
+        ctx.stroke();
+
+        ctx.restore();
     }
 
     // Helicopter position/tilt over the course of the intro (world coords, camera at 0)
@@ -6201,14 +7749,19 @@ class Game {
     // sage-green flight suit and torso harness. x is the left edge, groundY is where the feet touch.
     drawTofuPilot(ctx, x, groundY, opts = {}) {
         const t = opts.t || Date.now() / 1000;
+        // role: 'pilot' (default), 'soldier' or 'captain'. pose 'seated' keeps them still with
+        // their arms down - used for the crew riding inside the monorail.
+        const role = opts.role || 'pilot';
+        const seated = opts.pose === 'seated';
+        const armed = opts.pose === 'armed'; // arms and gun are drawn by drawArmedCrew
         const seed = opts.seed || 0;
         const outline = '#2A241C';
         const bodyW = 46;
         const bodyH = 56;
         const legH = 20;
         // Rescued pilots hop for joy; captured ones tremble
-        const hop = opts.rescued ? Math.abs(Math.sin(t * 6 + seed)) * 10 : 0;
-        const shake = opts.rescued ? 0 : Math.sin(t * 40 + seed * 2) * 0.8;
+        const hop = seated || armed ? 0 : opts.rescued ? Math.abs(Math.sin(t * 6 + seed)) * 10 : 0;
+        const shake = seated || armed || opts.rescued ? 0 : Math.sin(t * 40 + seed * 2) * 0.8;
         const left = x + shake;
         const bottom = groundY - legH - hop;
         const top = bottom - bodyH;
@@ -6228,7 +7781,23 @@ class Game {
 
         // Arms up - straight up and trembling, or waving when rescued
         const wave = opts.rescued ? Math.sin(t * 10 + seed) * 0.5 : 0;
-        [-1, 1].forEach(side => {
+        if (seated) {
+            // Arms resting at the sides
+            ctx.strokeStyle = outline;
+            ctx.lineWidth = 3;
+            [-1, 1].forEach(side => {
+                const shoulderX = cx + side * (bodyW / 2 - 2);
+                const handX = cx + side * (bodyW / 2 + 5);
+                ctx.beginPath();
+                ctx.moveTo(shoulderX, top + 34);
+                ctx.lineTo(handX, top + 50);
+                ctx.stroke();
+                ctx.fillStyle = outline;
+                ctx.beginPath();
+                ctx.arc(handX, top + 52, 4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        } else if (!armed) [-1, 1].forEach(side => {
             // Arms spread wide enough to clear the helmet so the "hands up" reads clearly
             const shoulderX = cx + side * (bodyW / 2 - 2);
             const shoulderY = top + 24;
@@ -6269,7 +7838,7 @@ class Game {
         ctx.beginPath();
         ctx.roundRect(left, top, bodyW, bodyH, 6);
         ctx.clip();
-        ctx.fillStyle = '#7A8566';
+        ctx.fillStyle = role === 'soldier' ? '#556B2F' : role === 'captain' ? '#1F2A44' : '#7A8566';
         ctx.fillRect(left, top + 32, bodyW, bodyH - 32);
         ctx.restore();
         ctx.strokeStyle = outline;
@@ -6277,35 +7846,73 @@ class Game {
         ctx.beginPath();
         ctx.moveTo(left, top + 32); ctx.lineTo(left + bodyW, top + 32);
         ctx.stroke();
-        ctx.strokeStyle = '#B0B7A0';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(cx, top + 33); ctx.lineTo(cx, bottom - 1);
-        ctx.stroke();
-
-        // Black torso harness: shoulder straps down to a chest buckle, plus a lap belt
-        ctx.strokeStyle = '#1C1C1C';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(left + 8, top + 32); ctx.lineTo(cx - 3, top + 44);
-        ctx.moveTo(left + bodyW - 8, top + 32); ctx.lineTo(cx + 3, top + 44);
-        ctx.moveTo(left + 2, bottom - 6); ctx.lineTo(left + bodyW - 2, bottom - 6);
-        ctx.stroke();
-        ctx.fillStyle = '#B0BEC5';
-        ctx.fillRect(cx - 4, top + 42, 8, 5);
-        ctx.fillRect(cx - 3, bottom - 8, 6, 4);
-
-        // Squadron patch and leather name tag
-        ctx.fillStyle = '#C62828';
-        ctx.beginPath();
-        ctx.arc(left + 10, top + 39, 4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#FFD54F';
-        ctx.beginPath();
-        ctx.arc(left + 10, top + 39, 1.6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#5D4037';
-        ctx.fillRect(left + bodyW - 15, top + 36, 11, 5);
+        if (role === 'soldier') {
+            // Bandolier across the chest, webbing belt and ammo pouches
+            ctx.strokeStyle = '#3E2F1C';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(left + 4, top + 33); ctx.lineTo(left + bodyW - 6, bottom - 8);
+            ctx.moveTo(left + 1, bottom - 6); ctx.lineTo(left + bodyW - 1, bottom - 6);
+            ctx.stroke();
+            ctx.fillStyle = '#6B5A3A';
+            ctx.fillRect(left + 6, bottom - 12, 8, 7);
+            ctx.fillRect(left + bodyW - 14, bottom - 12, 8, 7);
+            ctx.fillStyle = '#FFC107';
+            ctx.fillRect(cx - 3, bottom - 8, 6, 4);
+            // Tofu Alliance shoulder patch
+            ctx.fillStyle = '#7CB342';
+            ctx.beginPath();
+            ctx.arc(left + bodyW - 9, top + 38, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+        } else if (role === 'captain') {
+            // Gold epaulettes, a double row of brass buttons and a row of medal ribbons
+            ctx.fillStyle = '#FFC107';
+            ctx.fillRect(left - 1, top + 31, 10, 4);
+            ctx.fillRect(left + bodyW - 9, top + 31, 10, 4);
+            [0, 1, 2].forEach(i => {
+                ctx.beginPath();
+                ctx.arc(cx - 4, top + 38 + i * 6, 1.4, 0, Math.PI * 2);
+                ctx.arc(cx + 4, top + 38 + i * 6, 1.4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ['#C62828', '#1565C0', '#FFC107'].forEach((c, i) => {
+                ctx.fillStyle = c;
+                ctx.fillRect(left + 5 + i * 4, top + 37, 4, 3);
+            });
+            ctx.fillStyle = '#FFC107';
+            ctx.fillRect(left + 1, bottom - 6, bodyW - 2, 2);
+        } else {
+            ctx.strokeStyle = '#B0B7A0';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(cx, top + 33); ctx.lineTo(cx, bottom - 1);
+            ctx.stroke();
+    
+            // Black torso harness: shoulder straps down to a chest buckle, plus a lap belt
+            ctx.strokeStyle = '#1C1C1C';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(left + 8, top + 32); ctx.lineTo(cx - 3, top + 44);
+            ctx.moveTo(left + bodyW - 8, top + 32); ctx.lineTo(cx + 3, top + 44);
+            ctx.moveTo(left + 2, bottom - 6); ctx.lineTo(left + bodyW - 2, bottom - 6);
+            ctx.stroke();
+            ctx.fillStyle = '#B0BEC5';
+            ctx.fillRect(cx - 4, top + 42, 8, 5);
+            ctx.fillRect(cx - 3, bottom - 8, 6, 4);
+    
+            // Squadron patch and leather name tag
+            ctx.fillStyle = '#C62828';
+            ctx.beginPath();
+            ctx.arc(left + 10, top + 39, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFD54F';
+            ctx.beginPath();
+            ctx.arc(left + 10, top + 39, 1.6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#5D4037';
+            ctx.fillRect(left + bodyW - 15, top + 36, 11, 5);
+    
+        }
 
         // Face - worried eyes and an "o" mouth (big smile once rescued)
         ctx.fillStyle = outline;
@@ -6332,6 +7939,71 @@ class Game {
             ctx.quadraticCurveTo(left + bodyW + 1, top + 17, left + bodyW - 4, top + 19);
             ctx.quadraticCurveTo(left + bodyW - 9, top + 17, left + bodyW - 4, top + 10);
             ctx.fill();
+        }
+
+        if (role === 'captain') {
+            // Distinguished mustache
+            ctx.fillStyle = '#4E342E';
+            ctx.beginPath();
+            ctx.ellipse(cx - 4, top + 24, 4.5, 2, 0.25, 0, Math.PI * 2);
+            ctx.ellipse(cx + 4, top + 24, 4.5, 2, -0.25, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        if (role === 'soldier') {
+            // Olive steel combat helmet with a brim, chin strap and camo spots
+            ctx.strokeStyle = '#3E2F1C';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(left + 3, top + 6); ctx.lineTo(left + 6, top + 30);
+            ctx.moveTo(left + bodyW - 3, top + 6); ctx.lineTo(left + bodyW - 6, top + 30);
+            ctx.stroke();
+            ctx.fillStyle = '#5B6B3A';
+            ctx.strokeStyle = outline;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(left - 7, top + 8);
+            ctx.quadraticCurveTo(left - 4, top - 18, cx, top - 18);
+            ctx.quadraticCurveTo(left + bodyW + 4, top - 18, left + bodyW + 7, top + 8);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#3F4D25';
+            [[-10, -8], [6, -11], [14, -2], [-2, 0]].forEach(([dx, dy]) => {
+                ctx.beginPath();
+                ctx.ellipse(cx + dx, top + dy, 4, 2.5, 0.4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.restore();
+            return;
+        }
+        if (role === 'captain') {
+            // Navy officer's peaked cap: tall crown, gold band and badge, shiny black visor
+            ctx.fillStyle = '#1F2A44';
+            ctx.strokeStyle = outline;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(left + 1, top + 6);
+            ctx.lineTo(left - 6, top - 12);
+            ctx.quadraticCurveTo(cx, top - 24, left + bodyW + 6, top - 12);
+            ctx.lineTo(left + bodyW - 1, top + 6);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#FFC107';
+            ctx.fillRect(left + 1, top - 1, bodyW - 2, 4);
+            ctx.beginPath();
+            ctx.arc(cx, top - 9, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#111';
+            ctx.beginPath();
+            ctx.moveTo(left, top + 6);
+            ctx.quadraticCurveTo(cx + 8, top + 13, left + bodyW + 8, top + 7);
+            ctx.lineTo(left + bodyW - 1, top + 4);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+            return;
         }
 
         // Gunmetal-gray jet helmet that wraps down over the ears
@@ -6403,6 +8075,233 @@ class Game {
         ctx.quadraticCurveTo(maskX + 2, maskY + 18, left + bodyW - 8, top + 34);
         ctx.stroke();
 
+        ctx.restore();
+    }
+
+    // The crew waiting at the World 4 monorail wreck. Kept between frames so each one remembers
+    // which way it is facing and when it last fired.
+    getMonorailCrew() {
+        if (!this.monorailCrew) {
+            this.monorailCrew = [
+                { x: 190, role: 'soldier', gun: 'rifle', facing: -1 },
+                { x: 290, role: 'soldier', gun: 'rifle', facing: 1 },
+                { x: 370, role: 'pilot', gun: 'pistol', facing: -1 },
+                { x: 545, role: 'captain', gun: 'pistol', facing: 1 },
+                { x: 630, role: 'soldier', gun: 'rifle', facing: 1 },
+                { x: 710, role: 'pilot', gun: 'pistol', facing: 1 },
+                { x: 880, role: 'soldier', gun: 'rifle', facing: 1 }
+            ].map((c, i) => ({ ...c, homeFacing: c.facing, lastShot: 0, flashUntil: 0, seed: i }));
+        }
+        return this.monorailCrew;
+    }
+
+    // Tofu's friends at the wreck turn toward any enemy that comes close and open fire.
+    // Their shots are normal player bullets, so hits and points work just like Tofu's.
+    updateMonorailCrew() {
+        if (this.currentWorld !== 4 || this.currentLevel !== 1) return;
+        const now = Date.now();
+        const range = 300;
+        this.getMonorailCrew().forEach(c => {
+            const cx = c.x + 23;
+            // Only shoot while on (or just off) screen
+            if (cx < this.camera.x - 60 || cx > this.camera.x + this.canvas.width + 60) return;
+            let target = null;
+            let best = range;
+            this.enemies.forEach(e => {
+                if (e.mountedTower || e.health <= 0) return;
+                const ex = e.x + e.width / 2;
+                const dist = Math.abs(ex - cx);
+                if (dist < best) { best = dist; target = e; }
+            });
+            if (!target) {
+                c.facing = c.homeFacing;
+                return;
+            }
+            c.facing = target.x + target.width / 2 >= cx ? 1 : -1;
+            const cooldown = (c.gun === 'rifle' ? 650 : 950) + (c.seed % 3) * 120;
+            if (now - c.lastShot < cooldown) return;
+            c.lastShot = now;
+            c.flashUntil = now + 80;
+            const muzzleX = cx + c.facing * (c.gun === 'rifle' ? 50 : 56);
+            const muzzleY = c.gun === 'rifle' ? 288 : 282;
+            const bullet = new Bullet(muzzleX, muzzleY, c.facing > 0);
+            this.bullets.push(bullet);
+            this.playPlayerShoot();
+        });
+    }
+
+    // World 4 Level 1: the wrecked monorail where the train came down, with the whole crew
+    // standing guard, guns out, while they wait for a rescue chopper
+    renderMonorailCamp() {
+        if (this.currentWorld !== 4 || this.currentLevel !== 1) return;
+        if (this.camera.x > 1100) return;
+        const ctx = this.ctx;
+        const t = Date.now() / 1000;
+        const wreckX = 240;
+        const groundRail = 322;
+
+        // Scorch mark and the crumpled monorail, lying where it landed
+        ctx.fillStyle = 'rgba(30, 20, 10, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(wreckX + 340, 324, 380, 10, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.save();
+        ctx.translate(wreckX + 400, groundRail);
+        ctx.rotate(0.08);
+        ctx.translate(-(wreckX + 400), -groundRail);
+        this.drawTofuTrain(ctx, wreckX, groundRail, { t, wrecked: true, empty: true });
+        ctx.restore();
+
+        // Red signal flare on the ground so the rescue chopper can find them
+        const flareX = wreckX + 500;
+        ctx.fillStyle = '#B71C1C';
+        ctx.fillRect(flareX - 3, 312, 6, 10);
+        ctx.fillStyle = Math.sin(t * 30) > 0 ? '#FFEB3B' : '#FF5722';
+        ctx.beginPath();
+        ctx.arc(flareX, 311, 4, 0, Math.PI * 2);
+        ctx.fill();
+        for (let i = 0; i < 8; i++) {
+            const rise = (t * 0.35 + i / 8) % 1;
+            ctx.fillStyle = `rgba(229, 57, 53, ${0.45 * (1 - rise)})`;
+            ctx.beginPath();
+            ctx.arc(flareX + Math.sin(i * 3 + t) * 8 + rise * 40, 305 - rise * 230, 8 + rise * 26, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // The crew, guns out, spread around the wreck. One soldier keeps watch to the left.
+        const crew = this.getMonorailCrew();
+        crew.forEach(c => this.drawArmedCrew(ctx, c.x, 322, c, c.seed, t));
+
+        // The captain fills Tofu in when he walks past
+        const captain = crew[3];
+        const px = this.player.x + this.player.width / 2;
+        if (Math.abs(px - (captain.x + 23)) < 260) {
+            const bx = captain.x + 23;
+            const by = 196;
+            const lines = ["We'll hold here for the", 'rescue chopper. Go get', 'Popcorn, Tofu!'];
+            ctx.save();
+            ctx.font = 'bold 12px Arial';
+            const bw = 168;
+            const bh = 52;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            ctx.strokeStyle = '#263238';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(bx - bw / 2, by - bh, bw, bh, 8);
+            ctx.fill();
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(bx - 6, by);
+            ctx.lineTo(bx, by + 10);
+            ctx.lineTo(bx + 6, by);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#263238';
+            ctx.textAlign = 'center';
+            lines.forEach((line, i) => ctx.fillText(line, bx, by - bh + 16 + i * 15));
+            ctx.restore();
+        }
+    }
+
+    // A crew member standing guard, holding a rifle or pistol out to one side. x is the left
+    // edge of the tofu body, groundY is where the feet touch.
+    drawArmedCrew(ctx, x, groundY, c, seed, t) {
+        const dir = c.facing || 1;
+        // Shuffle a little and glance around while waiting
+        const sway = Math.sin(t * 1.5 + seed * 1.7) * 1.5;
+        const left = x + sway;
+        this.drawTofuPilot(ctx, left, groundY, { rescued: true, pose: 'armed', role: c.role, t, seed });
+        const top = groundY - 76;
+        const cx = left + 23;
+        const outline = '#2A241C';
+        const gunY = top + 42 + Math.sin(t * 2 + seed) * 0.8;
+        ctx.save();
+        ctx.lineCap = 'round';
+        if (c.gun === 'rifle') {
+            // Rifle held across the chest, muzzle out past the body. Drawn as one path in local
+            // coords pointing right, flipped for crew facing left.
+            ctx.save();
+            ctx.translate(cx, gunY);
+            ctx.scale(dir, 1);
+            ctx.fillStyle = '#5D4037';
+            ctx.strokeStyle = '#111';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(-34, -3); ctx.lineTo(-18, -4); ctx.lineTo(-18, 5); ctx.lineTo(-34, 8);
+            ctx.closePath();
+            ctx.fill(); ctx.stroke();                                   // stock
+            ctx.fillStyle = '#546E7A';
+            ctx.beginPath();
+            ctx.rect(-18, -5, 38, 9);
+            ctx.fill(); ctx.stroke();                                   // receiver
+            ctx.beginPath();
+            ctx.rect(20, -2, 30, 4);
+            ctx.fill(); ctx.stroke();                                   // barrel
+            ctx.fillStyle = '#37474F';
+            ctx.beginPath();
+            ctx.rect(2, 4, 8, 12);
+            ctx.fill(); ctx.stroke();                                   // magazine
+            ctx.beginPath();
+            ctx.rect(-6, -9, 12, 4);
+            ctx.fill(); ctx.stroke();                                   // scope
+            ctx.restore();
+            // Both hands on the rifle
+            ctx.strokeStyle = outline;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(cx - dir * 21, top + 34); ctx.lineTo(cx - dir * 10, gunY + 4);
+            ctx.moveTo(cx + dir * 21, top + 34); ctx.lineTo(cx + dir * 26, gunY + 1);
+            ctx.stroke();
+            ctx.fillStyle = outline;
+            ctx.beginPath();
+            ctx.arc(cx - dir * 10, gunY + 4, 4, 0, Math.PI * 2);
+            ctx.arc(cx + dir * 26, gunY + 1, 4, 0, Math.PI * 2);
+            ctx.fill();
+        } else {
+            // Pistol held out at arm's length, the other arm at the side
+            const handX = cx + dir * 38;
+            ctx.strokeStyle = outline;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(cx + dir * 21, top + 34); ctx.lineTo(handX, gunY - 4);
+            ctx.moveTo(cx - dir * 21, top + 34); ctx.lineTo(cx - dir * 26, top + 50);
+            ctx.stroke();
+            ctx.save();
+            ctx.translate(handX, gunY - 4);
+            ctx.scale(dir, 1);
+            ctx.fillStyle = '#546E7A';
+            ctx.strokeStyle = '#111';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.rect(-3, -8, 20, 7);
+            ctx.fill(); ctx.stroke();                                   // slide
+            ctx.fillStyle = '#37474F';
+            ctx.beginPath();
+            ctx.rect(-3, -2, 7, 10);
+            ctx.fill(); ctx.stroke();                                   // grip
+            ctx.restore();
+            ctx.fillStyle = outline;
+            ctx.beginPath();
+            ctx.arc(handX, gunY - 3, 4, 0, Math.PI * 2);
+            ctx.arc(cx - dir * 26, top + 52, 4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        // Muzzle flash right after a shot
+        if (c.flashUntil && Date.now() < c.flashUntil) {
+            const fx = cx + dir * (c.gun === 'rifle' ? 52 : 58);
+            const fy = c.gun === 'rifle' ? gunY : gunY - 4;
+            ctx.fillStyle = '#FFEB3B';
+            ctx.beginPath();
+            ctx.moveTo(fx, fy - 5);
+            ctx.lineTo(fx + dir * 12, fy);
+            ctx.lineTo(fx, fy + 5);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#FF9800';
+            ctx.beginPath();
+            ctx.arc(fx, fy, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
         ctx.restore();
     }
 
@@ -6500,7 +8399,10 @@ class Game {
         }
     }
 
-    triggerBossCutscene() {
+    triggerBossCutscene(bossType = 4) {
+        // Which boss is coming decides what Popcorn says
+        this.bossCutsceneBossType = bossType;
+        
         // ONLY stop gameplay and boss music
         this.stopGameplayMusic();
         this.stopBossMusic();
@@ -6646,13 +8548,26 @@ class Game {
         let dialogue = "";
         let speaker = "";
         
+        // Two lines per boss, 6 seconds each. The World 2 mech gets its own speech.
+        const speeches = {
+            5: [
+                "So, you survived my\nunderground fortress...\nImpressive, little tofu.\nBut down here, YOU LOSE!",
+                "Meet my MECH! Built in\nthe deepest bunker to\nstomp soybeans like you\ninto TOFU PASTE! ATTACK!"
+            ],
+            default: [
+                "BEHOLD MY ULTIMATE CREATION!\nThis massive war machine will\ncrush you like the pathetic\ntofu you are! MWAHAHAHA!",
+                "You think your little\npea-shooter can stop\nTHIS monstrosity?\nPrepare for DOOM!"
+            ]
+        };
+        const speech = speeches[this.bossCutsceneBossType] || speeches.default;
+        
         let currentDialogueTime = 0;
         if (dialogueTime < 360) {
-            dialogue = "BEHOLD MY ULTIMATE CREATION!\nThis massive war machine will\ncrush you like the pathetic\ntofu you are! MWAHAHAHA!";
+            dialogue = speech[0];
             speaker = "POPCORN";
             currentDialogueTime = dialogueTime;
         } else if (dialogueTime < 720) {
-            dialogue = "You think your little\npea-shooter can stop\nTHIS monstrosity?\nPrepare for DOOM!";
+            dialogue = speech[1];
             speaker = "POPCORN";
             currentDialogueTime = dialogueTime - 360; // Reset for second dialogue
         }
@@ -6710,7 +8625,7 @@ class Game {
         this.bossCutsceneActive = false;
         
         // Now spawn the actual boss
-        const bossData = this.currentLevelData.enemies.find(e => e.type === 4 || e.type === 7);
+        const bossData = this.currentLevelData.enemies.find(e => isBossType(e.type));
         if (bossData && this.levelSpawnIndex < this.currentLevelData.enemies.length) {
             const boss = new Enemy(bossData.x, bossData.y, bossData.type, this.assets);
             this.enemies.push(boss);
@@ -6911,6 +8826,13 @@ class Game {
             this.currentLevel = 1;
             this.startLevel(1);
             this.gameState = 'playing';
+            // Heading underground: Tofu ropes down into the secret bunker first
+            if (this.currentWorld === 2) {
+                this.startBunkerIntro();
+            } else if (this.currentWorld === 4) {
+                // Leaving the city: the train escape that ends in the mountains
+                this.startTrainIntro();
+            }
         } else {
             // All worlds and levels complete - check for high score first
             this.stopGameplayMusic();
@@ -7424,6 +9346,10 @@ class Game {
             this.renderConstructionBackground();
             return;
         }
+        if (this.currentWorld === 4) {
+            this.renderMountainBackground();
+            return;
+        }
         if (this.currentWorld === 2) {
             // Underground bunker background
             const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
@@ -7610,6 +9536,136 @@ class Game {
             ctx.fillStyle = 'rgba(56, 142, 60, 0.35)';
             const netBay = Math.floor(this.sceneryRand(i, 10) * bays);
             ctx.fillRect(fx + netBay * bayW + 2, baseY - floors * floorH + 2, bayW - 4, (floors - 1) * floorH);
+        }
+    }
+
+    // World 4 - The Mountain Range: icy sky, layers of snow-capped peaks and pine forests,
+    // each scrolling at its own parallax speed
+    renderMountainBackground() {
+        const ctx = this.ctx;
+        const W = this.canvas.width;
+        const H = this.canvas.height;
+
+        const sky = ctx.createLinearGradient(0, 0, 0, H * 0.8);
+        sky.addColorStop(0, '#3F6EA8');
+        sky.addColorStop(0.6, '#9CC3E6');
+        sky.addColorStop(1, '#DCEBF7');
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, W, H);
+
+        // Three ranges of peaks: far and pale, then nearer and darker
+        const ranges = [
+            { parallax: 0.04, spacing: 220, base: 270, minH: 150, maxH: 220, color: '#A9BCD3', snow: 0.38, seed: 21 },
+            { parallax: 0.1, spacing: 170, base: 285, minH: 110, maxH: 170, color: '#7D91AA', snow: 0.3, seed: 22 },
+            { parallax: 0.2, spacing: 130, base: 300, minH: 70, maxH: 120, color: '#566A80', snow: 0.22, seed: 23 }
+        ];
+        ranges.forEach(range => {
+            const off = this.camera.x * range.parallax;
+            const start = Math.floor(off / range.spacing) - 1;
+            for (let i = start; i < start + W / range.spacing + 3; i++) {
+                const px = i * range.spacing - off + this.sceneryRand(i, range.seed) * 40;
+                const peakH = range.minH + this.sceneryRand(i, range.seed + 1) * (range.maxH - range.minH);
+                const halfW = range.spacing * 0.85;
+                const top = range.base - peakH;
+                ctx.fillStyle = range.color;
+                ctx.beginPath();
+                ctx.moveTo(px - halfW, range.base);
+                ctx.lineTo(px, top);
+                ctx.lineTo(px + halfW, range.base);
+                ctx.closePath();
+                ctx.fill();
+                // Snowcap with a ragged lower edge
+                const snowH = peakH * range.snow;
+                const k = snowH / peakH;
+                ctx.fillStyle = '#F4F8FC';
+                ctx.beginPath();
+                ctx.moveTo(px, top);
+                ctx.lineTo(px + halfW * k, top + snowH);
+                ctx.lineTo(px + halfW * k * 0.4, top + snowH * 0.8);
+                ctx.lineTo(px, top + snowH);
+                ctx.lineTo(px - halfW * k * 0.4, top + snowH * 0.75);
+                ctx.lineTo(px - halfW * k, top + snowH);
+                ctx.closePath();
+                ctx.fill();
+            }
+            ctx.fillStyle = range.color;
+            ctx.fillRect(0, range.base - 1, W, H - range.base + 1);
+        });
+
+        // Valley mist
+        const mist = ctx.createLinearGradient(0, 240, 0, 320);
+        mist.addColorStop(0, 'rgba(230, 240, 250, 0)');
+        mist.addColorStop(1, 'rgba(230, 240, 250, 0.55)');
+        ctx.fillStyle = mist;
+        ctx.fillRect(0, 240, W, 80);
+
+        // Near pine forest
+        const treeSpacing = 46;
+        const treeOff = this.camera.x * 0.4;
+        const treeStart = Math.floor(treeOff / treeSpacing) - 1;
+        for (let i = treeStart; i < treeStart + W / treeSpacing + 3; i++) {
+            const tx = i * treeSpacing - treeOff + this.sceneryRand(i, 24) * 20;
+            const th = 40 + this.sceneryRand(i, 25) * 35;
+            const baseY = 322;
+            ctx.fillStyle = '#5D4037';
+            ctx.fillRect(tx - 2, baseY - 8, 4, 8);
+            ctx.fillStyle = this.sceneryRand(i, 26) > 0.5 ? '#2E5D3A' : '#24503A';
+            for (let tier = 0; tier < 3; tier++) {
+                const ty = baseY - 6 - tier * th * 0.28;
+                const tw = (th * 0.36) * (1 - tier * 0.25);
+                ctx.beginPath();
+                ctx.moveTo(tx - tw, ty);
+                ctx.lineTo(tx, ty - th * 0.45);
+                ctx.lineTo(tx + tw, ty);
+                ctx.closePath();
+                ctx.fill();
+            }
+            ctx.fillStyle = 'rgba(245, 248, 252, 0.85)';
+            ctx.beginPath();
+            ctx.moveTo(tx - 5, baseY - 6 - th * 0.56 - 6);
+            ctx.lineTo(tx, baseY - 6 - th * 0.56 - th * 0.45 + 2);
+            ctx.lineTo(tx + 5, baseY - 6 - th * 0.56 - 6);
+            ctx.closePath();
+            ctx.fill();
+        }
+    }
+
+    // World 4 ground - rocky earth with a grassy, snow-patched top and loose stones
+    renderMountainGround(groundY) {
+        const ctx = this.ctx;
+        const left = this.camera.x - 100;
+        const right = this.camera.x + this.canvas.width + 100;
+
+        ctx.fillStyle = '#6B5A48';
+        ctx.fillRect(left, groundY, right - left, this.canvas.height - groundY);
+
+        // Rock strata
+        ctx.fillStyle = 'rgba(40, 32, 24, 0.25)';
+        ctx.fillRect(left, groundY + 34, right - left, 4);
+        ctx.fillRect(left, groundY + 58, right - left, 3);
+
+        // Stones
+        const stoneStart = Math.floor(left / 26) * 26;
+        for (let x = stoneStart; x < right; x += 26) {
+            const r = this.sceneryRand(x, 27);
+            ctx.fillStyle = r > 0.5 ? '#8A8178' : '#574A3D';
+            ctx.beginPath();
+            ctx.ellipse(x + r * 14, groundY + 18 + r * 40, 3 + r * 4, 2 + r * 2, 0, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Grass edge with patches of snow
+        ctx.fillStyle = '#4F7A35';
+        ctx.fillRect(left, groundY, right - left, 7);
+        const snowStart = Math.floor(left / 90) * 90;
+        for (let x = snowStart; x < right; x += 90) {
+            if (this.sceneryRand(x, 28) > 0.45) {
+                const sw = 30 + this.sceneryRand(x, 29) * 40;
+                ctx.fillStyle = '#F4F8FC';
+                ctx.beginPath();
+                ctx.ellipse(x + 20 + sw / 2, groundY + 2, sw / 2, 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
         }
     }
 
@@ -7817,6 +9873,10 @@ class Game {
 
         if (this.currentWorld === 3) {
             this.renderConstructionGround(groundY);
+            return;
+        }
+        if (this.currentWorld === 4) {
+            this.renderMountainGround(groundY);
             return;
         }
 
@@ -10217,6 +12277,96 @@ class ConcreteBarrier extends WoodenCrate {
     }
 }
 
+// World 4 mountain boulder - solid obstacle with the same collision as a crate
+class Boulder extends WoodenCrate {
+    render(ctx) {
+        ctx.save();
+        const x = this.x, y = this.y, w = this.width, h = this.height;
+        ctx.fillStyle = '#7E7A73';
+        ctx.strokeStyle = '#4E4A44';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x, y + h);
+        ctx.lineTo(x + 3, y + h * 0.45);
+        ctx.lineTo(x + w * 0.25, y + 4);
+        ctx.lineTo(x + w * 0.6, y);
+        ctx.lineTo(x + w - 4, y + h * 0.3);
+        ctx.lineTo(x + w, y + h);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        // Highlight facet and cracks
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.18)';
+        ctx.beginPath();
+        ctx.moveTo(x + w * 0.25, y + 5);
+        ctx.lineTo(x + w * 0.58, y + 2);
+        ctx.lineTo(x + w * 0.45, y + h * 0.4);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(40, 36, 32, 0.6)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(x + w * 0.62, y + h * 0.35);
+        ctx.lineTo(x + w * 0.7, y + h * 0.6);
+        ctx.lineTo(x + w * 0.64, y + h * 0.85);
+        ctx.stroke();
+        // Snow cap and moss
+        ctx.fillStyle = '#F5F7FA';
+        ctx.beginPath();
+        ctx.moveTo(x + w * 0.22, y + 6);
+        ctx.lineTo(x + w * 0.6, y + 1);
+        ctx.lineTo(x + w * 0.85, y + h * 0.22);
+        ctx.quadraticCurveTo(x + w * 0.55, y + 12, x + w * 0.22, y + 6);
+        ctx.fill();
+        ctx.fillStyle = '#5B7F3A';
+        ctx.fillRect(x + 2, y + h - 5, w - 4, 5);
+        ctx.restore();
+    }
+}
+
+// World 4 pile of cut logs
+class LogPile extends WoodenCrate {
+    render(ctx) {
+        ctx.save();
+        const x = this.x, y = this.y, w = this.width, h = this.height;
+        const r = h / 4;
+        // Two logs on the bottom row, one on top, seen end-on with long sides behind
+        const ends = [
+            { cx: x + w * 0.28, cy: y + h - r },
+            { cx: x + w * 0.72, cy: y + h - r },
+            { cx: x + w * 0.5, cy: y + h - r * 2.8 }
+        ];
+        ctx.fillStyle = '#6D4C30';
+        ctx.fillRect(x, y + h - r * 2, w, r * 2);
+        ctx.fillRect(x + w * 0.2, y + h - r * 3.8, w * 0.6, r * 2);
+        ends.forEach(e => {
+            ctx.fillStyle = '#D7B98E';
+            ctx.strokeStyle = '#5D4037';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(e.cx, e.cy, r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.strokeStyle = '#A1825F';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(e.cx, e.cy, r * 0.55, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(e.cx, e.cy, r * 0.2, 0, Math.PI * 2);
+            ctx.stroke();
+        });
+        // Rope binding
+        ctx.strokeStyle = '#C8B07A';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x + 2, y + h - r * 1.2);
+        ctx.lineTo(x + w - 2, y + h - r * 1.2);
+        ctx.stroke();
+        ctx.restore();
+    }
+}
+
 // World 3 pallet of stacked cinder blocks
 class CinderBlockPallet extends WoodenCrate {
     render(ctx) {
@@ -10276,6 +12426,10 @@ class Platform {
             this.renderGirder(ctx);
             return;
         }
+        if (this.style === 'rock') {
+            this.renderRockLedge(ctx);
+            return;
+        }
         ctx.save();
 
         // Platform surface - concrete gray
@@ -10302,6 +12456,29 @@ class Platform {
         ctx.restore();
     }
     
+    // World 4 rocky ledge with a grassy, snow-dusted top
+    renderRockLedge(ctx) {
+        ctx.save();
+        ctx.fillStyle = '#6F6A62';
+        ctx.strokeStyle = '#47433D';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y + 3);
+        ctx.lineTo(this.x + this.width, this.y + 3);
+        ctx.lineTo(this.x + this.width - 6, this.y + this.height);
+        ctx.lineTo(this.x + 6, this.y + this.height);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#5B7F3A';
+        ctx.fillRect(this.x, this.y, this.width, 5);
+        ctx.fillStyle = '#F5F7FA';
+        for (let sx = this.x + 6; sx < this.x + this.width - 8; sx += 22) {
+            ctx.fillRect(sx, this.y, 10, 3);
+        }
+        ctx.restore();
+    }
+
     // World 3 steel I-beam: orange-red flanges, darker web with rivets
     renderGirder(ctx) {
         ctx.save();
