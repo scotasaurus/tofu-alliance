@@ -1,7 +1,7 @@
 // Enemy types that get boss music, the big health bar and a boss death explosion:
 // 4 = boss tank, 5 = mech, 7 = artillery truck
 function isBossType(type) {
-    return type === 4 || type === 5 || type === 7;
+    return type === 4 || type === 5 || type === 7 || type === 9 || type === 12;
 }
 
 // True when the game is opened from this computer (index.html as a file, or a local
@@ -966,20 +966,20 @@ class Game {
                     endX: 7500,
                     enemies: [
                         // Site entrance patrol
-                        { type: 0, x: 600, y: 280 },
+                        { type: 10, x: 600, y: 280 }, // Construction worker
                         { type: 1, x: 850, y: 280 },
                         { type: 0, x: 1100, y: 280 },
                         { type: 3, x: 1400, y: 280 },  // Sniper
                         { type: 1, x: 1700, y: 300 },  // Elevated behind cover
                         // Foundation pit
-                        { type: 0, x: 1950, y: 280 },
+                        { type: 10, x: 1950, y: 280 }, // Construction worker
                         { type: 2, x: 2300, y: 280 },  // Tank
                         { type: 0, x: 2600, y: 280 },
                         { type: 1, x: 2850, y: 280 },
                         { type: 3, x: 3150, y: 280 },  // Sniper
                         { type: 6, x: 3500, y: 180 },  // Scaffold tower
                         // Steel yard
-                        { type: 0, x: 3950, y: 280 },
+                        { type: 10, x: 3950, y: 280 }, // Construction worker
                         { type: 1, x: 4150, y: 280 },
                         { type: 2, x: 4500, y: 280 },  // Tank
                         { type: 0, x: 4800, y: 280 },
@@ -987,7 +987,7 @@ class Game {
                         { type: 1, x: 5300, y: 300 },  // Elevated
                         // Site office
                         { type: 2, x: 5750, y: 280 },  // Tank
-                        { type: 0, x: 6000, y: 280 },
+                        { type: 10, x: 6000, y: 280 }, // Construction worker
                         { type: 1, x: 6250, y: 280 },
                         { type: 6, x: 6800, y: 180 },  // Scaffold tower - guards level end
                         { type: 0, x: 7150, y: 280 }
@@ -1044,7 +1044,7 @@ class Game {
                         { type: 2, x: 1300, y: 280 },  // Tank
                         { type: 1, x: 1550, y: 300 },  // Elevated
                         // Girder maze
-                        { type: 0, x: 2000, y: 280 },
+                        { type: 10, x: 2000, y: 280 }, // Construction worker
                         { type: 3, x: 2250, y: 280 },  // Sniper
                         { type: 1, x: 2500, y: 280 },
                         { type: 2, x: 2800, y: 280 },  // Tank
@@ -1054,7 +1054,7 @@ class Game {
                         { type: 3, x: 4100, y: 280 },  // Sniper
                         { type: 2, x: 4400, y: 280 },  // Tank
                         { type: 1, x: 4650, y: 300 },  // Elevated
-                        { type: 0, x: 4900, y: 280 },
+                        { type: 10, x: 4900, y: 280 }, // Construction worker
                         { type: 2, x: 5300, y: 280 },  // Tank
                         // Upper frame
                         { type: 3, x: 5700, y: 280 },  // Sniper
@@ -1064,7 +1064,7 @@ class Game {
                         { type: 2, x: 7000, y: 280 },  // Tank
                         { type: 3, x: 7300, y: 280 },  // Sniper
                         { type: 1, x: 7600, y: 300 },  // Elevated
-                        { type: 0, x: 7900, y: 280 },
+                        { type: 10, x: 7900, y: 280 }, // Construction worker
                         { type: 2, x: 8300, y: 280 },  // Tank
                         { type: 0, x: 8650, y: 280 }
                     ],
@@ -1129,7 +1129,7 @@ class Game {
                         { type: 3, x: 2700, y: 280 },  // Sniper
                         { type: 2, x: 2950, y: 280 },  // Tank
                         { type: 1, x: 3200, y: 300 },  // Elevated
-                        { type: 0, x: 3450, y: 280 },
+                        { type: 10, x: 3450, y: 280 }, // Construction worker
                         { type: 2, x: 3800, y: 280 },  // Tank
                         // Last line before the boss
                         { type: 3, x: 4400, y: 280 },  // Sniper
@@ -1195,12 +1195,14 @@ class Game {
                         { type: 3, x: 1250, y: 280 },  // Sniper on the ridge
                         { type: 0, x: 1550, y: 280 },
                         { type: 1, x: 1800, y: 300 },  // Elevated
+                        { type: 8, x: 2050, y: 280 },  // Shield stickman
                         // Pine forest
                         { type: 2, x: 2300, y: 280 },  // Tank
                         { type: 0, x: 2650, y: 280 },
                         { type: 3, x: 2950, y: 280 },  // Sniper
                         { type: 6, x: 3400, y: 180 },  // Watchtower
                         { type: 1, x: 3850, y: 280 },
+                        { type: 8, x: 4050, y: 280 },  // Shield stickman
                         // River crossing
                         { type: 2, x: 4300, y: 280 },  // Tank
                         { type: 0, x: 4650, y: 280 },
@@ -1209,6 +1211,7 @@ class Game {
                         // Base camp
                         { type: 2, x: 5700, y: 280 },  // Tank
                         { type: 0, x: 6000, y: 280 },
+                        { type: 8, x: 6250, y: 280 },  // Shield stickman
                         { type: 6, x: 6600, y: 180 },  // Watchtower - guards level end
                         { type: 1, x: 7100, y: 280 }
                     ],
@@ -1256,6 +1259,7 @@ class Game {
                         { type: 2, x: 1150, y: 280 },  // Tank
                         { type: 0, x: 1450, y: 280 },
                         { type: 1, x: 1700, y: 300 },  // Elevated
+                        { type: 8, x: 1950, y: 280 },  // Shield stickman
                         // Frozen switchbacks
                         { type: 3, x: 2200, y: 280 },  // Sniper
                         { type: 2, x: 2550, y: 280 },  // Tank
@@ -1263,6 +1267,7 @@ class Game {
                         { type: 6, x: 3300, y: 180 },  // Watchtower
                         { type: 1, x: 3750, y: 280 },
                         { type: 2, x: 4150, y: 280 },  // Tank
+                        { type: 8, x: 4400, y: 280 },  // Shield stickman
                         // Ice caves
                         { type: 3, x: 4600, y: 280 },  // Sniper
                         { type: 0, x: 4900, y: 280 },
@@ -1274,6 +1279,7 @@ class Game {
                         { type: 2, x: 7100, y: 280 },  // Tank
                         { type: 0, x: 7450, y: 280 },
                         { type: 1, x: 7800, y: 300 },  // Elevated
+                        { type: 8, x: 8000, y: 280 },  // Shield stickman
                         { type: 2, x: 8250, y: 280 },  // Tank
                         { type: 0, x: 8650, y: 280 }
                     ],
@@ -1322,12 +1328,14 @@ class Game {
                         { type: 3, x: 950, y: 280 },   // Sniper
                         { type: 1, x: 1200, y: 300 },  // Elevated
                         { type: 0, x: 1450, y: 280 },
+                        { type: 8, x: 1600, y: 280 },  // Shield stickman
                         { type: 2, x: 1800, y: 280 },  // Tank
                         { type: 6, x: 2400, y: 180 },  // Watchtower
                         { type: 3, x: 2850, y: 280 },  // Sniper
                         { type: 2, x: 3150, y: 280 },  // Tank
                         { type: 1, x: 3450, y: 300 },  // Elevated
                         { type: 0, x: 3750, y: 280 },
+                        { type: 8, x: 4000, y: 280 },  // Shield stickman
                         // Summit fortress
                         { type: 2, x: 4300, y: 280 },  // Tank
                         { type: 3, x: 4600, y: 280 },  // Sniper
@@ -1336,8 +1344,9 @@ class Game {
                         { type: 2, x: 6100, y: 280 },  // Tank
                         { type: 3, x: 6500, y: 280 },  // Sniper
                         { type: 0, x: 6900, y: 280 },
+                        { type: 8, x: 7200, y: 280 },  // Shield stickman
                         // Boss on the mountaintop
-                        { type: 4, x: 9600, y: 280 }   // Boss tank
+                        { type: 9, x: 9600, y: 280 }   // Boss: cyborg yeti
                     ],
                     sandbags: [
                         { x: 1100, y: 280 },
@@ -1369,6 +1378,210 @@ class Game {
                         { x: 4450, y: 280, width: 40, points: 125 },
                         { x: 5950, y: 280, width: 40, points: 125 },
                         { x: 7600, y: 280, width: 40, points: 125 }
+                    ]
+                }
+            },
+            5: {
+                // World 5 - The Nuclear Base. Starter level: the fenced perimeter around the reactor.
+                1: {
+                    name: "Reactor Perimeter",
+                    startX: 0,
+                    endX: 7500,
+                    enemies: [
+                        // Main gate
+                        { type: 0, x: 700, y: 280 },
+                        { type: 1, x: 950, y: 280 },
+                        { type: 11, x: 1250, y: 280 },  // Hazmat trooper
+                        { type: 11, x: 1400, y: 280 }, // Hazmat trooper
+                        { type: 3, x: 1550, y: 280 },  // Sniper
+                        { type: 1, x: 1800, y: 300 },  // Elevated
+                        // Fuel depot
+                        { type: 2, x: 2250, y: 280 },  // Tank
+                        { type: 0, x: 2550, y: 280 },
+                        { type: 11, x: 2800, y: 280 },  // Hazmat trooper
+                        { type: 11, x: 2950, y: 280 }, // Hazmat trooper
+                        { type: 6, x: 3300, y: 180 },  // Guard tower
+                        { type: 1, x: 3750, y: 280 },
+                        // Cooling towers
+                        { type: 3, x: 4150, y: 280 },  // Sniper
+                        { type: 2, x: 4500, y: 280 },  // Tank
+                        { type: 11, x: 4850, y: 280 },  // Hazmat trooper
+                        { type: 0, x: 5100, y: 280 },
+                        { type: 11, x: 5200, y: 280 }, // Hazmat trooper
+                        { type: 1, x: 5300, y: 300 },  // Elevated
+                        // Reactor doors
+                        { type: 2, x: 5800, y: 280 },  // Tank
+                        { type: 11, x: 6150, y: 280 },  // Hazmat trooper
+                        { type: 11, x: 6350, y: 280 }, // Hazmat trooper
+                        { type: 6, x: 6650, y: 180 },  // Guard tower
+                        { type: 0, x: 7100, y: 280 }
+                    ],
+                    sandbags: [
+                        { x: 1700, y: 280 },
+                        { x: 3650, y: 280 },
+                        { x: 5200, y: 280 },
+                        { x: 6400, y: 280 }
+                    ],
+                    platforms: [
+                        { x: 1770, y: 300, width: 80, height: 20 },
+                        { x: 5270, y: 300, width: 80, height: 20 }
+                    ],
+                    barbedWire: [
+                        { x: 1100, y: 280, width: 70 },
+                        { x: 2650, y: 280, width: 60 },
+                        { x: 4000, y: 280, width: 70 },
+                        { x: 5600, y: 280, width: 60 },
+                        { x: 6900, y: 280, width: 70 }
+                    ],
+                    warehouseCrates: [
+                        { x: 2050, y: 280, width: 60 },
+                        { x: 4350, y: 280, width: 55 },
+                        { x: 6000, y: 280, width: 60 }
+                    ],
+                    destructibleCrates: [
+                        { x: 850, y: 280, width: 40, points: 150 },
+                        { x: 2400, y: 280, width: 40, points: 150 },
+                        { x: 3550, y: 280, width: 40, points: 150 },
+                        { x: 5450, y: 280, width: 40, points: 150 },
+                        { x: 7000, y: 280, width: 40, points: 150 }
+                    ]
+                },
+                2: {
+                    name: "Cooling Towers",
+                    startX: 0,
+                    endX: 9000,
+                    enemies: [
+                        // Tower yard
+                        { type: 1, x: 600, y: 280 },
+                        { type: 11, x: 850, y: 280 },  // Hazmat trooper
+                        { type: 3, x: 1150, y: 280 },  // Sniper
+                        { type: 11, x: 1450, y: 280 },  // Hazmat trooper
+                        { type: 1, x: 1700, y: 300 },  // Elevated
+                        // Steam vents
+                        { type: 2, x: 2150, y: 280 },  // Tank
+                        { type: 11, x: 2450, y: 280 }, // Hazmat trooper
+                        { type: 0, x: 2700, y: 280 },
+                        { type: 6, x: 3200, y: 180 },  // Guard tower
+                        { type: 11, x: 3650, y: 280 },  // Hazmat trooper
+                        { type: 11, x: 3900, y: 280 }, // Hazmat trooper
+                        // Pump station
+                        { type: 3, x: 4300, y: 280 },  // Sniper
+                        { type: 2, x: 4650, y: 280 },  // Tank
+                        { type: 1, x: 5000, y: 300 },  // Elevated
+                        { type: 11, x: 5300, y: 280 },  // Hazmat trooper
+                        { type: 11, x: 5550, y: 280 }, // Hazmat trooper
+                        // Cooling tower base
+                        { type: 6, x: 6100, y: 180 },  // Guard tower
+                        { type: 2, x: 6600, y: 280 },  // Tank
+                        { type: 11, x: 6950, y: 280 }, // Hazmat trooper
+                        { type: 3, x: 7300, y: 280 },  // Sniper
+                        { type: 11, x: 7700, y: 280 },  // Hazmat trooper
+                        { type: 0, x: 8100, y: 280 },
+                        { type: 11, x: 8500, y: 280 }  // Hazmat trooper
+                    ],
+                    sandbags: [
+                        { x: 1600, y: 280 },
+                        { x: 3500, y: 280 },
+                        { x: 4900, y: 280 },
+                        { x: 7150, y: 280 }
+                    ],
+                    platforms: [
+                        { x: 1670, y: 300, width: 80, height: 20 },
+                        { x: 4970, y: 300, width: 80, height: 20 }
+                    ],
+                    barbedWire: [
+                        { x: 1000, y: 280, width: 60 },
+                        { x: 2300, y: 280, width: 70 },
+                        { x: 3400, y: 280, width: 60 },
+                        { x: 5800, y: 280, width: 70 },
+                        { x: 7500, y: 280, width: 60 },
+                        { x: 8300, y: 280, width: 70 }
+                    ],
+                    warehouseCrates: [
+                        { x: 1900, y: 280, width: 60 },
+                        { x: 4100, y: 280, width: 55 },
+                        { x: 6350, y: 280, width: 60 },
+                        { x: 7900, y: 280, width: 55 }
+                    ],
+                    destructibleCrates: [
+                        { x: 700, y: 280, width: 40, points: 150 },
+                        { x: 2550, y: 280, width: 40, points: 150 },
+                        { x: 4450, y: 280, width: 40, points: 150 },
+                        { x: 6000, y: 280, width: 40, points: 150 },
+                        { x: 8000, y: 280, width: 40, points: 150 }
+                    ]
+                },
+                3: {
+                    name: "Reactor Core",
+                    startX: 0,
+                    endX: 11500,
+                    enemies: [
+                        // Blast doors
+                        { type: 11, x: 650, y: 280 },   // Hazmat trooper
+                        { type: 11, x: 900, y: 280 },  // Hazmat trooper
+                        { type: 2, x: 1250, y: 280 },  // Tank
+                        { type: 3, x: 1550, y: 280 },  // Sniper
+                        { type: 1, x: 1800, y: 300 },  // Elevated
+                        // Control room
+                        { type: 11, x: 2200, y: 280 }, // Hazmat trooper
+                        { type: 11, x: 2450, y: 280 },  // Hazmat trooper
+                        { type: 6, x: 2900, y: 180 },  // Guard tower
+                        { type: 2, x: 3350, y: 280 },  // Tank
+                        { type: 11, x: 3700, y: 280 }, // Hazmat trooper
+                        { type: 0, x: 3950, y: 280 },
+                        // Coolant pipes
+                        { type: 3, x: 4350, y: 280 },  // Sniper
+                        { type: 11, x: 4650, y: 280 },  // Hazmat trooper
+                        { type: 11, x: 4900, y: 280 }, // Hazmat trooper
+                        { type: 1, x: 5200, y: 300 },  // Elevated
+                        { type: 2, x: 5600, y: 280 },  // Tank
+                        // Reactor hall
+                        { type: 6, x: 6200, y: 180 },  // Guard tower
+                        { type: 11, x: 6650, y: 280 }, // Hazmat trooper
+                        { type: 11, x: 6950, y: 280 },  // Hazmat trooper
+                        { type: 2, x: 7350, y: 280 },  // Tank
+                        { type: 3, x: 7700, y: 280 },  // Sniper
+                        { type: 11, x: 8050, y: 280 }, // Hazmat trooper
+                        { type: 11, x: 8400, y: 280 },  // Hazmat trooper
+                        { type: 6, x: 8900, y: 180 },  // Guard tower - last stand before the core
+                        { type: 11, x: 9400, y: 280 }, // Hazmat trooper
+                        { type: 11, x: 9750, y: 280 },  // Hazmat trooper
+                        // Boss in the reactor chamber
+                        { type: 12, x: 10700, y: 280 } // Boss: Reactor Titan
+                    ],
+                    sandbags: [
+                        { x: 1700, y: 280 },
+                        { x: 3800, y: 280 },
+                        { x: 5100, y: 280 },
+                        { x: 7550, y: 280 },
+                        { x: 9200, y: 280 }
+                    ],
+                    platforms: [
+                        { x: 1770, y: 300, width: 80, height: 20 },
+                        { x: 5170, y: 300, width: 80, height: 20 }
+                    ],
+                    barbedWire: [
+                        { x: 1100, y: 280, width: 70 },
+                        { x: 2650, y: 280, width: 60 },
+                        { x: 4150, y: 280, width: 70 },
+                        { x: 5900, y: 280, width: 60 },
+                        { x: 7150, y: 280, width: 70 },
+                        { x: 8650, y: 280, width: 60 },
+                        { x: 9950, y: 280, width: 70 }
+                    ],
+                    warehouseCrates: [
+                        { x: 2050, y: 280, width: 60 },
+                        { x: 4500, y: 280, width: 55 },
+                        { x: 6450, y: 280, width: 60 },
+                        { x: 8250, y: 280, width: 55 }
+                    ],
+                    destructibleCrates: [
+                        { x: 800, y: 280, width: 40, points: 175 },
+                        { x: 2750, y: 280, width: 40, points: 175 },
+                        { x: 4800, y: 280, width: 40, points: 175 },
+                        { x: 6800, y: 280, width: 40, points: 175 },
+                        { x: 8800, y: 280, width: 40, points: 175 },
+                        { x: 9900, y: 280, width: 40, points: 175 }
                     ]
                 }
             }
@@ -1717,6 +1930,11 @@ class Game {
                     this.skipTrainIntro();
                     e.preventDefault();
                 }
+            } else if (this.gameState === 'campIntro') {
+                if (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape') {
+                    this.skipCampIntro();
+                    e.preventDefault();
+                }
             } else if (this.gameState === 'bossCutscene') {
                 // Allow skipping cutscene
                 if (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape') {
@@ -1938,6 +2156,8 @@ class Game {
             this.skipBunkerIntro();
         } else if (this.gameState === 'trainIntro') {
             this.skipTrainIntro();
+        } else if (this.gameState === 'campIntro') {
+            this.skipCampIntro();
         } else if (this.gameState === 'gameOver' && !this.enteringInitials) {
             this.returnToTitle();
         } else if (this.gameState === 'levelComplete') {
@@ -2076,6 +2296,8 @@ class Game {
             this.skipBunkerIntro();
         } else if (this.gameState === 'trainIntro') {
             this.skipTrainIntro();
+        } else if (this.gameState === 'campIntro') {
+            this.skipCampIntro();
         } else if (this.gameState === 'gameOver' && !this.enteringInitials) {
             this.returnToTitle();
         } else if (this.gameState === 'levelComplete') {
@@ -2431,7 +2653,7 @@ class Game {
             
             if (this.enemyBullets[i].x < this.camera.x - 100 || 
                 this.enemyBullets[i].x > this.camera.x + this.canvas.width + 100 ||
-                bulletRange > maxRange) {
+                bulletRange > maxRange || this.enemyBullets[i].landed) {
                 this.enemyBullets.splice(i, 1);
                 continue;
             }
@@ -2480,6 +2702,16 @@ class Game {
                     // Damage the enemy
                     const enemy = this.enemies[j];
                     const enemyDestroyed = enemy.takeDamage(1);
+                    if (enemy.shieldBlocked) {
+                        enemy.shieldBlocked = false;
+                        if (enemy.shieldJustBroke) {
+                            enemy.shieldJustBroke = false;
+                            this.playShieldBreak();
+                            this.score += 25;
+                        } else {
+                            this.playShieldClank();
+                        }
+                    }
                     if (enemyDestroyed) {
                         // Award points for destroying enemy
                         this.score += enemy.pointValue;
@@ -2501,6 +2733,10 @@ class Game {
                             this.explosions.push(new BossExplosion(enemy.x + enemy.width/2, enemy.y + enemy.height/2));
                             // Stop boss music
                             this.stopBossMusic();
+                            if (enemy.type === 9 || enemy.type === 12) {
+                                // Rockets / barrels still in the air fizzle out with the boss
+                                this.artilleryShells = [];
+                            }
                             if (enemy.type === 7) {
                                 // Artillery truck leaves a burnt-out wreck; shells already in the air fizzle
                                 this.tankRemnants.push(new TankRemnant(enemy.x + 20, enemy.y + 40, enemy.width - 40, enemy.height - 40));
@@ -2532,8 +2768,14 @@ class Game {
         for (let i = this.enemyBullets.length - 1; i >= 0; i--) {
             if (this.checkCollision(this.enemyBullets[i], this.player)) {
                 // Tank bullets do 1.5 hearts (3 damage), soldier bullets do 0.5 hearts (1 damage)
-                const damage = this.enemyBullets[i].isTank ? 3 : 1;
+                const hitBullet = this.enemyBullets[i];
+                const damage = hitBullet.isTank ? 3 : 1;
                 this.enemyBullets.splice(i, 1);
+                if (hitBullet.bulletType === 'goo') {
+                    const now = Date.now();
+                    if (this.player.lastGooHit && now - this.player.lastGooHit < 700) continue;
+                    this.player.lastGooHit = now;
+                }
                 this.player.takeDamage(damage);
             }
         }
@@ -2841,6 +3083,217 @@ class Game {
         oscillator.stop(this.audioContext.currentTime + 0.1);
     }
     
+    // Rising whine as the Reactor Titan charges its core beam
+    playBeamCharge() {
+        const ac = this.audioContext;
+        if (!ac) return;
+        const t = ac.currentTime;
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(200, t);
+        osc.frequency.exponentialRampToValueAtTime(1400, t + 1.0);
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.linearRampToValueAtTime(0.08, t + 0.8);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 1.1);
+        osc.connect(gain); gain.connect(ac.destination);
+        osc.start(t); osc.stop(t + 1.1);
+    }
+
+    // Buzzing roar of the core beam firing
+    playCoreBeam() {
+        const ac = this.audioContext;
+        if (!ac) return;
+        const t = ac.currentTime;
+        [[90, 'sawtooth', 0.12], [181, 'square', 0.05]].forEach(([f, type, vol]) => {
+            const osc = ac.createOscillator();
+            const gain = ac.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(f, t);
+            osc.frequency.linearRampToValueAtTime(f * 0.85, t + 0.6);
+            gain.gain.setValueAtTime(vol, t);
+            gain.gain.setValueAtTime(vol, t + 0.45);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.65);
+            osc.connect(gain); gain.connect(ac.destination);
+            osc.start(t); osc.stop(t + 0.66);
+        });
+    }
+
+    // Hissing, bubbling spray from the hazmat trooper's goo hose
+    playGooSpray() {
+        const ac = this.audioContext;
+        if (!ac) return;
+        const t = ac.currentTime;
+        const len = Math.floor(ac.sampleRate * 0.8);
+        const buf = ac.createBuffer(1, len, ac.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (i < len * 0.85 ? 1 : (len - i) / (len * 0.15));
+        const src = ac.createBufferSource();
+        src.buffer = buf;
+        const filter = ac.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = 2200;
+        const gain = ac.createGain();
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.linearRampToValueAtTime(0.12, t + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+        src.connect(filter); filter.connect(gain); gain.connect(ac.destination);
+        src.start(t);
+        const osc = ac.createOscillator();
+        const og = ac.createGain();
+        osc.type = 'sine';
+        for (let i = 0; i < 10; i++) osc.frequency.setValueAtTime(180 + Math.random() * 220, t + i * 0.07);
+        og.gain.setValueAtTime(0.05, t);
+        og.gain.exponentialRampToValueAtTime(0.001, t + 0.75);
+        osc.connect(og); og.connect(ac.destination);
+        osc.start(t); osc.stop(t + 0.76);
+    }
+
+    // Quick whirring swish for a thrown wrench
+    playWrenchThrow() {
+        const ac = this.audioContext;
+        if (!ac) return;
+        const t = ac.currentTime;
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.type = 'triangle';
+        for (let i = 0; i < 6; i++) osc.frequency.setValueAtTime(i % 2 ? 520 : 760, t + i * 0.035);
+        gain.gain.setValueAtTime(0.09, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+        osc.connect(gain); gain.connect(ac.destination);
+        osc.start(t); osc.stop(t + 0.23);
+    }
+
+    // Whoosh when a yeti rocket leaves the launcher
+    playRocketLaunch() {
+        const ac = this.audioContext;
+        if (!ac) return;
+        const t = ac.currentTime;
+        const len = Math.floor(ac.sampleRate * 0.5);
+        const buf = ac.createBuffer(1, len, ac.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / len);
+        const src = ac.createBufferSource();
+        src.buffer = buf;
+        const filter = ac.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(400, t);
+        filter.frequency.exponentialRampToValueAtTime(2400, t + 0.45);
+        filter.Q.value = 1.2;
+        const gain = ac.createGain();
+        gain.gain.setValueAtTime(0.28, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+        src.connect(filter); filter.connect(gain); gain.connect(ac.destination);
+        src.start(t);
+    }
+
+    // Robotic roar for the cyborg yeti
+    playYetiRoar() {
+        const ac = this.audioContext;
+        if (!ac) return;
+        const t = ac.currentTime;
+        [[70, 'sawtooth', 0.14], [105, 'square', 0.05]].forEach(([f, type, vol]) => {
+            const osc = ac.createOscillator();
+            const lfo = ac.createOscillator();
+            const lfoGain = ac.createGain();
+            const gain = ac.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(f, t);
+            osc.frequency.linearRampToValueAtTime(f * 1.5, t + 0.25);
+            osc.frequency.linearRampToValueAtTime(f * 0.8, t + 0.9);
+            lfo.frequency.value = 28;
+            lfoGain.gain.value = f * 0.25;
+            lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
+            gain.gain.setValueAtTime(0.001, t);
+            gain.gain.linearRampToValueAtTime(vol, t + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.95);
+            osc.connect(gain); gain.connect(ac.destination);
+            osc.start(t); lfo.start(t);
+            osc.stop(t + 1); lfo.stop(t + 1);
+        });
+    }
+
+    // Metal ping when a shot bounces off the shield stickman's shield
+    playShieldClank() {
+        const ac = this.audioContext;
+        if (!ac) return;
+        const t = ac.currentTime;
+        [1250, 1870].forEach((f, i) => {
+            const osc = ac.createOscillator();
+            const gain = ac.createGain();
+            osc.type = i ? 'sine' : 'triangle';
+            osc.frequency.setValueAtTime(f, t);
+            osc.frequency.exponentialRampToValueAtTime(f * 0.85, t + 0.18);
+            gain.gain.setValueAtTime(0.12, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+            osc.connect(gain); gain.connect(ac.destination);
+            osc.start(t); osc.stop(t + 0.21);
+        });
+    }
+
+    // Crunch and clatter when the shield finally shatters
+    playShieldBreak() {
+        const ac = this.audioContext;
+        if (!ac) return;
+        const t = ac.currentTime;
+        const len = Math.floor(ac.sampleRate * 0.35);
+        const buf = ac.createBuffer(1, len, ac.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
+        const noise = ac.createBufferSource();
+        noise.buffer = buf;
+        const filter = ac.createBiquadFilter();
+        filter.type = 'bandpass'; filter.frequency.value = 2500; filter.Q.value = 0.8;
+        const ng = ac.createGain();
+        ng.gain.setValueAtTime(0.35, t);
+        noise.connect(filter); filter.connect(ng); ng.connect(ac.destination);
+        noise.start(t);
+        [900, 640, 1400].forEach((f, i) => {
+            const osc = ac.createOscillator();
+            const gain = ac.createGain();
+            const st = t + i * 0.06;
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(f, st);
+            osc.frequency.exponentialRampToValueAtTime(f * 0.5, st + 0.15);
+            gain.gain.setValueAtTime(0.07, st);
+            gain.gain.exponentialRampToValueAtTime(0.001, st + 0.15);
+            osc.connect(gain); gain.connect(ac.destination);
+            osc.start(st); osc.stop(st + 0.16);
+        });
+    }
+
+    // Rising electric hum while the axe charges up
+    playAxeCharge() {
+        const ac = this.audioContext;
+        if (!ac) return;
+        const t = ac.currentTime;
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(90, t);
+        osc.frequency.exponentialRampToValueAtTime(420, t + 0.45);
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.linearRampToValueAtTime(0.07, t + 0.35);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+        osc.connect(gain); gain.connect(ac.destination);
+        osc.start(t); osc.stop(t + 0.5);
+    }
+
+    // Electric crack when the axe comes down
+    playAxeZap() {
+        const ac = this.audioContext;
+        if (!ac) return;
+        const t = ac.currentTime;
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.type = 'square';
+        for (let i = 0; i < 8; i++) osc.frequency.setValueAtTime(200 + Math.random() * 1400, t + i * 0.025);
+        gain.gain.setValueAtTime(0.13, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+        osc.connect(gain); gain.connect(ac.destination);
+        osc.start(t); osc.stop(t + 0.23);
+    }
+
     playEnemyShoot() {
         if (!this.audioContext) return;
         
@@ -4858,8 +5311,9 @@ class Game {
         }
         
         if (this.gameState === 'story') {
-            if (!this.storyMusicPlaying && this.audioUnlocked) {
-                console.log('RENDER LOOP: Starting story music for slide', this.currentStorySlide);
+            // Popcorn's villain slides play the popcorn track, which doesn't set storyMusicPlaying -
+            // check it too, or the music restarts every frame and the game bogs down
+            if (!this.storyMusicPlaying && !this.popcornMusicPlaying && this.audioUnlocked) {
                 this.startStoryMusic(this.currentStorySlide);
             }
             this.renderStoryScreen();
@@ -4881,10 +5335,14 @@ class Game {
             return;
         }
 
+        if (this.gameState === 'campIntro') {
+            this.renderCampIntro();
+            return;
+        }
+
         if (this.gameState === 'bossCutscene') {
             // Same music handling as story mode
-            if (!this.storyMusicPlaying && this.audioUnlocked) {
-                console.log('BOSS CUTSCENE RENDER LOOP: Starting music like story mode');
+            if (!this.storyMusicPlaying && !this.popcornMusicPlaying && this.audioUnlocked) {
                 this.startStoryMusic(0); // Villain slide
             }
             this.renderBossCutscene();
@@ -5100,7 +5558,7 @@ class Game {
         ctx.lineWidth = 2;
         ctx.font = 'bold 18px Arial';
         ctx.textAlign = 'center';
-        const bossTitle = boss.type === 7 ? 'ARTILLERY TRUCK' : 'BOSS TANK';
+        const bossTitle = boss.type === 12 ? 'REACTOR TITAN' : boss.type === 9 ? 'CYBORG YETI' : boss.type === 7 ? 'ARTILLERY TRUCK' : 'BOSS TANK';
         ctx.strokeText(bossTitle, this.canvas.width / 2, barY - 8);
         ctx.fillText(bossTitle, this.canvas.width / 2, barY - 8);
         
@@ -6223,6 +6681,726 @@ class Game {
         this.player.velocityY = 0;
         this.player.facingRight = true;
         this.player.isMoving = false;
+    }
+
+    // ===== End of World 4: Chinook pickup -> flight -> base camp briefing -> jeep to the nuclear base =====
+    startCampIntro() {
+        this.stopGameplayMusic();
+        this.stopBossMusic();
+        this.gameState = 'campIntro';
+        this.camera.x = 0;
+        this.campIntro = { startTime: Date.now() };
+    }
+
+    skipCampIntro() {
+        if (this.campIntro && Date.now() - this.campIntro.startTime > 500) {
+            this.endCampIntro();
+        }
+    }
+
+    endCampIntro() {
+        this.gameState = 'playing';
+        this.campIntro = null;
+        this.camera.x = this.currentLevelData.startX;
+        this.player.x = this.currentLevelData.startX + 100;
+        this.player.y = 220;
+        this.player.velocityX = 0;
+        this.player.velocityY = 0;
+        this.player.facingRight = true;
+        this.player.isMoving = false;
+    }
+
+    renderCampIntro() {
+        const intro = this.campIntro;
+        const t = (Date.now() - intro.startTime) / 1000;
+        const ctx = this.ctx;
+        const W = this.canvas.width;
+        const H = this.canvas.height;
+        const END = 29;
+        if (t >= END) {
+            this.endCampIntro();
+            this.render();
+            return;
+        }
+
+        if (t < 7) this.renderCampPickup(t);
+        else if (t < 10.5) this.renderCampFlight(t - 7);
+        else this.renderCampArrival(t - 10.5);
+
+        // Fade through black between the three scenes, and out at the end
+        const fade = Math.max(
+            Math.max(0, 1 - Math.abs(t - 7) / 0.45),
+            Math.max(0, 1 - Math.abs(t - 10.5) / 0.45),
+            Math.max(0, 1 - t / 0.5),
+            Math.max(0, (t - (END - 0.6)) / 0.6)
+        );
+        if (fade > 0) {
+            ctx.fillStyle = `rgba(0, 0, 0, ${Math.min(1, fade)})`;
+            ctx.fillRect(0, 0, W, H);
+        }
+
+        ctx.save();
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'right';
+        ctx.fillText('SPACE to skip', W - 12, H - 10);
+        ctx.restore();
+    }
+
+    // Big caption bar across the top of a cutscene
+    drawCutsceneCaption(text, alpha = 1) {
+        if (!text) return;
+        const ctx = this.ctx;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+        ctx.fillRect(0, 18, this.canvas.width, 34);
+        ctx.fillStyle = '#FFD700';
+        ctx.font = 'bold 18px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(text, this.canvas.width / 2, 41);
+        ctx.restore();
+    }
+
+    // Tofu in a cutscene, drawn exactly like in the game (same sprite, size and walking legs).
+    // x is the centre of his feet; opts.scale shrinks him (climbing into the heli, riding in the jeep).
+    drawCutsceneTofu(ctx, x, groundY, opts = {}) {
+        const p = this.player;
+        if (!p || !p.sprite) return;
+        const saved = {
+            x: p.x, y: p.y, facingRight: p.facingRight, isMoving: p.isMoving,
+            onGround: p.onGround, animationFrame: p.animationFrame, shielded: p.shielded
+        };
+        ctx.save();
+        ctx.translate(x, groundY);
+        const scale = opts.scale || 1;
+        ctx.scale(scale, scale);
+        p.x = -p.width / 2;
+        p.y = -p.height;
+        p.facingRight = opts.facing !== -1;
+        p.isMoving = !!opts.walking;
+        p.onGround = true;
+        p.animationFrame = (opts.t || 0) * 9;
+        p.shielded = false;
+        p.render(ctx);
+        Object.assign(p, saved);
+        ctx.restore();
+    }
+
+    // Where the Chinook's side door is on screen, for a heli drawn at (x, y, angle)
+    getHeliDoor(x, y, angle) {
+        const lx = -3, ly = -1;
+        return { x: x + Math.cos(angle) * lx - Math.sin(angle) * ly, y: y + Math.sin(angle) * lx + Math.cos(angle) * ly };
+    }
+
+    // Dust kicked up by the rotors when the Chinook is near the ground
+    drawRotorWash(ctx, x, y, groundY, t) {
+        const near = Math.max(0, 1 - (groundY - (y + 33)) / 140);
+        if (near <= 0) return;
+        for (let i = 0; i < 10; i++) {
+            const spread = ((t * 1.7 + i * 0.1) % 1);
+            const side = i % 2 ? 1 : -1;
+            ctx.fillStyle = `rgba(210, 200, 180, ${0.35 * near * (1 - spread)})`;
+            ctx.beginPath();
+            ctx.ellipse(x + side * (30 + spread * 170), groundY - 4 - spread * 10, 16 + spread * 24, 6 + spread * 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    // Scene 1: Chinook flies in over the summit, lands, Tofu runs aboard, it takes off
+    renderCampPickup(t) {
+        const ctx = this.ctx;
+        // Draw the World 4 mountain scenery even though the game has moved on to World 5
+        const world = this.currentWorld, camX = this.camera.x;
+        this.currentWorld = 4; this.camera.x = 0;
+        this.renderBackground();
+        this.renderGround();
+        this.currentWorld = world; this.camera.x = camX;
+
+        const landX = 400, landY = 287;
+        let hx, hy, ha;
+        if (t < 3.2) {
+            const p = t / 3.2;
+            const e = 1 - Math.pow(1 - p, 2);
+            hx = -220 + (landX + 220) * e;
+            const d = Math.min(1, Math.max(0, (t - 0.8) / 2.4));
+            hy = 110 + (landY - 110) * (1 - Math.pow(1 - d, 2));
+            ha = 0.14 * (1 - e);
+        } else if (t < 5.4) {
+            hx = landX; hy = landY; ha = 0;
+        } else {
+            const k = (t - 5.4) / 1.6;
+            hx = landX + 520 * k * k;
+            hy = landY - 260 * k * k - 20 * k;
+            ha = 0.16 * Math.min(1, k * 2);
+        }
+        this.drawRotorWash(ctx, hx, hy, 320, t);
+
+        // Tofu waves at the summit, then runs to the door and hops in
+        const door = this.getHeliDoor(hx, hy, ha);
+        if (t < 3.6) {
+            const wave = Math.abs(Math.sin(t * 5)) * 4;
+            this.drawCutsceneTofu(ctx, 650, 320 - wave, { facing: -1 });
+        } else if (t < 4.8) {
+            const k = (t - 3.6) / 1.2;
+            this.drawCutsceneTofu(ctx, 650 - (650 - (door.x + 30)) * k, 320, { facing: -1, walking: true, t });
+        }
+        if (t >= 4.8 && t < 5.2) {
+            // Climb in through the doorway: drawn behind the fuselage, shrinking into the cabin
+            const k = (t - 4.8) / 0.4;
+            const cx = door.x + 30 * (1 - k);
+            const feet = 320 + (door.y + 14 - 320) * k - Math.sin(k * Math.PI) * 10;
+            this.drawCutsceneTofu(ctx, cx, feet, { facing: -1, scale: 1 - 0.7 * k });
+        }
+        this.drawHelicopter(ctx, hx, hy, ha, { t });
+        if (t >= 5.2) {
+            // Peeking out of the open door
+            this.drawCutsceneTofu(ctx, door.x, door.y + 14, { scale: 0.3 });
+        }
+
+        if (t < 3.2) this.drawCutsceneCaption('YETI DEFEATED! The summit is clear.');
+        else this.drawCutsceneCaption('Chinook inbound - get aboard, Tofu!');
+    }
+
+    // Scene 2: flying over the mountains at sunset
+    renderCampFlight(t) {
+        const ctx = this.ctx;
+        const W = this.canvas.width, H = this.canvas.height;
+        const sky = ctx.createLinearGradient(0, 0, 0, H);
+        sky.addColorStop(0, '#2A3D66');
+        sky.addColorStop(0.55, '#C9746A');
+        sky.addColorStop(1, '#F4B16A');
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, W, H);
+        // Low sun
+        ctx.fillStyle = 'rgba(255, 220, 140, 0.9)';
+        ctx.beginPath(); ctx.arc(620, 300, 46, 0, Math.PI * 2); ctx.fill();
+
+        // Two ranges of peaks scrolling past
+        const range = (speed, baseY, height, color, seed) => {
+            const off = (t * speed) % 140;
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(-160, H);
+            for (let i = -1; i < 9; i++) {
+                const x = i * 140 - off;
+                const n = Math.floor(t * speed / 140) + i + seed;
+                const peak = height * (0.6 + 0.4 * Math.abs(Math.sin(n * 2.7)));
+                ctx.lineTo(x, baseY);
+                ctx.lineTo(x + 70, baseY - peak);
+            }
+            ctx.lineTo(W + 160, baseY);
+            ctx.lineTo(W + 160, H);
+            ctx.closePath();
+            ctx.fill();
+        };
+        range(70, 330, 150, '#5A4E6E', 3);
+        range(190, 380, 120, '#33304A', 11);
+
+        // Clouds streaking by
+        ctx.fillStyle = 'rgba(255, 240, 230, 0.55)';
+        for (let i = 0; i < 4; i++) {
+            const cx = ((i * 260 - t * 320) % 1040 + 1040) % 1040 - 120;
+            const cy = 70 + i * 37;
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, 60, 12, 0, 0, Math.PI * 2);
+            ctx.ellipse(cx + 34, cy - 6, 34, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        const hx = 380 + Math.sin(t * 1.3) * 10;
+        const hy = 175 + Math.sin(t * 2.1) * 7;
+        const ha = 0.1;
+        this.drawHelicopter(ctx, hx, hy, ha, { t: t + 7 });
+        const door = this.getHeliDoor(hx, hy, ha);
+        this.drawCutsceneTofu(ctx, door.x, door.y + 14, { scale: 0.3 });
+
+        this.drawCutsceneCaption('Flying to the Tofu Alliance base camp...');
+    }
+
+    // Scene 3: land at camp, the general briefs Tofu, then Tofu jumps in the jeep and it drives off
+    renderCampArrival(t) {
+        const ctx = this.ctx;
+        const W = this.canvas.width, H = this.canvas.height;
+        const now = t + 10.5;
+        this.drawCampScenery(ctx, now);
+
+        // Chinook comes down onto the helipad
+        const padX = 190;
+        let hx = padX, hy = 287;
+        if (t < 2.6) {
+            const p = t / 2.6;
+            hx = padX + 160 * Math.pow(1 - p, 2);
+            hy = -80 + (287 + 80) * (1 - Math.pow(1 - p, 2));
+        }
+        this.drawRotorWash(ctx, hx, hy, 320, now);
+        const door = this.getHeliDoor(hx, hy, 0);
+
+        // The general waits by the flag
+        const genX = 410;
+        const jeepX = 15.0 <= t ? 520 + 110 * Math.pow(t - 15, 2) + 30 * (t - 15) : 520;
+
+        // Tofu: hidden in the heli, hops out, walks over, then to the jeep
+        let tofu = null;
+        if (t >= 2.9 && t < 3.4) {
+            const k = (t - 2.9) / 0.5;
+            tofu = { x: door.x - 10 + k * 40, y: 320 - Math.sin(k * Math.PI) * 30, walking: false };
+        } else if (t >= 3.4 && t < 4.4) {
+            const k = (t - 3.4) / 1.0;
+            tofu = { x: door.x + 30 + (310 - door.x - 30) * k, y: 320, walking: true };
+        } else if (t >= 4.4 && t < 13.4) {
+            tofu = { x: 310, y: 320, walking: false };
+        } else if (t >= 13.4 && t < 14.5) {
+            const k = (t - 13.4) / 1.1;
+            tofu = { x: 310 + (jeepX + 37 - 310) * k, y: 320, walking: true };
+        } else if (t >= 14.5 && t < 14.9) {
+            const k = (t - 14.5) / 0.4;
+            tofu = { x: jeepX + 37, y: 320 - Math.sin(k * Math.PI) * 44 - k * 22, walking: false };
+        }
+        const tofuInJeep = t >= 14.9;
+
+        // Camp soldiers: a patrol walking past the tents, guards with rifles, and a couple by the
+        // campfire. They all cheer and wave when the jeep heads out.
+        const cheering = t >= 15;
+        const patrolX = 640 + Math.sin(now * 0.35) * 70;
+        ctx.save();
+        ctx.translate(patrolX + 17, 318);
+        ctx.scale(0.72, 0.72);
+        if (cheering) this.drawTofuPilot(ctx, -23, 0, { role: 'soldier', rescued: true, t: now, seed: 5 });
+        else this.drawArmedCrew(ctx, -23, 0, { gun: 'rifle', facing: Math.cos(now * 0.35) > 0 ? 1 : -1, role: 'soldier' }, 5, now);
+        ctx.restore();
+        [{ x: 768, seed: 7 }].forEach(c => {
+            ctx.save();
+            ctx.translate(c.x + 17, 322);
+            ctx.scale(0.72, 0.72);
+            this.drawTofuPilot(ctx, -23, 0, cheering ? { role: 'soldier', rescued: true, t: now, seed: c.seed } : { role: 'soldier', pose: 'seated', t: now, seed: c.seed });
+            ctx.restore();
+        });
+        if (cheering) {
+            this.drawTofuPilot(ctx, 10, 320, { role: 'soldier', rescued: true, t: now, seed: 1 });
+            this.drawTofuPilot(ctx, 470, 320, { role: 'soldier', rescued: true, t: now, seed: 3 });
+        } else {
+            this.drawArmedCrew(ctx, 10, 320, { gun: 'rifle', facing: 1, role: 'soldier' }, 1, now);
+            this.drawArmedCrew(ctx, 470, 320, { gun: 'rifle', facing: -1, role: 'soldier' }, 3, now);
+        }
+
+        // Draw back to front: general, jeep (with crew), heli, Tofu
+        this.drawTofuPilot(ctx, genX, 320, { role: 'general', pose: 'seated', t: now });
+        this.drawJeep(ctx, jeepX, 320, { t: now, moving: t >= 15, passenger: tofuInJeep });
+        this.drawHelicopter(ctx, hx, hy, 0, { t: now });
+        if (tofu) this.drawCutsceneTofu(ctx, tofu.x + 22, tofu.y, { walking: tofu.walking, t: now });
+
+        // The general's briefing
+        const lines = [
+            { from: 4.6, to: 9.0, text: "Outstanding work, Tofu!\nYou took down Popcorn's\ncyborg yeti!" },
+            { from: 9.0, to: 13.4, text: "But our scouts found a\nNUCLEAR BASE past these hills.\nPopcorn is up to something.\nTake the jeep - GO!" }
+        ];
+        const line = lines.find(l => t >= l.from && t < l.to);
+        if (line) {
+            const chars = Math.floor((t - line.from) * 34);
+            this.drawSpeechBubble(ctx, genX + 23, 216, line.text.substring(0, chars), 'GENERAL');
+        }
+
+        if (t < 2.6) this.drawCutsceneCaption('Tofu Alliance Base Camp');
+        if (t >= 16.6) {
+            const a = Math.min(1, (t - 16.6) / 0.6);
+            ctx.save();
+            ctx.globalAlpha = a;
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+            ctx.fillRect(0, 140, W, 90);
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#C6FF00';
+            ctx.font = 'bold 34px Arial';
+            ctx.fillText('WORLD 5', W / 2, 182);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 22px Arial';
+            ctx.fillText('THE NUCLEAR BASE', W / 2, 214);
+            ctx.restore();
+        }
+    }
+
+    // Comic speech bubble with a speaker name, pointing down at (x, tipY)
+    drawSpeechBubble(ctx, x, tipY, text, speaker) {
+        const rows = text.split('\n');
+        const all = text.length ? rows : [''];
+        ctx.save();
+        ctx.font = 'bold 14px Arial';
+        const fullW = 250;
+        const h = 30 + 4 * 18;
+        const bx = Math.max(10, Math.min(this.canvas.width - fullW - 10, x - fullW / 2));
+        const by = tipY - h - 14;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.strokeStyle = '#2A241C';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(bx, by, fullW, h, 10);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x - 10, by + h - 1);
+        ctx.lineTo(x, tipY);
+        ctx.lineTo(x + 8, by + h - 1);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillRect(x - 9, by + h - 4, 16, 6);
+        ctx.fillStyle = '#4B5320';
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'left';
+        ctx.fillText(speaker + ':', bx + 12, by + 18);
+        ctx.fillStyle = '#1C1C1C';
+        ctx.font = 'bold 14px Arial';
+        all.forEach((r, i) => ctx.fillText(r, bx + 12, by + 38 + i * 18));
+        ctx.restore();
+    }
+
+    // Tofu Alliance base camp: tents, flag, sandbags, crates, a helipad and a campfire,
+    // with the nuclear base's cooling tower steaming behind the far hills
+    drawCampScenery(ctx, t) {
+        ctx.save();
+        this.drawCampSceneryInner(ctx, t);
+        ctx.restore();
+    }
+
+    drawCampSceneryInner(ctx, t) {
+        const W = this.canvas.width, H = this.canvas.height;
+        const sky = ctx.createLinearGradient(0, 0, 0, 320);
+        sky.addColorStop(0, '#4E6FA8');
+        sky.addColorStop(0.7, '#E9A86A');
+        sky.addColorStop(1, '#F6D29B');
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, W, H);
+
+        // Ominous cooling tower peeking over the hills on the right
+        ctx.fillStyle = '#6E6A78';
+        ctx.beginPath();
+        ctx.moveTo(668, 250); ctx.quadraticCurveTo(690, 205, 676, 160);
+        ctx.lineTo(736, 160); ctx.quadraticCurveTo(722, 205, 744, 250);
+        ctx.closePath(); ctx.fill();
+        for (let i = 0; i < 4; i++) {
+            const k = (t * 0.25 + i * 0.25) % 1;
+            ctx.fillStyle = `rgba(235, 235, 240, ${0.5 * (1 - k)})`;
+            ctx.beginPath();
+            ctx.arc(706 + k * 30, 150 - k * 70, 14 + k * 20, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        // Hazard glow
+        ctx.fillStyle = 'rgba(198, 255, 0, 0.18)';
+        ctx.beginPath(); ctx.ellipse(706, 250, 90, 30, 0, 0, Math.PI * 2); ctx.fill();
+
+        // Rolling hills
+        ctx.fillStyle = '#5E7A3A';
+        ctx.beginPath();
+        ctx.moveTo(0, 270);
+        for (let x = 0; x <= W; x += 40) ctx.lineTo(x, 262 - Math.sin(x * 0.012) * 22 - Math.sin(x * 0.031) * 8);
+        ctx.lineTo(W, 330); ctx.lineTo(0, 330); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#4C6630';
+        ctx.beginPath();
+        ctx.moveTo(0, 300);
+        for (let x = 0; x <= W; x += 40) ctx.lineTo(x, 292 - Math.sin(x * 0.02 + 1) * 12);
+        ctx.lineTo(W, 330); ctx.lineTo(0, 330); ctx.closePath(); ctx.fill();
+
+        // Ground and dirt road
+        ctx.fillStyle = '#6B7B3A';
+        ctx.fillRect(0, 320, W, H - 320);
+        ctx.fillStyle = '#8B7355';
+        ctx.fillRect(0, 326, W, 26);
+        ctx.fillStyle = 'rgba(60, 45, 30, 0.35)';
+        for (let x = 10; x < W; x += 46) ctx.fillRect(x, 336, 22, 3);
+
+        // Helipad
+        ctx.fillStyle = '#7D7D7D';
+        ctx.beginPath(); ctx.ellipse(190, 322, 110, 9, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#F5F5F5';
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('H', 190, 326);
+
+        // Tents
+        const tent = (x, w, h, label) => {
+            ctx.fillStyle = '#556B2F';
+            ctx.strokeStyle = '#2E3A18';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x, 320); ctx.lineTo(x + w / 2, 320 - h); ctx.lineTo(x + w, 320); ctx.closePath();
+            ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#2B3417';
+            ctx.beginPath();
+            ctx.moveTo(x + w / 2 - 14, 320); ctx.lineTo(x + w / 2, 320 - h * 0.55); ctx.lineTo(x + w / 2 + 14, 320); ctx.closePath();
+            ctx.fill();
+            if (label) {
+                ctx.fillStyle = '#F5F0DC';
+                ctx.font = 'bold 9px Arial';
+                ctx.fillText(label, x + w / 2, 320 - h * 0.62);
+            }
+        };
+        tent(470, 150, 92, 'HQ');
+        tent(650, 120, 70, '');
+        // Radio antenna on the HQ tent
+        ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+        // Base sits on the roof: the HQ roof slopes from its peak (545, 228) down to (620, 320),
+        // so at x 572 the roof is at y 261
+        ctx.beginPath(); ctx.moveTo(572, 261); ctx.lineTo(576, 196); ctx.stroke();
+        ctx.fillStyle = Math.floor(t * 2) % 2 ? '#FF5252' : '#8E0000';
+        ctx.beginPath(); ctx.arc(576, 195, 3, 0, Math.PI * 2); ctx.fill();
+
+        // Flagpole with the Tofu Alliance flag
+        ctx.fillStyle = '#9E9E9E';
+        ctx.fillRect(386, 200, 4, 120);
+        ctx.fillStyle = '#2E7D32';
+        ctx.beginPath();
+        ctx.moveTo(390, 204);
+        for (let i = 0; i <= 6; i++) ctx.lineTo(390 + i * 8, 204 + Math.sin(t * 6 + i * 0.8) * 3);
+        for (let i = 6; i >= 0; i--) ctx.lineTo(390 + i * 8, 232 + Math.sin(t * 6 + i * 0.8) * 3);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#FFF8E1';
+        ctx.fillRect(408, 211 + Math.sin(t * 6 + 2) * 3, 12, 12);
+
+        // Sandbag wall and supply crates
+        ctx.fillStyle = '#C2B280';
+        ctx.strokeStyle = '#8D7F55';
+        ctx.lineWidth = 1.5;
+        for (let row = 0; row < 2; row++) {
+            for (let i = 0; i < 4 - row; i++) {
+                ctx.beginPath();
+                ctx.ellipse(18 + i * 22 + row * 11, 312 - row * 11, 12, 6, 0, 0, Math.PI * 2);
+                ctx.fill(); ctx.stroke();
+            }
+        }
+        [[612, 300, 22], [632, 304, 18], [622, 284, 16]].forEach(([x, y, s2]) => {
+            ctx.fillStyle = '#8B6B3E';
+            ctx.fillRect(x, y, s2, 320 - y);
+            ctx.strokeStyle = '#5A4426';
+            ctx.strokeRect(x, y, s2, 320 - y);
+        });
+
+        // Campfire
+        ctx.fillStyle = '#5A3A1E';
+        ctx.fillRect(742, 314, 26, 5);
+        for (let i = 0; i < 3; i++) {
+            const fy = Math.sin(t * 14 + i * 2) * 3;
+            ctx.fillStyle = ['#FF6F00', '#FFA000', '#FFEB3B'][i];
+            ctx.beginPath();
+            ctx.ellipse(755, 306 + fy - i * 3, 8 - i * 2, 12 - i * 3, 0, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    // Olive military jeep, facing right. x is the back bumper, groundY where the tires sit.
+    // A Tofu Alliance soldier drives; Tofu rides in the back when opts.passenger is set.
+    drawJeep(ctx, x, groundY, opts = {}) {
+        const t = opts.t || 0;
+        const olive = '#556B2F', dark = '#3E4D22', outline = '#2A241C';
+        // Sized for tofus: 1.35x, about 216px long, so Tofu and the driver fit at nearly full size
+        const S = 1.35;
+        ctx.save();
+        ctx.translate(x, groundY);
+        ctx.scale(S, S);
+        x = 0;
+        groundY = 0;
+        ctx.save();
+        if (opts.moving) {
+            // Dust trail
+            for (let i = 0; i < 6; i++) {
+                const k = (t * 2 + i / 6) % 1;
+                ctx.fillStyle = `rgba(190, 170, 130, ${0.45 * (1 - k)})`;
+                ctx.beginPath();
+                ctx.arc(x - 10 - k * 70, groundY - 8 - k * 14, 8 + k * 14, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        const bounce = opts.moving ? Math.sin(t * 30) * 1.2 : 0;
+        const by = groundY + bounce;
+
+        // Crew sit low in the seats; the doors and body hide their legs
+        ctx.save();
+        ctx.translate(x + 90, by - 16);
+        ctx.scale(0.68, 0.68);
+        this.drawTofuPilot(ctx, -23, 0, { role: 'soldier', pose: 'seated', t });
+        ctx.restore();
+        if (opts.passenger) {
+            this.drawCutsceneTofu(ctx, x + 44, by - 20, { scale: 0.7 });
+        }
+
+        // Spare tire on the back
+        ctx.fillStyle = '#1E1E1E';
+        ctx.beginPath(); ctx.arc(x + 2, by - 34, 13, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#555';
+        ctx.beginPath(); ctx.arc(x + 2, by - 34, 5, 0, Math.PI * 2); ctx.fill();
+
+        // Body tub, hood and fenders
+        ctx.fillStyle = olive;
+        ctx.strokeStyle = outline;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x + 6, by - 46);
+        ctx.lineTo(x + 104, by - 46);
+        ctx.lineTo(x + 108, by - 40);
+        ctx.lineTo(x + 158, by - 40);
+        ctx.lineTo(x + 160, by - 16);
+        ctx.lineTo(x + 4, by - 16);
+        ctx.closePath();
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle = dark;
+        ctx.fillRect(x + 6, by - 30, 152, 4);
+        // Grille and headlight
+        ctx.fillStyle = '#2B3417';
+        ctx.fillRect(x + 154, by - 38, 5, 20);
+        ctx.fillStyle = '#FFE082';
+        ctx.beginPath(); ctx.arc(x + 155, by - 33, 4, 0, Math.PI * 2); ctx.fill();
+        // White star on the door
+        ctx.fillStyle = '#F5F0DC';
+        ctx.beginPath();
+        for (let i = 0; i < 10; i++) {
+            const r = i % 2 ? 4 : 9;
+            const a = -Math.PI / 2 + i * Math.PI / 5;
+            ctx.lineTo(x + 64 + Math.cos(a) * r, by - 33 + Math.sin(a) * r);
+        }
+        ctx.closePath(); ctx.fill();
+        // Fold-down windshield frame
+        ctx.strokeStyle = outline;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(x + 106, by - 44); ctx.lineTo(x + 100, by - 76);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(170, 215, 240, 0.55)';
+        ctx.beginPath();
+        ctx.moveTo(x + 106, by - 44); ctx.lineTo(x + 100, by - 76); ctx.lineTo(x + 103, by - 76); ctx.lineTo(x + 109, by - 44);
+        ctx.closePath(); ctx.fill();
+
+        // Wheels with spinning hubs
+        [x + 34, x + 128].forEach(wx => {
+            ctx.fillStyle = '#1E1E1E';
+            ctx.beginPath(); ctx.arc(wx, groundY - 15, 15, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#6B7680';
+            ctx.beginPath(); ctx.arc(wx, groundY - 15, 6, 0, Math.PI * 2); ctx.fill();
+            const spin = opts.moving ? t * 18 : 0;
+            ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(wx + Math.cos(spin) * 10, groundY - 15 + Math.sin(spin) * 10);
+            ctx.lineTo(wx - Math.cos(spin) * 10, groundY - 15 - Math.sin(spin) * 10);
+            ctx.stroke();
+        });
+        ctx.restore();
+        ctx.restore();
+    }
+
+    // ----- World 5: The Nuclear Base -----
+    renderNuclearBackground() {
+        const ctx = this.ctx;
+        const W = this.canvas.width, H = this.canvas.height;
+        const sky = ctx.createLinearGradient(0, 0, 0, H * 0.8);
+        sky.addColorStop(0, '#1E2A33');
+        sky.addColorStop(0.6, '#4F6152');
+        sky.addColorStop(1, '#A3B07A');
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, W, H);
+
+        // Distant ridge
+        const p1 = this.camera.x * 0.15;
+        ctx.fillStyle = '#2F3B34';
+        ctx.beginPath();
+        ctx.moveTo(0, 260);
+        for (let x = 0; x <= W; x += 20) ctx.lineTo(x, 236 - Math.sin((x + p1) * 0.008) * 18 - Math.sin((x + p1) * 0.021) * 6);
+        ctx.lineTo(W, 320); ctx.lineTo(0, 320); ctx.closePath(); ctx.fill();
+
+        // Cooling towers with steam, and a reactor dome
+        const t = Date.now() / 1000;
+        const p2 = this.camera.x * 0.3;
+        const spacing = 700;
+        const first = Math.floor((p2 - 200) / spacing);
+        for (let i = first; i < first + 3; i++) {
+            const bx = i * spacing - p2 + 120;
+            ctx.fillStyle = '#7A7F86';
+            ctx.beginPath();
+            ctx.moveTo(bx, 300); ctx.quadraticCurveTo(bx + 30, 230, bx + 14, 160);
+            ctx.lineTo(bx + 96, 160); ctx.quadraticCurveTo(bx + 80, 230, bx + 110, 300);
+            ctx.closePath(); ctx.fill();
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+            ctx.fillRect(bx + 14, 166, 82, 8);
+            for (let k2 = 0; k2 < 5; k2++) {
+                const k = (t * 0.2 + k2 * 0.2) % 1;
+                ctx.fillStyle = `rgba(230, 232, 235, ${0.45 * (1 - k)})`;
+                ctx.beginPath();
+                ctx.arc(bx + 55 + k * 40, 152 - k * 90, 18 + k * 26, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            // Reactor dome beside each tower
+            ctx.fillStyle = '#8E949B';
+            ctx.beginPath();
+            ctx.arc(bx + 230, 300, 62, Math.PI, 0);
+            ctx.fill();
+            ctx.fillStyle = '#C6FF00';
+            ctx.fillRect(bx + 222, 250, 16, 6);
+        }
+
+        // Toxic haze
+        ctx.fillStyle = 'rgba(198, 255, 0, 0.06)';
+        ctx.fillRect(0, 200, W, 120);
+
+        // Chain-link fence with radiation signs
+        const p3 = this.camera.x * 0.6;
+        ctx.strokeStyle = 'rgba(160, 165, 170, 0.6)';
+        ctx.lineWidth = 1;
+        const fx0 = -((p3) % 24);
+        for (let x = fx0; x < W + 24; x += 24) {
+            ctx.beginPath();
+            ctx.moveTo(x, 262); ctx.lineTo(x + 24, 312);
+            ctx.moveTo(x + 24, 262); ctx.lineTo(x, 312);
+            ctx.stroke();
+        }
+        ctx.fillStyle = '#5D646B';
+        const px0 = -((p3) % 120);
+        for (let x = px0; x < W + 120; x += 120) {
+            ctx.fillRect(x, 254, 4, 66);
+        }
+        ctx.strokeStyle = '#5D646B';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(0, 262); ctx.lineTo(W, 262); ctx.stroke();
+        const sx0 = -((p3) % 480);
+        for (let x = sx0 + 60; x < W + 480; x += 480) {
+            ctx.fillStyle = '#FFD600';
+            ctx.beginPath(); ctx.moveTo(x, 272); ctx.lineTo(x + 14, 296); ctx.lineTo(x - 14, 296); ctx.closePath(); ctx.fill();
+            ctx.strokeStyle = '#1C1C1C'; ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.fillStyle = '#1C1C1C';
+            ctx.beginPath(); ctx.arc(x, 288, 2.5, 0, Math.PI * 2); ctx.fill();
+            for (let j = 0; j < 3; j++) {
+                const a = -Math.PI / 2 + j * (Math.PI * 2 / 3);
+                ctx.beginPath();
+                ctx.moveTo(x, 288);
+                ctx.arc(x, 288, 7, a - 0.45, a + 0.45);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+    }
+
+    renderNuclearGround(groundY) {
+        const ctx = this.ctx;
+        const left = this.camera.x - 100;
+        const right = this.camera.x + this.canvas.width + 100;
+        ctx.fillStyle = '#6E7277';
+        ctx.fillRect(left, groundY, right - left, this.canvas.height - groundY);
+        // Hazard stripe along the edge of the concrete
+        const start = Math.floor(left / 30) * 30;
+        for (let x = start; x < right; x += 30) {
+            ctx.fillStyle = '#F2C200';
+            ctx.fillRect(x, groundY, 15, 6);
+            ctx.fillStyle = '#1C1C1C';
+            ctx.fillRect(x + 15, groundY, 15, 6);
+        }
+        // Slab joints and cracks
+        ctx.fillStyle = 'rgba(30, 30, 30, 0.35)';
+        const slab = Math.floor(left / 160) * 160;
+        for (let x = slab; x < right; x += 160) {
+            ctx.fillRect(x, groundY + 6, 2, this.canvas.height - groundY);
+            ctx.fillRect(x + 40, groundY + 30 + (x / 160 % 3) * 8, 26, 2);
+        }
+        // Glowing green puddles of goo
+        for (let x = slab; x < right; x += 640) {
+            ctx.fillStyle = 'rgba(160, 255, 40, 0.55)';
+            ctx.beginPath(); ctx.ellipse(x + 300, groundY + 40, 30, 5, 0, 0, Math.PI * 2); ctx.fill();
+        }
     }
 
     // How far the train has travelled (px) at time t: wait, speed up, cruise, then slam on the
@@ -7838,7 +9016,7 @@ class Game {
         ctx.beginPath();
         ctx.roundRect(left, top, bodyW, bodyH, 6);
         ctx.clip();
-        ctx.fillStyle = role === 'soldier' ? '#556B2F' : role === 'captain' ? '#1F2A44' : '#7A8566';
+        ctx.fillStyle = role === 'soldier' ? '#556B2F' : role === 'captain' ? '#1F2A44' : role === 'general' ? '#4B5320' : '#7A8566';
         ctx.fillRect(left, top + 32, bodyW, bodyH - 32);
         ctx.restore();
         ctx.strokeStyle = outline;
@@ -7864,11 +9042,21 @@ class Game {
             ctx.beginPath();
             ctx.arc(left + bodyW - 9, top + 38, 3.5, 0, Math.PI * 2);
             ctx.fill();
-        } else if (role === 'captain') {
+        } else if (role === 'captain' || role === 'general') {
             // Gold epaulettes, a double row of brass buttons and a row of medal ribbons
             ctx.fillStyle = '#FFC107';
             ctx.fillRect(left - 1, top + 31, 10, 4);
             ctx.fillRect(left + bodyW - 9, top + 31, 10, 4);
+            if (role === 'general') {
+                // Silver general's stars on both shoulders and a second row of ribbons
+                ctx.fillStyle = '#ECEFF1';
+                [left + 1, left + 4.5, left + bodyW - 7, left + bodyW - 3.5].forEach(sx => ctx.fillRect(sx, top + 31.5, 2.5, 2.5));
+                ['#2E7D32', '#C62828', '#6A1B9A'].forEach((c, i) => {
+                    ctx.fillStyle = c;
+                    ctx.fillRect(left + 5 + i * 4, top + 41, 4, 3);
+                });
+                ctx.fillStyle = '#FFC107';
+            }
             [0, 1, 2].forEach(i => {
                 ctx.beginPath();
                 ctx.arc(cx - 4, top + 38 + i * 6, 1.4, 0, Math.PI * 2);
@@ -7941,9 +9129,9 @@ class Game {
             ctx.fill();
         }
 
-        if (role === 'captain') {
-            // Distinguished mustache
-            ctx.fillStyle = '#4E342E';
+        if (role === 'captain' || role === 'general') {
+            // Distinguished mustache (gray for the general)
+            ctx.fillStyle = role === 'general' ? '#9E9E9E' : '#4E342E';
             ctx.beginPath();
             ctx.ellipse(cx - 4, top + 24, 4.5, 2, 0.25, 0, Math.PI * 2);
             ctx.ellipse(cx + 4, top + 24, 4.5, 2, -0.25, 0, Math.PI * 2);
@@ -7977,9 +9165,9 @@ class Game {
             ctx.restore();
             return;
         }
-        if (role === 'captain') {
-            // Navy officer's peaked cap: tall crown, gold band and badge, shiny black visor
-            ctx.fillStyle = '#1F2A44';
+        if (role === 'captain' || role === 'general') {
+            // Officer's peaked cap: tall crown, gold band and badge, shiny black visor (army green for the general)
+            ctx.fillStyle = role === 'general' ? '#4B5320' : '#1F2A44';
             ctx.strokeStyle = outline;
             ctx.lineWidth = 3;
             ctx.beginPath();
@@ -8406,6 +9594,7 @@ class Game {
         // ONLY stop gameplay and boss music
         this.stopGameplayMusic();
         this.stopBossMusic();
+        this.stopPopcornMusic(); // so the cutscene always starts Popcorn's track fresh, exactly once
         
         // Set gameState FIRST so echo effects activate
         this.gameState = 'bossCutscene';
@@ -8553,6 +9742,14 @@ class Game {
             5: [
                 "So, you survived my\nunderground fortress...\nImpressive, little tofu.\nBut down here, YOU LOSE!",
                 "Meet my MECH! Built in\nthe deepest bunker to\nstomp soybeans like you\ninto TOFU PASTE! ATTACK!"
+            ],
+            12: [
+                "You found my secret\nNUCLEAR BASE? Too bad!\nMeet the REACTOR TITAN,\npowered by pure uranium!",
+                "Jump all you like, tofu!\nIts core beam will fry\nyou into a crispy bean!\nTITAN, MELT HIM!"
+            ],
+            9: [
+                "So you climbed all the way\nto the summit, little tofu?\nThen meet my CYBORG YETI!\nHalf beast, half machine!",
+                "FIRE THE SHOULDER ROCKETS!\nFreeze that soybean solid\nand smash it to bits!\nGET HIM, YETI! RAAAWR!"
             ],
             default: [
                 "BEHOLD MY ULTIMATE CREATION!\nThis massive war machine will\ncrush you like the pathetic\ntofu you are! MWAHAHAHA!",
@@ -8832,6 +10029,9 @@ class Game {
             } else if (this.currentWorld === 4) {
                 // Leaving the city: the train escape that ends in the mountains
                 this.startTrainIntro();
+            } else if (this.currentWorld === 5) {
+                // Off the mountain: Chinook pickup, base camp briefing, then the jeep to the nuclear base
+                this.startCampIntro();
             }
         } else {
             // All worlds and levels complete - check for high score first
@@ -8856,6 +10056,7 @@ class Game {
         
         // Level info in top right
         this.ctx.save();
+        this.ctx.textAlign = "left";
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         this.ctx.fillRect(this.canvas.width - 200, 10, 190, 80);
         
@@ -9342,6 +10543,10 @@ class Game {
     }
     
     renderBackground() {
+        if (this.currentWorld === 5) {
+            this.renderNuclearBackground();
+            return;
+        }
         if (this.currentWorld === 3) {
             this.renderConstructionBackground();
             return;
@@ -9871,6 +11076,10 @@ class Game {
     renderGround() {
         const groundY = 320; // Ground level
 
+        if (this.currentWorld === 5) {
+            this.renderNuclearGround(groundY);
+            return;
+        }
         if (this.currentWorld === 3) {
             this.renderConstructionGround(groundY);
             return;
@@ -10275,7 +11484,62 @@ class Enemy {
         this.type = type; // 0 = soldier1, 1 = soldier2, 2 = tank, 3 = sniper, 4 = boss1, 5 = mech, 6 = tower
         this.assets = assets;
 
-        if (type === 7) { // artillery truck - World 3 boss, drawn by Game.drawArtilleryTruck at 1.5x
+        if (type === 12) { // Reactor Titan - World 5 boss: core beam along the ground and toxic barrels
+            this.width = 200;
+            this.height = 240;
+            this.speed = 0.55;
+            this.sprite = null;
+            this.maxHealth = 80;
+            this.beamPhase = null;     // null | 'charge' | 'fire'
+            this.beamTimer = 0;
+            this.beamCooldown = 160;
+            this.beamHitDone = false;
+            this.barrelTimer = 90;
+            this.walking = false;
+            this.started = false;
+            this.cannonFlash = 0;
+        } else if (type === 11) { // hazmat trooper - World 5: back tank and a sprayer of radioactive goo
+            this.width = 44;
+            this.height = 88;
+            this.speed = 1.1;
+            this.sprite = null;
+            this.sprayTimer = 70 + Math.floor(Math.random() * 50);
+            this.spraying = 0;       // frames left in the current spray
+        } else if (type === 10) { // construction worker - World 3: throws spinning wrenches
+            this.width = 38;
+            this.height = 82;
+            this.speed = 1.4;
+            this.sprite = null;
+            this.throwTimer = 60 + Math.floor(Math.random() * 60);
+            this.throwAnim = 0;      // counts down while the throwing arm swings
+            this.variant = Math.random() < 0.5 ? 0 : 1;   // vest/hat colours
+        } else if (type === 9) { // cyborg yeti - World 4 boss: shoulder rocket launchers and a ground slam
+            this.width = 200;
+            this.height = 215;
+            this.speed = 0.7;
+            this.sprite = null;
+            this.maxHealth = 60;
+            this.rocketTimer = 140;    // frames until the next rocket volley
+            this.rocketQueue = [];     // rockets waiting to leave the launchers this volley
+            this.slamPhase = null;     // null | 'windup' | 'slam'
+            this.slamTimer = 0;
+            this.slamCooldown = 120;
+            this.launcherFlash = [0, 0];
+            this.walking = false;
+            this.roared = false;
+        } else if (type === 8) { // shield stickman - World 4: tall metal shield that soaks 10 shots, electric axe up close
+            this.width = 60;
+            this.height = 110;
+            this.speed = 1.3;
+            this.sprite = null;
+            this.shieldHP = 10;
+            this.shieldMax = 10;
+            this.attackPhase = null;   // null | 'windup' | 'swing'
+            this.attackTimer = 0;
+            this.attackCooldown = 40;
+            this.shieldBrokenAt = 0;
+            this.lastShieldHit = 0;
+        } else if (type === 7) { // artillery truck - World 3 boss, drawn by Game.drawArtilleryTruck at 1.5x
             this.width = 357;
             this.height = 150;
             this.speed = 1.0;
@@ -10348,6 +11612,16 @@ class Enemy {
             this.groundY = 150; // Boss tank higher on ground
         } else if (type === 7) { // artillery truck - wheels on the ground at y=320
             this.groundY = 170;
+        } else if (type === 8) { // shield stickman - feet on the ground at y=320
+            this.groundY = 210;
+        } else if (type === 12) { // Reactor Titan - feet on the ground at y=320
+            this.groundY = 80;
+        } else if (type === 11) { // hazmat trooper - feet on the ground at y=320
+            this.groundY = 232;
+        } else if (type === 10) { // construction worker - feet on the ground at y=320
+            this.groundY = 238;
+        } else if (type === 9) { // cyborg yeti - feet on the ground at y=320
+            this.groundY = 105;
         } else if (type === 6) { // tower - pinned so base sits on ground (top ~y=180, bottom ~y=350)
             this.groundY = 180;
         } else { // mech boss
@@ -10380,6 +11654,15 @@ class Enemy {
         } else if (type === 6) { // tower - many hits to destroy
             this.health = 10;
             this.maxHealth = 10;
+        } else if (type === 10) { // construction worker
+            this.health = 2;
+            this.maxHealth = 2;
+        } else if (type === 11) { // hazmat trooper - the suit is tough
+            this.health = 3;
+            this.maxHealth = 3;
+        } else if (type === 8) { // shield stickman - 2 hits once the shield is gone
+            this.health = 2;
+            this.maxHealth = 2;
         } else { // soldiers
             this.health = 1;
             this.maxHealth = 1;
@@ -10403,6 +11686,16 @@ class Enemy {
             this.pointValue = 2000;
         } else if (type === 6) { // tower
             this.pointValue = 250;
+        } else if (type === 8) { // shield stickman
+            this.pointValue = 200;
+        } else if (type === 9) { // cyborg yeti boss
+            this.pointValue = 2500;
+        } else if (type === 10) { // construction worker
+            this.pointValue = 75;
+        } else if (type === 11) { // hazmat trooper
+            this.pointValue = 150;
+        } else if (type === 12) { // Reactor Titan boss
+            this.pointValue = 3000;
         } else { // mech boss
             this.pointValue = 1500;
         }
@@ -10438,12 +11731,28 @@ class Enemy {
             return;
         }
 
+        if (this.type === 12) { // Reactor Titan boss has its own AI
+            this.updateTitan(player, game);
+            return;
+        }
+
+        if (this.type === 9) { // Cyborg yeti boss has its own AI
+            this.updateYeti(player, game);
+            return;
+        }
+
         if (this.type === 7) { // Artillery truck boss has its own AI
             this.updateArtilleryTruck(player, enemyBullets, game);
             return;
         }
 
-        if (this.type === 5) { // Mech AI - underground boss, less aggressive for easier gameplay
+        if (this.type === 11) { // Hazmat trooper walks in close and sprays goo
+            this.updateHazmat(player, enemyBullets, game);
+        } else if (this.type === 10) { // Construction worker keeps his distance and lobs wrenches
+            this.updateWorker(player, enemyBullets, game);
+        } else if (this.type === 8) { // Shield stickman walks up and swings his electric axe
+            this.updateShieldStickman(player, game);
+        } else if (this.type === 5) { // Mech AI - underground boss, less aggressive for easier gameplay
             const optimalRange = 400; // Mech prefers longer range
             const tooClose = 250; // Retreat earlier
 
@@ -10603,6 +11912,8 @@ class Enemy {
             specialShoot = true;
         } else if (this.type === 2) { // Tank
             shootChance = 0.003; // Steady fire rate for tanks
+        } else if (this.type === 8 || this.type === 10 || this.type === 11) { // Axe / wrenches / goo only - no gun
+            shootChance = 0;
         } else { // Soldiers
             shootChance = distanceToPlayer < 150 ? 0.008 : 0.002; // Shoot more when close
         }
@@ -10665,6 +11976,923 @@ class Enemy {
         this.animationFrame += this.animationSpeed;
     }
     
+    // Construction worker: walks in to throwing range, then lobs spinning wrenches in an arc
+    updateWorker(player, enemyBullets, game) {
+        const pc = player.x + player.width / 2;
+        const ec = this.x + this.width / 2;
+        const dist = Math.abs(pc - ec);
+        this.facingLeft = pc < ec;
+        this.walking = false;
+        if (this.throwAnim > 0) {
+            this.throwAnim--;
+            if (this.throwAnim === 6) {
+                // Let go of the wrench at the top of the swing
+                const dir = this.facingLeft ? -1 : 1;
+                const w = new EnemyBullet(ec + dir * 12, this.y + 10, !this.facingLeft, 'wrench');
+                const frames = 55;
+                w.speed = Math.max(2.5, Math.min(6.5, dist / frames));
+                w.vy = -5;
+                enemyBullets.push(w);
+                if (game) game.playWrenchThrow();
+            }
+            return;
+        }
+        if (dist > 230) {
+            this.x += this.facingLeft ? -this.speed : this.speed;
+            this.walking = true;
+        }
+        if (dist < 420 && --this.throwTimer <= 0) {
+            this.throwAnim = 16;
+            this.throwTimer = 90 + Math.floor(Math.random() * 70);
+        }
+    }
+
+    // Paint pixel art at 1/P size into a shared little canvas, harden the edges, then scale it
+    // back up with smoothing off so it matches the blocky soldier sprites.
+    renderPixelArt(ctx, key, P, OX, OY, W, H, draw, scale = 1) {
+        Enemy.pixCanvases = Enemy.pixCanvases || {};
+        let pc = Enemy.pixCanvases[key];
+        if (!pc) {
+            pc = Enemy.pixCanvases[key] = document.createElement('canvas');
+            pc.width = Math.ceil(W / P);
+            pc.height = Math.ceil(H / P);
+        }
+        const p = pc.getContext('2d', { willReadFrequently: true });
+        p.setTransform(1, 0, 0, 1, 0, 0);
+        p.clearRect(0, 0, pc.width, pc.height);
+        p.setTransform(1 / P, 0, 0, 1 / P, OX / P, OY / P);
+        draw(p);
+        const img = p.getImageData(0, 0, pc.width, pc.height);
+        const d = img.data;
+        for (let i = 3; i < d.length; i += 4) d[i] = d[i] > 90 ? 255 : 0;
+        p.putImageData(img, 0, 0);
+        ctx.save();
+        ctx.translate(this.x + this.width / 2, this.y + this.height);
+        ctx.scale((this.facingLeft ? -1 : 1) * scale, scale);
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(pc, -OX, -OY, pc.width * P, pc.height * P);
+        ctx.restore();
+    }
+
+    // Hazmat trooper: closes to short range, then hoses Tofu with a stream of radioactive goo
+    updateHazmat(player, enemyBullets, game) {
+        const pc = player.x + player.width / 2;
+        const ec = this.x + this.width / 2;
+        const dist = Math.abs(pc - ec);
+        this.walking = false;
+        if (this.spraying > 0) {
+            this.spraying--;
+            if (this.spraying % 4 === 0) {
+                const dir = this.facingLeft ? -1 : 1;
+                const g = new EnemyBullet(ec + dir * 30, this.y + 34, !this.facingLeft, 'goo');
+                g.vy = -1.4 + Math.random() * 1.6;
+                g.speed = 4.5 + Math.random() * 1.2;
+                enemyBullets.push(g);
+            }
+            return;
+        }
+        this.facingLeft = pc < ec;
+        if (dist > 170) {
+            this.x += this.facingLeft ? -this.speed : this.speed;
+            this.walking = true;
+        }
+        if (dist < 260 && --this.sprayTimer <= 0) {
+            this.spraying = 48;
+            this.sprayTimer = 110 + Math.floor(Math.random() * 60);
+            if (game) game.playGooSpray();
+        }
+    }
+
+    renderHazmat(ctx) {
+        this.renderPixelArt(ctx, 'hazmat', 3, 51, 150, 120, 153, c => this.drawHazmatArt(c), 0.78);
+        if (this.health < this.maxHealth) this.renderHealthBar(ctx);
+    }
+
+    // Local game pixels, feet at (0,0), facing +x. Based on the kid's drawing: big rounded helmet
+    // with a visor, gas-mask teeth, spiky shoulders, back tank and hose, sprayer, raised staff.
+    drawHazmatArt(c) {
+        const OUT = '#1C211C';
+        const hurt = this.lastHitTime && Date.now() - this.lastHitTime < 140;
+        const SUIT = hurt ? '#C0392B' : '#8C8A3E', SUIT2 = '#6F6D2F';
+        const MET = '#7D8790', MET2 = '#A3ADB6', GLOW = '#9CFF2E';
+        const box = (x, y, w, h, col) => { c.fillStyle = col; c.fillRect(x, y, w, h); };
+        const step = this.walking ? Math.round(Math.sin(this.animationFrame * 2.2) * 2) * 3 : 0;
+        const pulse = Math.floor(Date.now() / 200) % 2 === 0;
+
+        // Staff held up behind him with a glowing radioactive blob on top
+        box(-30, -132, 6, 84, OUT); box(-27, -129, 3, 78, '#5A3A1E');
+        box(-39, -147, 24, 21, OUT); box(-36, -144, 18, 15, pulse ? GLOW : '#5FCB14');
+        box(-33, -141, 6, 6, '#E8FFC2');
+
+        // Back tank with a radiation stripe
+        box(-33, -90, 21, 45, OUT); box(-30, -87, 15, 39, MET);
+        box(-30, -87, 15, 4, MET2); box(-30, -72, 15, 6, '#F2C200'); box(-24, -72, 3, 6, OUT);
+
+        // Wide stance: skinny legs out to the sides, chunky boots
+        box(-9 + step, -42, 6, 12, OUT); box(-12 + step, -30, 6, 12, OUT); box(-15 + step, -18, 6, 12, OUT);
+        box(-21 + step, -6, 15, 6, OUT);
+        box(3 - step, -42, 6, 12, OUT); box(6 - step, -30, 6, 12, OUT); box(9 - step, -18, 6, 12, OUT);
+        box(6 - step, -6, 15, 6, OUT);
+
+        // Hazmat suit body with a belt
+        box(-15, -87, 30, 48, OUT);
+        box(-12, -84, 24, 42, SUIT);
+        box(-12, -84, 6, 42, SUIT2);
+        box(-12, -48, 24, 6, OUT);
+        // Spiky shoulder pads
+        box(-18, -90, 12, 6, OUT); box(-15, -96, 6, 6, OUT);
+        box(6, -90, 12, 6, OUT); box(9, -96, 6, 6, OUT);
+
+        // Hose from the tank round to the sprayer
+        box(-18, -51, 6, 6, OUT); box(-12, -45, 12, 6, OUT); box(0, -51, 9, 6, OUT); box(9, -57, 6, 9, OUT);
+        // Front arm and the wide sprayer nozzle
+        box(9, -78, 6, 24, OUT);
+        box(9, -63, 24, 9, OUT); box(12, -60, 18, 3, MET);
+        box(30, -69, 9, 21, OUT); box(33, -66, 3, 15, MET2);
+        if (this.spraying > 0) {
+            box(39, -66, 6, 6, GLOW); box(42, -60, 6, 6, '#E8FFC2'); box(39, -54, 6, 6, GLOW);
+        }
+
+        // Big rounded helmet with a dark visor and glowing green lenses
+        box(-15, -129, 33, 36, OUT); box(-18, -123, 39, 24, OUT);
+        box(-12, -126, 27, 30, SUIT); box(-15, -120, 33, 18, SUIT);
+        box(-12, -126, 27, 6, SUIT2);
+        box(-9, -114, 30, 9, OUT);
+        box(3, -111, 6, 3, pulse ? GLOW : '#5FCB14'); box(12, -111, 6, 3, pulse ? GLOW : '#5FCB14');
+        // Gas-mask jaw with zigzag teeth and a filter can
+        box(0, -102, 18, 12, OUT);
+        box(3, -99, 3, 3, '#D8D8D0'); box(9, -99, 3, 3, '#D8D8D0'); box(6, -96, 3, 3, '#D8D8D0'); box(12, -96, 3, 3, '#D8D8D0');
+        box(18, -99, 6, 9, OUT); box(18, -96, 3, 3, MET2);
+    }
+
+    renderWorker(ctx) {
+        this.renderPixelArt(ctx, 'worker', 3, 45, 129, 120, 132, c => this.drawWorkerArt(c), 0.78);
+        if (this.health < this.maxHealth) this.renderHealthBar(ctx);
+    }
+
+    // Local game pixels, feet at (0,0), facing +x
+    drawWorkerArt(c) {
+        const OUT = '#1C211C', SKIN = '#D9C29A';
+        const hurt = this.lastHitTime && Date.now() - this.lastHitTime < 140;
+        // Muted work colours so they sit with the dark olive soldier sprites
+        const vest = hurt ? '#C0392B' : (this.variant ? '#8E9A3A' : '#B8662E');
+        const hat = this.variant ? '#C9C9BE' : '#C9A23A';
+        const box = (x, y, w, h, col) => { c.fillStyle = col; c.fillRect(x, y, w, h); };
+        const step = this.walking ? Math.round(Math.sin(this.animationFrame * 2.2) * 2) * 3 : 0;
+
+        // Skinny legs with work boots
+        box(-9 + step, -39, 6, 39, OUT); box(-15 + step, -6, 12, 6, '#5A3A1E'); box(-15 + step, -3, 12, 3, OUT);
+        box(3 - step, -39, 6, 39, OUT); box(3 - step, -6, 12, 6, '#5A3A1E'); box(3 - step, -3, 12, 3, OUT);
+
+        // Body: dark shirt with a hi-vis vest and reflective stripes
+        box(-12, -75, 24, 39, OUT);
+        box(-9, -72, 18, 30, vest);
+        box(-9, -63, 18, 3, '#B9B79A'); box(-9, -54, 18, 3, '#B9B79A');
+        box(-3, -72, 3, 30, OUT);                       // vest opening
+        // Tool belt with a hammer handle
+        box(-12, -42, 24, 6, '#6B4626');
+        box(3, -42, 3, 3, '#C9A227');
+        box(-15, -45, 3, 12, '#5A3A1E'); box(-18, -48, 9, 4, '#7D8790');
+
+        // Back arm hangs down
+        box(-15, -72, 6, 27, OUT);
+
+        // Big blocky head with rounded corners (stepped pixels, like the soldier sprites)
+        box(-12, -105, 27, 30, OUT); box(-15, -102, 33, 24, OUT);
+        box(-9, -102, 21, 24, SKIN); box(-12, -99, 27, 18, SKIN);
+        box(-12, -84, 3, 3, '#C4A97E'); box(12, -84, 3, 3, '#C4A97E');   // shaded jaw corners
+        box(3, -93, 3, 6, OUT); box(10, -93, 3, 6, OUT);                 // eyes
+        box(3, -84, 9, 3, OUT);                                           // mouth
+        // Rounded hard hat with a ridge and brim
+        box(-12, -117, 30, 15, OUT); box(-15, -114, 36, 12, OUT);
+        box(-9, -114, 24, 9, hat); box(-12, -111, 30, 6, hat);
+        box(0, -117, 6, 12, OUT); box(0, -114, 6, 9, this.variant ? '#A9A99E' : '#A8852C');
+        box(-18, -105, 42, 6, OUT); box(-15, -105, 36, 3, hat);
+
+        // Throwing arm with a wrench: down by his side, swinging back, then flinging forward
+        let a = 0.35;
+        if (this.throwAnim > 6) a = -2.2;                         // wound back over his head
+        else if (this.throwAnim > 0) a = 1.3;                     // follow-through
+        c.save();
+        c.translate(6, -69);
+        c.rotate(-a);
+        box(-3, 0, 6, 24, OUT);
+        if (this.throwAnim === 0 || this.throwAnim > 6) {
+            // Wrench in hand
+            box(-3, 21, 6, 18, '#7D8790'); box(-6, 36, 12, 6, '#7D8790'); box(-6, 39, 3, 3, OUT); box(3, 39, 3, 3, OUT);
+        }
+        c.restore();
+    }
+
+    // Reactor Titan: lumbers toward Tofu, lobs toxic barrels that splash where they land, and
+    // charges its core beam - a laser fired low along the ground from its belly cannon. Jump over
+    // the beam. Below half health the core overheats: faster barrels, quicker beams, two barrels.
+    updateTitan(player, game) {
+        const enraged = this.health <= this.maxHealth / 2;
+        this.game = game;   // remembered so render can size the beam to the screen
+        const pc = player.x + player.width / 2;
+        const ec = this.x + this.width / 2;
+        const dist = Math.abs(pc - ec);
+        this.y = this.groundY;
+        this.onGround = true;
+        this.animationFrame += this.animationSpeed;
+        if (this.cannonFlash > 0) this.cannonFlash--;
+        if (!this.started && game) { this.started = true; game.playYetiRoar(); }
+
+        // Core beam
+        if (this.beamPhase === 'charge') {
+            this.walking = false;
+            if (--this.beamTimer <= 0) {
+                this.beamPhase = 'fire';
+                this.beamTimer = 22;   // shorter than a jump, so a well-timed jump clears it
+                this.beamHitDone = false;
+                if (game) game.playCoreBeam();
+            }
+            return;
+        }
+        if (this.beamPhase === 'fire') {
+            this.walking = false;
+            const beam = this.getBeamRect(game);
+            const hit = player.x < beam.x + beam.w && player.x + player.width > beam.x &&
+                        player.y < beam.y + beam.h && player.y + player.height > beam.y;
+            if (hit && !this.beamHitDone) {
+                this.beamHitDone = true;
+                player.takeDamage(2);
+                player.lastDamageTime = Date.now();
+            }
+            if (--this.beamTimer <= 0) {
+                this.beamPhase = null;
+                this.beamCooldown = enraged ? 150 : 230;
+            }
+            return;
+        }
+
+        this.facingLeft = pc < ec;
+        if (--this.beamCooldown <= 0 && dist < 520) {
+            this.beamPhase = 'charge';
+            this.beamTimer = enraged ? 45 : 65;
+            if (game) game.playBeamCharge();
+            return;
+        }
+
+        // Keep a medium distance, stomping closer when Tofu backs off
+        this.walking = false;
+        if (dist > 300) {
+            this.x += this.facingLeft ? -this.speed * (enraged ? 1.4 : 1) : this.speed * (enraged ? 1.4 : 1);
+            this.walking = true;
+        }
+        if (game && game.getForceFieldBounds) {
+            const b = game.getForceFieldBounds();
+            if (b) this.x = Math.max(b.left, Math.min(b.right - this.width, this.x));
+        }
+
+        // Toxic barrels from the back cannon
+        if (--this.barrelTimer <= 0 && game) {
+            const shots = enraged ? 2 : 1;
+            for (let i = 0; i < shots; i++) this.fireToxicBarrel(pc + (i ? (this.facingLeft ? -70 : 70) : 0), game, i * 18);
+            this.barrelTimer = enraged ? 110 : 150;
+        }
+    }
+
+    // The core beam: a thick laser along the ground from the belly cannon to the edge of the screen
+    getBeamRect(game) {
+        const dir = this.facingLeft ? -1 : 1;
+        const startX = this.x + this.width / 2 + dir * 158;   // cannon muzzle
+        const viewL = game ? game.camera.x - 50 : startX - 900;
+        const viewR = game ? game.camera.x + game.canvas.width + 50 : startX + 900;
+        const y = 272;
+        return dir < 0 ? { x: viewL, y, w: startX - viewL, h: 18 } : { x: startX, y, w: viewR - startX, h: 18 };
+    }
+
+    fireToxicBarrel(targetX, game, delayFrames = 0) {
+        const launch = () => {
+            if (game.enemies.indexOf(this) === -1) return;
+            const dir = this.facingLeft ? -1 : 1;
+            const mx = this.x + this.width / 2 + dir * 2;     // dome turret hatch
+            const my = this.y + this.height - 262;
+            const gravity = 0.24;
+            const frames = 72;
+            const vx = (targetX - mx) / frames;
+            const vy = (320 - my - 0.5 * gravity * frames * frames) / frames;
+            const b = new ArtilleryShell(mx, my, vx, vy, gravity, targetX);
+            b.barrel = true;
+            b.damage = 2;
+            b.blastRadius = 60;
+            game.artilleryShells.push(b);
+            this.cannonFlash = 8;
+            game.playTankShoot();
+        };
+        if (delayFrames) setTimeout(launch, delayFrames * 16); else launch();
+    }
+
+    renderTitan(ctx) {
+        this.renderPixelArt(ctx, 'titan', 4, 176, 304, 352, 308, c => this.drawTitanArt(c));
+        // Red flash when hit
+        if (this.lastHitTime && Date.now() - this.lastHitTime < 90) {
+            ctx.save();
+            ctx.globalAlpha = 0.25;
+            ctx.fillStyle = '#FF3030';
+            ctx.fillRect(this.x + 20, this.y + 10, this.width - 40, this.height - 10);
+            ctx.restore();
+        }
+        const dir = this.facingLeft ? -1 : 1;
+        const cx = this.x + this.width / 2;
+        // Charging: a red targeting line and a growing glow at the belly cannon
+        if (this.beamPhase === 'charge') {
+            const total = this.health <= this.maxHealth / 2 ? 45 : 65;
+            const k = 1 - this.beamTimer / total;
+            const beam = this.getBeamRect(this.game);
+            ctx.save();
+            ctx.globalAlpha = 0.35 + 0.4 * Math.abs(Math.sin(Date.now() * 0.03));
+            ctx.fillStyle = '#FF1744';
+            ctx.fillRect(beam.x, 280, beam.w, 2);
+            ctx.globalAlpha = 0.8;
+            ctx.fillStyle = '#9CFF2E';
+            const r = 6 + 14 * k;
+            ctx.fillRect(cx + dir * 156 - r, 281 - r, r * 2, r * 2);
+            ctx.restore();
+        }
+        if (this.beamPhase === 'fire') {
+            const beam = this.getBeamRect(this.game);
+            ctx.save();
+            const wob = Math.sin(Date.now() * 0.05) * 2;
+            ctx.fillStyle = 'rgba(156, 255, 46, 0.35)';
+            ctx.fillRect(beam.x, beam.y - 6 + wob, beam.w, beam.h + 12);
+            ctx.fillStyle = '#9CFF2E';
+            ctx.fillRect(beam.x, beam.y + wob, beam.w, beam.h);
+            ctx.fillStyle = '#F4FFE0';
+            ctx.fillRect(beam.x, beam.y + 5 + wob, beam.w, 8);
+            ctx.restore();
+        }
+    }
+
+    // Local game pixels, feet at (0,0), facing +x. Drawn from the kid's sketch: a wide slanted
+    // armour plate on top with a domed turret (striped vents, antenna with a ball), a square body
+    // with a round porthole showing the spinning reactor core, a column of stacked blocks down to
+    // two diamond feet, a big curved claw on the back side and a long cannon in front.
+    drawTitanArt(c) {
+        const OUT = '#1C211C', ARM = '#5E6B5A', ARM2 = '#7F8C79', ARM3 = '#3F4A3C', DARK = '#2A2F28';
+        const enraged = this.health <= this.maxHealth / 2;
+        const box = (x, y, w, h, col) => { c.fillStyle = col; c.fillRect(x, y, w, h); };
+        const t = Date.now();
+        const pulse = Math.floor(t / 160) % 2 === 0;
+        const CORE = enraged ? (pulse ? '#FF5252' : '#D50000') : (pulse ? '#B6FF3B' : '#6FD116');
+        // Walking: the whole mech rocks from foot to foot
+        const step = this.walking ? Math.round(Math.sin(this.animationFrame * 1.4) * 2) * 4 : 0;
+        const bob = this.walking ? Math.abs(step) / 2 : 0;
+
+        // ---- Two diamond feet ----
+        const foot = (cx, lift, shade) => {
+            box(cx - 8, -28 - lift, 16, 4, OUT);
+            box(cx - 16, -24 - lift, 32, 4, OUT); box(cx - 12, -24 - lift, 24, 4, shade);
+            box(cx - 24, -20 - lift, 48, 8, OUT); box(cx - 20, -20 - lift, 40, 8, shade);
+            box(cx - 16, -12 - lift, 32, 4, OUT); box(cx - 12, -12 - lift, 24, 4, shade);
+            box(cx - 8, -8 - lift, 16, 8, OUT); box(cx - 4, -8 - lift, 8, 4, shade);
+            box(cx - 4, -24 - lift, 8, 20, OUT);                 // the crease down the middle
+        };
+        foot(-34, Math.max(0, step), ARM3);
+        foot(30, Math.max(0, -step), ARM2);
+        box(-30, -36, 60, 12, OUT); box(-26, -32, 52, 4, ARM3);  // hip bar joining the feet
+
+        c.save();
+        c.translate(0, -bob);
+
+        // ---- Column of stacked blocks (slightly offset, like the drawing) ----
+        [[-26, -64, 44], [-20, -92, 44], [-28, -120, 48]].forEach(([x, y, w], i) => {
+            box(x, y, w, 32, OUT);
+            box(x + 4, y + 4, w - 8, 24, i % 2 ? ARM2 : ARM);
+            box(x + 4, y + 4, w - 8, 4, '#A3ADB6');
+            box(x + w / 2 - 2, y + 12, 4, 4, ARM3);               // bolt
+        });
+
+        // ---- Big curved claw on the back side ----
+        box(-64, -168, 20, 20, OUT);                               // shoulder joint
+        box(-96, -184, 36, 24, OUT); box(-92, -180, 28, 16, ARM);
+        box(-112, -164, 28, 28, OUT); box(-108, -160, 20, 20, ARM);
+        box(-120, -140, 28, 36, OUT); box(-116, -136, 20, 28, ARM2);
+        box(-112, -108, 28, 20, OUT); box(-108, -104, 20, 12, ARM);
+        box(-92, -96, 24, 16, OUT); box(-88, -92, 16, 8, ARM3);    // claw tip curling back in
+        box(-72, -100, 12, 12, OUT);
+
+        // ---- Square body with the round porthole ----
+        box(-52, -196, 104, 80, OUT);
+        box(-48, -192, 96, 72, ARM);
+        box(-48, -192, 96, 6, ARM2);
+        [[-44, -184], [36, -184], [-44, -132], [36, -132]].forEach(([x, y]) => box(x, y, 6, 6, ARM3));
+        // Stepped round porthole
+        box(-20, -184, 40, 56, OUT); box(-28, -176, 56, 40, OUT);
+        box(-16, -180, 32, 48, '#20301C'); box(-24, -172, 48, 32, '#20301C');
+        // Spinning reactor turbine inside (the lines in the drawing's circle)
+        const spin = Math.floor(t / 120) % 4;
+        box(-12, -168, 24, 24, CORE);
+        const blades = [[[-4, -180, 8, 12], [-4, -144, 8, 12]], [[8, -176, 8, 8], [-16, -144, 8, 8]],
+                        [[12, -160, 12, 8], [-24, -160, 12, 8]], [[8, -144, 8, 8], [-16, -176, 8, 8]]][spin];
+        blades.forEach(([x, y, w, h]) => box(x, y, w, h, CORE));
+        box(-4, -160, 8, 8, '#F4FFE0');
+
+        // ---- Long cannon arm in front, angled down toward the ground ----
+        box(44, -156, 20, 20, OUT); box(48, -152, 12, 12, ARM3);   // shoulder
+        box(56, -144, 24, 24, OUT); box(60, -140, 16, 16, ARM2);
+        box(72, -124, 24, 24, OUT); box(76, -120, 16, 16, ARM2);
+        // Barrel in steps down to the muzzle
+        box(88, -108, 28, 20, OUT); box(92, -104, 20, 12, ARM3);
+        box(108, -96, 28, 20, OUT); box(112, -92, 20, 12, ARM3);
+        box(128, -84, 28, 20, OUT); box(132, -80, 20, 12, ARM3);
+        box(148, -72, 16, 20, OUT);
+        box(152, -68, 8, 12, this.beamPhase ? CORE : DARK);       // muzzle glows while the beam is up
+
+        // ---- Wide slanted armour plate on top (dark hatching, pointed front corner) ----
+        // Simple slanted slab: higher at the back, lower at the front, like the drawing
+        // Outline first, then the fill, so the slab reads as one solid piece with no seams
+        for (let i = 0; i < 16; i++) box(-124 + i * 16, -236 + i * 2, 16, 34, OUT);
+        for (let i = 0; i < 16; i++) {
+            const x = -124 + i * 16, y = -236 + i * 2;
+            box(x + (i === 0 ? 4 : 0), y + 4, i === 15 ? 12 : 16, 26, ARM2);
+            box(x + (i === 0 ? 4 : 0), y + 4, i === 15 ? 12 : 16, 4, '#A3ADB6');
+            // Dark diagonal hatching scribbled across it, like the drawing
+            if (i % 2 === 0) box(x + 4, y + 14 + (i % 4), 12, 4, ARM3);
+            if (i % 3 === 0) box(x + 2, y + 22, 10, 3, ARM3);
+        }
+        box(132, -206, 12, 20, OUT); box(144, -198, 8, 8, OUT);     // pointed front corner
+        box(-124, -240, 8, 16, OUT);                                 // raised back lip
+
+        // ---- Dome turret on top with striped vents and an antenna ball ----
+        box(-44, -264, 64, 32, OUT); box(-36, -272, 48, 8, OUT); box(-28, -276, 32, 4, OUT);
+        box(-40, -260, 56, 28, ARM); box(-32, -268, 40, 8, ARM2);
+        // Striped vent on the back of the dome
+        box(-60, -252, 20, 20, OUT);
+        box(-56, -248, 4, 12, '#F2C200'); box(-48, -248, 4, 12, '#F2C200');
+        // Turret hatch for the barrels
+        box(-8, -260, 20, 12, DARK);
+        if (this.cannonFlash > 0) { box(-12, -284, 28, 16, '#FFEB3B'); box(-4, -296, 12, 12, '#FF9800'); }
+        // Antenna with a ball on the end
+        box(20, -252, 8, 8, OUT); box(28, -260, 8, 8, OUT); box(36, -268, 8, 8, OUT);
+        box(40, -280, 16, 16, OUT); box(44, -276, 8, 8, enraged && pulse ? '#FF1744' : '#9CFF2E');
+
+        // Overheating sparks
+        if (enraged && Math.random() < 0.6) {
+            for (let i = 0; i < 5; i++) box(Math.floor((Math.random() * 180 - 90) / 4) * 4, Math.floor((-60 - Math.random() * 180) / 4) * 4, 4, 4, Math.random() < 0.5 ? '#FFC107' : '#9CFF2E');
+        }
+        c.restore();
+    }
+
+    // Cyborg yeti boss: stomps toward Tofu, fires rocket volleys from both shoulder launchers
+    // that arc down where Tofu is standing (a red ring marks each landing spot), and slams the
+    // ground when Tofu gets close - jump to dodge the shockwave. Below half health it gets
+    // angry: bigger volleys, more often, and it walks faster.
+    updateYeti(player, game) {
+        const enraged = this.health <= this.maxHealth / 2;
+        const pc = player.x + player.width / 2;
+        const ec = this.x + this.width / 2;
+        const dist = Math.abs(pc - ec);
+        this.y = this.groundY;
+        this.onGround = true;
+        this.animationFrame += this.animationSpeed;
+        if (!this.roared && game) { this.roared = true; game.playYetiRoar(); }
+        this.launcherFlash = this.launcherFlash.map(f => Math.max(0, f - 1));
+
+        // Ground slam
+        if (this.slamPhase === 'windup') {
+            this.walking = false;
+            if (--this.slamTimer <= 0) {
+                this.slamPhase = 'slam';
+                this.slamTimer = 18;
+                if (game) {
+                    game.playMineExplosion();
+                    const dir = this.facingLeft ? -1 : 1;
+                    [40, 110, 180].forEach(off => game.explosions.push(new Explosion(ec + dir * off, 305)));
+                    const playerOnGround = player.onGround && player.y + player.height > 300;
+                    if (playerOnGround && dist < 260) {
+                        player.takeDamage(2);
+                        player.lastDamageTime = Date.now();
+                        player.velocityY = -6;
+                        player.x += pc < ec ? -60 : 60;
+                    }
+                }
+            }
+            return;
+        }
+        if (this.slamPhase === 'slam') {
+            if (--this.slamTimer <= 0) {
+                this.slamPhase = null;
+                this.slamCooldown = enraged ? 110 : 170;
+            }
+            return;
+        }
+        if (this.slamCooldown > 0) this.slamCooldown--;
+
+        this.facingLeft = pc < ec;
+        if (dist < 260 && this.slamCooldown <= 0) {
+            this.slamPhase = 'windup';
+            this.slamTimer = enraged ? 28 : 38;
+            this.walking = false;
+            if (game) game.playYetiRoar();
+            return;
+        }
+
+        // Keep at rocket range, stomping closer when Tofu backs off
+        const step = this.speed * (enraged ? 1.5 : 1);
+        this.walking = false;
+        if (dist > 330) {
+            this.x += this.facingLeft ? -step : step;
+            this.walking = true;
+        }
+        if (game && game.getForceFieldBounds) {
+            const b = game.getForceFieldBounds();
+            if (b) this.x = Math.max(b.left, Math.min(b.right - this.width, this.x));
+        }
+
+        // Rocket volleys
+        if (this.rocketQueue.length) {
+            const next = this.rocketQueue[0];
+            if (--next.delay <= 0) {
+                this.rocketQueue.shift();
+                this.fireYetiRocket(next.side, pc + next.spread, game);
+            }
+        } else if (--this.rocketTimer <= 0) {
+            const count = enraged ? 4 : 2;
+            for (let i = 0; i < count; i++) {
+                this.rocketQueue.push({ side: i % 2, delay: i === 0 ? 1 : 14, spread: (i - (count - 1) / 2) * 55 });
+            }
+            this.rocketTimer = enraged ? 120 : 170;
+        }
+    }
+
+    // Launch one rocket from a shoulder launcher (0 = back shoulder, 1 = front shoulder)
+    fireYetiRocket(side, targetX, game) {
+        if (!game) return;
+        const dir = this.facingLeft ? -1 : 1;
+        const cx = this.x + this.width / 2;
+        const lx = side === 1 ? 110 : -46;   // front end of each launcher tube
+        const mx = cx + dir * lx;
+        const my = this.y + this.height - 214;
+        const gravity = 0.22;
+        const flightFrames = 70;
+        const vx = (targetX - mx) / flightFrames;
+        const vy = (320 - my - 0.5 * gravity * flightFrames * flightFrames) / flightFrames;
+        const rocket = new ArtilleryShell(mx, my, vx, vy, gravity, targetX);
+        rocket.rocket = true;
+        rocket.damage = 2;
+        rocket.blastRadius = 55;
+        game.artilleryShells.push(rocket);
+        this.launcherFlash[side] = 8;
+        game.playRocketLaunch();
+    }
+
+    // Big blocky pixel-art yeti, painted at 1/4 size and scaled up like the other pixel troops
+    renderYeti(ctx) {
+        const P = 4;
+        const OX = 168, OY = 260, W = 336, H = 264;
+        if (!Enemy.yetiCanvas) {
+            Enemy.yetiCanvas = document.createElement('canvas');
+            Enemy.yetiCanvas.width = W / P;
+            Enemy.yetiCanvas.height = H / P;
+        }
+        const pc = Enemy.yetiCanvas;
+        const p = pc.getContext('2d', { willReadFrequently: true });
+        p.setTransform(1, 0, 0, 1, 0, 0);
+        p.clearRect(0, 0, pc.width, pc.height);
+        p.setTransform(1 / P, 0, 0, 1 / P, OX / P, OY / P);
+        this.drawYetiArt(p);
+        const img = p.getImageData(0, 0, pc.width, pc.height);
+        const d = img.data;
+        for (let i = 3; i < d.length; i += 4) d[i] = d[i] > 90 ? 255 : 0;
+        p.putImageData(img, 0, 0);
+        // Flash red when hit
+        if (this.lastHitTime && Date.now() - this.lastHitTime < 100) {
+            p.setTransform(1, 0, 0, 1, 0, 0);
+            p.globalCompositeOperation = 'source-atop';
+            p.fillStyle = 'rgba(255, 40, 40, 0.45)';
+            p.fillRect(0, 0, pc.width, pc.height);
+            p.globalCompositeOperation = 'source-over';
+        }
+
+        const cx = this.x + this.width / 2;
+        const by = this.y + this.height;
+        ctx.save();
+        ctx.translate(cx, by);
+        ctx.scale(this.facingLeft ? -1 : 1, 1);
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(pc, -OX, -OY, W, H);
+        ctx.restore();
+    }
+
+    // Local game pixels, feet at (0,0), facing +x
+    drawYetiArt(c) {
+        const OUT = '#1C211C', FUR = '#E8EEF2', FUR2 = '#B9C6CF', FUR3 = '#93A3AE';
+        const MET = '#6B7680', MET2 = '#9AA5AF', MET3 = '#454E57';
+        const enraged = this.health <= this.maxHealth / 2;
+        const box = (x, y, w, h, col) => { c.fillStyle = col; c.fillRect(x, y, w, h); };
+        const step = this.walking ? Math.round(Math.sin(this.animationFrame * 1.6) * 2) * 4 : 0;
+        const bob = this.walking ? Math.abs(step) / 2 : 0;
+        let armLift = 0;          // 0 = hanging, 1 = fully raised for the slam
+        if (this.slamPhase === 'windup') armLift = Math.min(1, 1.6 * (1 - this.slamTimer / 38));
+        const crouch = this.slamPhase === 'slam' ? 8 : 0;
+
+        // ---- Legs ----
+        box(-56 + step, -64, 40, 64, OUT); box(-52 + step, -64, 32, 56, FUR2); box(-60 + step, -12, 48, 12, OUT);
+        box(16 - step, -64, 40, 64, OUT); box(20 - step, -64, 32, 56, FUR); box(12 - step, -12, 52, 12, OUT);
+        box(24 - step, -40, 24, 12, MET); box(24 - step, -40, 24, 4, MET2);   // cyborg knee brace
+
+        c.save();
+        c.translate(0, -bob + crouch);
+
+        // ---- Back arm (fur) ----
+        c.save();
+        c.translate(-60, -168);
+        c.rotate(-armLift * 2.6);
+        box(-16, 0, 32, 92, OUT); box(-12, 0, 24, 84, FUR2); box(-20, 80, 40, 24, OUT); box(-16, 84, 32, 16, FUR3);
+        c.restore();
+
+        // ---- Body ----
+        box(-72, -184, 144, 128, OUT);
+        box(-68, -180, 136, 120, FUR);
+        // Shaggy fur tufts
+        for (let i = 0; i < 8; i++) box(-64 + i * 16, -64, 12, 8, i % 2 ? FUR2 : FUR);
+        box(-68, -140, 8, 40, FUR2); box(-40, -120, 8, 24, FUR2);
+        // Cyborg chest plate with glowing core
+        box(-28, -168, 60, 72, OUT); box(-24, -164, 52, 64, MET); box(-24, -164, 52, 6, MET2);
+        box(-20, -110, 8, 8, MET3); box(16, -110, 8, 8, MET3);
+        const glow = Math.floor(Date.now() / 150) % 2 === 0;
+        box(-12, -148, 28, 28, OUT);
+        box(-8, -144, 20, 20, enraged ? (glow ? '#FF5252' : '#D50000') : (glow ? '#7FE9FF' : '#00B8D4'));
+        box(-4, -140, 8, 8, '#FFFFFF');
+        // Wires
+        box(-40, -150, 12, 4, '#E53935'); box(-48, -146, 8, 4, '#E53935'); box(-40, -130, 12, 4, '#FFC107');
+
+        // ---- Shoulder rocket launchers: long boxes tilted up, rockets poking out the front ----
+        const launcher = (lx, flash) => {
+            c.save();
+            c.translate(lx, -202);
+            c.rotate(-0.35);
+            box(-8, 10, 16, 20, OUT); box(-4, 10, 8, 16, MET3);           // mount on the shoulder
+            box(-30, -18, 64, 32, OUT);
+            box(-26, -14, 56, 24, MET);
+            box(-26, -14, 56, 5, MET2);
+            box(-18, -6, 4, 12, MET3); box(-8, -6, 4, 12, MET3);            // vents
+            box(30, -14, 10, 10, OUT); box(30, -1, 10, 10, OUT);           // rocket noses
+            box(32, -12, 6, 6, '#E53935'); box(32, 1, 6, 6, '#E53935');
+            if (flash > 0) {
+                box(40, -22, 20, 36, '#FFEB3B');
+                box(56, -14, 14, 20, '#FF9800');
+                box(-46, -10, 16, 16, 'rgba(230,230,230,0.9)');            // back-blast smoke
+            }
+            c.restore();
+        };
+        launcher(-78, this.launcherFlash[0]);
+
+        // ---- Head ----
+        box(-40, -236, 80, 64, OUT);
+        box(-36, -232, 72, 56, FUR);
+        box(-36, -232, 72, 8, FUR2);
+        // Metal half of the face (front side) with a glowing red eye
+        box(4, -228, 32, 44, MET); box(4, -228, 32, 4, MET2);
+        box(12, -216, 16, 12, OUT); box(16, -212, 12, 8, enraged || glow ? '#FF1744' : '#C62828');
+        box(8, -192, 4, 4, MET3); box(28, -192, 4, 4, MET3);
+        // Angry fur-side eye and brow
+        box(-24, -216, 16, 8, OUT); box(-20, -212, 8, 4, '#FFEB3B');
+        box(-28, -224, 24, 6, OUT);
+        // Mouth with fangs
+        box(-24, -196, 52, 16, OUT);
+        box(-20, -196, 8, 8, '#FFFFFF'); box(16, -196, 8, 8, '#FFFFFF');
+        if (this.slamPhase || this.rocketQueue.length) box(-8, -192, 20, 8, '#8E0000');   // roaring
+        // Horns
+        box(-44, -252, 16, 24, OUT); box(-40, -248, 8, 16, FUR3);
+        box(28, -252, 16, 24, OUT); box(32, -248, 8, 16, MET2);
+
+        launcher(78, this.launcherFlash[1]);
+
+        // ---- Front arm (cyborg) ----
+        c.save();
+        c.translate(64, -168);
+        c.rotate(-armLift * 2.6);
+        box(-16, 0, 32, 92, OUT); box(-12, 0, 24, 84, MET);
+        box(-12, 0, 6, 84, MET2);
+        box(-16, 36, 32, 12, OUT); box(-12, 40, 24, 4, '#FFC107');            // elbow joint
+        box(-24, 80, 48, 28, OUT); box(-20, 84, 40, 20, MET3);                  // fist
+        box(-20, 104, 8, 12, OUT); box(-4, 104, 8, 12, OUT); box(12, 104, 8, 12, OUT);  // claws
+        c.restore();
+
+        // Steam/sparks when he's angry
+        if (enraged && Math.random() < 0.5) {
+            for (let i = 0; i < 4; i++) box(Math.floor((Math.random() * 120 - 40) / 4) * 4, Math.floor((-150 - Math.random() * 90) / 4) * 4, 4, 4, Math.random() < 0.5 ? '#FFC107' : '#7FE9FF');
+        }
+        c.restore();
+    }
+
+    // Shield stickman: marches up to Tofu behind his shield, raises the electric axe
+    // (it crackles while charging), then swings it down. Gets faster once his shield breaks.
+    updateShieldStickman(player, game) {
+        const pc = player.x + player.width / 2;
+        const ec = this.x + this.width / 2;
+        const dist = Math.abs(pc - ec);
+        const broken = this.shieldHP <= 0;
+        if (this.attackCooldown > 0) this.attackCooldown--;
+
+        if (!this.attackPhase) {
+            this.facingLeft = pc < ec;
+            const verticalClose = Math.abs((player.y + player.height) - (this.y + this.height)) < 60;
+            if (dist > 78) {
+                const step = this.speed * (broken ? 1.5 : 1);
+                this.x += this.facingLeft ? -step : step;
+            } else if (this.attackCooldown <= 0 && verticalClose) {
+                this.attackPhase = 'windup';
+                this.attackTimer = broken ? 22 : 30;
+                if (game) game.playAxeCharge();
+            }
+        } else if (this.attackPhase === 'windup') {
+            if (--this.attackTimer <= 0) {
+                this.attackPhase = 'swing';
+                this.attackTimer = 10;
+                if (game) game.playAxeZap();
+                // The blade reaches about 100px in front of him; jumping over it dodges the hit
+                const inFront = this.facingLeft ? (pc < ec + 10 && pc > ec - 105) : (pc > ec - 10 && pc < ec + 105);
+                const lowEnough = player.y + player.height > this.y + 30;
+                if (inFront && lowEnough) {
+                    player.takeDamage(2); // 1 full heart
+                    player.lastDamageTime = Date.now();
+                    player.x += this.facingLeft ? -40 : 40;
+                    this.zapHitUntil = Date.now() + 250;
+                }
+            }
+        } else if (this.attackPhase === 'swing') {
+            if (--this.attackTimer <= 0) {
+                this.attackPhase = null;
+                this.attackCooldown = broken ? 50 : 70;
+            }
+        }
+    }
+
+    // How far the axe arm is raised: 0 = straight up, negative = pulled back, positive = chopping forward
+    getAxeAngle() {
+        if (this.attackPhase === 'windup') {
+            const total = this.shieldHP <= 0 ? 22 : 30;
+            const p = 1 - this.attackTimer / total;
+            return -0.45 - p * 0.75;
+        }
+        if (this.attackPhase === 'swing') {
+            const p = 1 - this.attackTimer / 10;
+            return -1.2 + Math.min(1, p * 3.5) * 2.9;
+        }
+        return -0.45 + Math.sin(this.animationFrame * 0.6) * 0.06;
+    }
+
+    // Shield stickman is drawn as chunky pixel art to match the soldier sprites: the figure is
+    // painted at 1/3 size into a tiny canvas, hard-edged, then blown back up with smoothing off.
+    renderShieldStickman(ctx) {
+        const now = Date.now();
+        const P = 3;                          // game pixels per art pixel
+        const OX = 120, OY = 201;             // local origin (feet) inside the art canvas, in game px
+        const W = 270, H = 207;
+        if (!Enemy.pixCanvas) {
+            Enemy.pixCanvas = document.createElement('canvas');
+            Enemy.pixCanvas.width = W / P;
+            Enemy.pixCanvas.height = Math.ceil(H / P);
+        }
+        const pc = Enemy.pixCanvas;
+        const p = pc.getContext('2d', { willReadFrequently: true });
+        p.setTransform(1, 0, 0, 1, 0, 0);
+        p.clearRect(0, 0, pc.width, pc.height);
+        p.setTransform(1 / P, 0, 0, 1 / P, OX / P, OY / P);
+        this.drawShieldStickmanArt(p, now);
+        // Hard edges: every art pixel is either solid or empty, like the sprites
+        const img = p.getImageData(0, 0, pc.width, pc.height);
+        const d = img.data;
+        for (let i = 3; i < d.length; i += 4) d[i] = d[i] > 90 ? 255 : 0;
+        p.putImageData(img, 0, 0);
+
+        const cx = this.x + this.width / 2;
+        const by = this.y + this.height;
+        const dir = this.facingLeft ? -1 : 1;
+        ctx.save();
+        ctx.translate(cx, by);
+        ctx.scale(dir, 1);
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(pc, -OX, -OY, W, pc.height * P);
+        ctx.restore();
+
+        // Shield chunks tumbling to the ground after it breaks
+        if (this.shieldBrokenAt && now - this.shieldBrokenAt < 1600) {
+            const t = (now - this.shieldBrokenAt) / 1000;
+            ctx.save();
+            ctx.globalAlpha = Math.max(0, 1 - Math.max(0, t - 0.9) / 0.7);
+            const pieces = [{ vx: 70, vy: -120, w: 4, h: 6 }, { vx: 30, vy: -170, w: 3, h: 5 }, { vx: 110, vy: -60, w: 4, h: 4 }];
+            pieces.forEach(pc2 => {
+                const px = Math.round((this.shieldBreakX + dir * pc2.vx * t) / P) * P;
+                const py = Math.round(Math.min(by - pc2.h * P, this.shieldBreakY + pc2.vy * t + 400 * t * t) / P) * P;
+                ctx.fillStyle = '#1C211C';
+                ctx.fillRect(px - P, py - P, (pc2.w + 2) * P, (pc2.h + 2) * P);
+                ctx.fillStyle = '#7D8790';
+                ctx.fillRect(px, py, pc2.w * P, pc2.h * P);
+            });
+            ctx.restore();
+        }
+
+        if (this.health < this.maxHealth) this.renderHealthBar(ctx);
+    }
+
+    // The figure itself, in local game pixels (feet at 0,0, facing +x). Colours match soldier_1/2.png.
+    drawShieldStickmanArt(c, now) {
+        const OUT = '#1C211C', DARK = '#262D25', CAMO = '#3E4C34', SKIN = '#D9C29A';
+        const hurt = this.lastHitTime && now - this.lastHitTime < 140 && this.shieldHP <= 0;
+        const body = hurt ? '#8E2A20' : DARK;
+        const walking = !this.attackPhase;
+        const step = walking ? Math.round(Math.sin(this.animationFrame * 2.2) * 2) * 3 : 0;
+        const box = (x, y, w, h, col) => { c.fillStyle = col; c.fillRect(x, y, w, h); };
+
+        // Legs (blocky, outlined)
+        box(-9 + step, -42, 6, 42, OUT); box(-15 + step, -3, 12, 3, OUT);   // skinny legs, like the soldier sprites
+        box(3 - step, -42, 6, 42, OUT); box(3 - step, -3, 12, 3, OUT);
+        // Torso with camo patches and belt
+        box(-15, -84, 30, 45, OUT);
+        box(-12, -81, 24, 39, body);
+        if (!hurt) { box(-9, -75, 9, 6, CAMO); box(3, -66, 9, 9, CAMO); box(-9, -57, 6, 9, CAMO); }
+        box(-12, -48, 24, 6, OUT);
+        box(-3, -48, 6, 6, '#6B6B4A');
+
+        // ---- Electric axe on the back arm ----
+        const a = this.getAxeAngle();
+        c.save();
+        c.translate(-3, -78);                 // shoulder
+        c.rotate(a);
+        box(-6, -36, 12, 36, OUT);            // arm
+        box(-3, -33, 6, 30, body);
+        c.translate(0, -36);                  // hand
+        box(-3, -36, 6, 48, '#4A3018');       // handle
+        box(-3, -36, 3, 48, '#6B4626');
+        box(-3, -42, 24, 18, OUT);            // blade head
+        box(0, -39, 18, 12, '#9AA4AE');
+        box(15, -39, 3, 12, '#D5DBE0');
+        const charging = this.attackPhase === 'windup' || this.attackPhase === 'swing';
+        const bolt = charging ? '#FFF59D' : '#F4D03F';
+        box(-3, -54, 9, 12, OUT); box(0, -51, 6, 9, bolt);      // jagged lightning tip
+        box(3, -63, 9, 12, OUT); box(6, -60, 3, 9, bolt);
+        box(-3, -72, 9, 12, OUT); box(0, -69, 3, 9, bolt);
+        // Sparks - a few blue pixels idle, a crackling cloud while charging
+        const sparks = charging ? 9 : (Math.random() < 0.35 ? 2 : 0);
+        for (let i = 0; i < sparks; i++) {
+            box(-12 + Math.floor(Math.random() * 9) * 3, -78 + Math.floor(Math.random() * 10) * 3, 3, 3,
+                Math.random() < 0.5 ? '#7FE9FF' : '#E0FFFF');
+        }
+        c.restore();
+
+        // Lightning bolt where the swing lands
+        if (this.attackPhase === 'swing' && this.attackTimer > 4) {
+            for (let k = 0; k < 2; k++) {
+                let x = 39, y = -66 + k * 12;
+                for (let j = 0; j < 9; j++) {
+                    box(x, y, 6, 6, j % 2 ? '#7FE9FF' : '#E0FFFF');
+                    x += 9; y += Math.random() < 0.5 ? 6 : 3;
+                }
+            }
+        }
+
+        // ---- Square head, metal helmet with a spike, goggles ----
+        box(-15, -111, 30, 30, OUT);
+        box(-12, -102, 24, 18, SKIN);
+        box(6, -90, 6, 3, OUT);               // mouth
+        box(-18, -120, 36, 18, OUT);          // helmet
+        box(-15, -117, 30, 12, '#56606B');
+        box(-12, -117, 24, 3, '#7D8893');
+        box(-3, -129, 6, 9, OUT); box(-3, -126, 3, 6, '#AAB4BE');   // spike
+        box(-15, -102, 33, 9, OUT);           // goggles band
+        box(0, -102, 6, 6, '#7FE9FF'); box(9, -102, 6, 6, '#7FE9FF');
+        box(0, -102, 3, 3, '#E0FFFF'); box(9, -102, 3, 3, '#E0FFFF');
+
+        // ---- Front arm: holds the shield, or hangs once it's gone ----
+        if (this.shieldHP > 0) {
+            box(9, -78, 18, 9, OUT); box(12, -75, 12, 3, body);
+            this.drawStickmanShield(c, 21, -93, now);
+        } else {
+            box(9, -78, 9, 33, OUT); box(12, -75, 3, 27, body);
+        }
+    }
+
+    // Tall riot shield in local space (front side is +x). A new crack appears with every hit.
+    drawStickmanShield(c, x, y, now) {
+        const box = (bx, by, w, h, col) => { c.fillStyle = col; c.fillRect(x + bx, y + by, w, h); };
+        const flash = now - this.lastShieldHit < 90;
+        box(0, 0, 18, 72, '#1C211C');
+        box(3, 3, 12, 66, flash ? '#FFFFFF' : '#7D8790');
+        if (!flash) {
+            box(3, 3, 3, 66, '#A3ADB6');          // light edge
+            box(6, 9, 6, 6, '#2E3A44');           // viewport
+            box(9, 27, 3, 3, '#4A535C'); box(9, 57, 3, 3, '#4A535C');   // rivets
+        }
+        const hits = this.shieldMax - this.shieldHP;
+        const cracks = [
+            [[9, 33], [6, 36], [6, 39], [9, 42]],
+            [[9, 30], [12, 27], [12, 21]],
+            [[9, 45], [12, 48], [9, 51], [6, 54]],
+            [[6, 39], [3, 45], [6, 48], [6, 60]]
+        ];
+        // Cracks spread evenly over the shield's 10 hits
+        const shown = Math.ceil(hits / this.shieldMax * cracks.length);
+        for (let i = 0; i < Math.min(shown, cracks.length); i++) {
+            cracks[i].forEach(([px, py]) => box(px, py, 3, 3, '#1C211C'));
+        }
+    }
+
     // Turret pivot in world space, matching Game.drawArtilleryTruck's layout
     getTruckPivot() {
         const s = this.truckScale;
@@ -10804,6 +13032,19 @@ class Enemy {
     }
     
     takeDamage(amount) {
+        // The shield stickman's shield soaks the first shots
+        if (this.type === 8 && this.shieldHP > 0) {
+            this.shieldHP--;
+            this.lastShieldHit = Date.now();
+            this.shieldBlocked = true;
+            if (this.shieldHP <= 0) {
+                this.shieldJustBroke = true;
+                this.shieldBrokenAt = Date.now();
+                this.shieldBreakX = this.x + this.width / 2 + (this.facingLeft ? -26 : 26);
+                this.shieldBreakY = this.y + this.height - 55;
+            }
+            return false;
+        }
         this.health -= amount;
         this.lastHitTime = Date.now();
         if (this.health <= 0) {
@@ -10814,6 +13055,26 @@ class Enemy {
     }
     
     render(ctx) {
+        if (this.type === 12) {
+            this.renderTitan(ctx);
+            return;
+        }
+        if (this.type === 11) {
+            this.renderHazmat(ctx);
+            return;
+        }
+        if (this.type === 10) {
+            this.renderWorker(ctx);
+            return;
+        }
+        if (this.type === 9) {
+            this.renderYeti(ctx);
+            return;
+        }
+        if (this.type === 8) {
+            this.renderShieldStickman(ctx);
+            return;
+        }
         if (this.type === 6) {
             this.renderTower(ctx);
             if (this.health < this.maxHealth) this.renderHealthBar(ctx);
@@ -11065,11 +13326,37 @@ class ArtilleryShell {
 
         // Smoke trail
         this.trail.forEach((p, i) => {
-            ctx.fillStyle = `rgba(90, 90, 90, ${0.05 * i})`;
+            ctx.fillStyle = this.rocket ? `rgba(230, 230, 230, ${0.07 * i})` : `rgba(90, 90, 90, ${0.05 * i})`;
             ctx.beginPath();
             ctx.arc(p.x, p.y, 3 + i * 0.6, 0, Math.PI * 2);
             ctx.fill();
         });
+
+        if (this.barrel) {
+            // Tumbling yellow toxic-waste barrel with a radiation band
+            ctx.translate(Math.round(this.x), Math.round(this.y));
+            ctx.rotate(Math.floor(Date.now() / 90) % 4 * Math.PI / 2);
+            ctx.fillStyle = '#1C211C'; ctx.fillRect(-10, -13, 20, 26);
+            ctx.fillStyle = '#F2C200'; ctx.fillRect(-7, -10, 14, 20);
+            ctx.fillStyle = '#1C211C'; ctx.fillRect(-7, -2, 14, 4);
+            ctx.fillStyle = '#9CFF2E'; ctx.fillRect(-4, -14, 8, 4);
+            ctx.restore();
+            return;
+        }
+        if (this.rocket) {
+            // Yeti rocket: pixel-style body, red nose, fins and a flickering flame
+            ctx.translate(this.x, this.y);
+            ctx.rotate(Math.atan2(this.vy, this.vx));
+            const flame = 6 + Math.random() * 6;
+            ctx.fillStyle = '#FF9800'; ctx.fillRect(-12 - flame, -3, flame, 6);
+            ctx.fillStyle = '#FFEB3B'; ctx.fillRect(-12 - flame * 0.5, -1.5, flame * 0.5, 3);
+            ctx.fillStyle = '#1C211C'; ctx.fillRect(-13, -5, 24, 10);
+            ctx.fillStyle = '#B0BEC5'; ctx.fillRect(-11, -3, 16, 6);
+            ctx.fillStyle = '#E53935'; ctx.fillRect(5, -3, 6, 6);
+            ctx.fillStyle = '#1C211C'; ctx.fillRect(-13, -8, 6, 3); ctx.fillRect(-13, 5, 6, 3);
+            ctx.restore();
+            return;
+        }
 
         // Shell body pointing along its flight path
         ctx.translate(this.x, this.y);
@@ -11109,6 +13396,22 @@ class EnemyBullet {
             this.height = 12;
             this.speed = 4;
             this.damage = 2;
+        } else if (bulletType === 'goo') { // hazmat trooper's radioactive goo, sprayed in a short arc
+            this.width = 8;
+            this.height = 8;
+            this.speed = 5;
+            this.damage = 1;
+            this.vy = -1;
+            this.gravity = 0.14;
+            this.spin = 0;
+        } else if (bulletType === 'wrench') { // construction worker's spinning wrench, thrown in an arc
+            this.width = 14;
+            this.height = 14;
+            this.speed = 4;
+            this.damage = 1;
+            this.vy = -5;
+            this.gravity = 0.18;
+            this.spin = 0;
         } else { // normal soldier bullets
             this.width = 6;
             this.height = 6;
@@ -11122,9 +13425,39 @@ class EnemyBullet {
     
     update() {
         this.x += this.speed * this.direction;
+        if (this.bulletType === 'wrench' || this.bulletType === 'goo') {
+            this.vy += this.gravity;
+            this.y += this.vy;
+            this.spin++;
+            if (this.y > 318) this.landed = true;   // clatters onto the ground
+        }
     }
     
     render(ctx) {
+        if (this.bulletType === 'goo') {
+            // Chunky glowing green blob
+            const x = Math.round(this.x / 2) * 2, y = Math.round(this.y / 2) * 2;
+            ctx.fillStyle = 'rgba(156, 255, 46, 0.35)';
+            ctx.fillRect(x - 3, y - 3, 14, 14);
+            ctx.fillStyle = '#7BE021';
+            ctx.fillRect(x, y, 8, 8);
+            ctx.fillStyle = '#E8FFC2';
+            ctx.fillRect(x + 2, y + 2, 3, 3);
+            return;
+        }
+        if (this.bulletType === 'wrench') {
+            // Blocky wrench that turns a quarter-turn every few frames
+            ctx.save();
+            ctx.translate(Math.round(this.x + 7), Math.round(this.y + 7));
+            ctx.rotate(Math.floor(this.spin / 4) * Math.PI / 2 * this.direction);
+            ctx.fillStyle = '#1C211C';
+            ctx.fillRect(-3, -10, 6, 20); ctx.fillRect(-8, -12, 16, 7); ctx.fillRect(-8, 6, 16, 7);
+            ctx.fillStyle = '#9AA4AE';
+            ctx.fillRect(-1, -8, 3, 16); ctx.fillRect(-6, -10, 4, 3); ctx.fillRect(3, -10, 4, 3);
+            ctx.fillRect(-6, 8, 4, 3); ctx.fillRect(3, 8, 4, 3);
+            ctx.restore();
+            return;
+        }
         if (this.bulletType === 'sniper') {
             // Sniper bullets - bright yellow/orange, very thin and fast-looking
             ctx.fillStyle = '#FFD700';

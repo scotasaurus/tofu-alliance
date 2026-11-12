@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "sidescroller",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8765"],
+      "runtimeExecutable": "ruby",
+      "runtimeArgs": ["-run", "-e", "httpd", "/Users/pierce/Documents/GitHub/tofu-alliance", "-p", "8765"],
       "port": 8765
     }
   ]
