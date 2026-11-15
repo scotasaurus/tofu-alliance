@@ -1877,8 +1877,7 @@ class Game {
             if (this.gameState === 'title') {
                 // Browsers keep the page silent until the first key or click, so on desktop the
                 // first press just turns the sound on and starts the title tune
-                const worldJump = isLocalPlay() && ['1', '2', '3', '4', 't', 'T'].includes(e.key);
-                if (!this.audioUnlocked && !worldJump && !this.isMobileDevice()) {
+                if (!this.audioUnlocked && !this.isMobileDevice()) {
                     this.unlockAudio().then(() => this.startTitleMusic()).catch(() => {});
                     e.preventDefault();
                     return;
@@ -1886,21 +1885,6 @@ class Game {
                 if (e.key === ' ' || e.key === 'Enter') {
                     this.unlockAudio();
                     this.startStory();
-                    e.preventDefault();
-                } else if (isLocalPlay() && ['1', '2', '3', '4'].includes(e.key) && this.levelData[Number(e.key)]) {
-                    // Local testing shortcut: jump straight into a world's first level, skipping the story
-                    this.unlockAudio();
-                    this.stopTitleMusic();
-                    this.currentWorld = Number(e.key);
-                    this.startGame();
-                    e.preventDefault();
-                } else if (isLocalPlay() && (e.key === 't' || e.key === 'T')) {
-                    // Local testing shortcut: jump straight to the World 3 -> 4 train escape scene
-                    this.unlockAudio();
-                    this.stopTitleMusic();
-                    this.currentWorld = 4;
-                    this.startGame();
-                    this.startTrainIntro();
                     e.preventDefault();
                 } else if (e.key === 't' || e.key === 'T') {
                     // Test sound (for debugging)
@@ -5762,14 +5746,6 @@ class Game {
                     this.ctx.fillText(hint, this.canvas.width / 2, 152);
                     this.ctx.restore();
                 }
-            }
-            
-            // World-jump shortcut hint (local play only), in the corner clear of the high scores box
-            if (isLocalPlay()) {
-                this.ctx.fillStyle = '#FFFF00';
-                this.ctx.font = 'bold 12px Arial';
-                this.ctx.textAlign = 'left';
-                this.ctx.fillText('Press 1-4 to jump to a world | T for the train scene', 12, this.canvas.height - 10);
             }
         }
         this.ctx.restore();
